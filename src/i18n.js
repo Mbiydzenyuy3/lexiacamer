@@ -6,7 +6,7 @@
 const i18n = {
   en: {
     // App
-    appName: "Lexia",
+    appName: "LexiaCamer",
     appTagline: "Read. Spell. Shine!",
     appSubtitle: "Helping Cameroon's children master reading,\none sound at a time.",
     offline: "You're offline — no worries, Lexia still works!",
@@ -74,7 +74,7 @@ const i18n = {
 
   fr: {
     // App
-    appName: "Lexia",
+    appName: "LexiaCamer",
     appTagline: "Lis. Épelle. Brille !",
     appSubtitle: "Aider les enfants du Cameroun à maîtriser la lecture,\nun son à la fois.",
     offline: "Vous êtes hors ligne — pas de souci, Lexia fonctionne toujours !",

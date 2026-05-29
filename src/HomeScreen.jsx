@@ -16,9 +16,6 @@ export default function HomeScreen({ t, lang, onNavigate, stats }) {
     <div className="screen">
       {/* Hero */}
       <div className="hero animate-fade-in">
-        <div className="hero-emoji">
-          <BookOpen size={48} className="text-white opacity-90" strokeWidth={1.5} />
-        </div>
         <h1 className="hero-title">{t.heroGreeting}</h1>
         <p className="hero-subtitle">{t.appSubtitle}</p>
       </div>
