@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import { BookOpen, Flame, Star, Type, ChevronRight, Hammer, Lightbulb } from 'lucide-react';
 
 /**
  * HomeScreen — Landing / Dashboard
@@ -15,7 +16,9 @@ export default function HomeScreen({ t, lang, onNavigate, stats }) {
     <div className="screen">
       {/* Hero */}
       <div className="hero animate-fade-in">
-        <div className="hero-emoji">📖</div>
+        <div className="hero-emoji">
+          <BookOpen size={48} className="text-white opacity-90" strokeWidth={1.5} />
+        </div>
         <h1 className="hero-title">{t.heroGreeting}</h1>
         <p className="hero-subtitle">{t.appSubtitle}</p>
       </div>
@@ -28,14 +31,14 @@ export default function HomeScreen({ t, lang, onNavigate, stats }) {
             <div className="stat-label">{t.statsWords}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-value" style={{ color: 'var(--amber-500)' }}>
-              {stats.streak > 0 ? '🔥' : ''} {stats.streak}
+            <div className="stat-value" style={{ color: 'var(--amber-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+              {stats.streak > 0 ? <Flame size={24} /> : ''} {stats.streak}
             </div>
             <div className="stat-label">{t.statsStreak}</div>
           </div>
           <div className="stat-card">
-            <div className="stat-value" style={{ color: 'var(--indigo-500)' }}>
-              ⭐ {stats.stars}
+            <div className="stat-value" style={{ color: 'var(--indigo-500)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '4px' }}>
+              <Star size={24} /> {stats.stars}
             </div>
             <div className="stat-label">{t.statsStars}</div>
           </div>
@@ -51,13 +54,13 @@ export default function HomeScreen({ t, lang, onNavigate, stats }) {
             tabIndex={0}
           >
             <div className="module-icon" style={{ background: 'var(--green-100)', color: 'var(--green-700)' }}>
-              🔤
+              <Type size={32} strokeWidth={2.5} />
             </div>
             <div className="module-info">
               <div className="module-title">{t.modulePhonicTitle}</div>
               <div className="module-desc">{t.modulePhonicDesc}</div>
             </div>
-            <span className="module-arrow">›</span>
+            <span className="module-arrow"><ChevronRight size={24} /></span>
           </div>
 
           <div
@@ -68,19 +71,19 @@ export default function HomeScreen({ t, lang, onNavigate, stats }) {
             tabIndex={0}
           >
             <div className="module-icon" style={{ background: 'var(--amber-100)', color: '#92400e' }}>
-              🔨
+              <Hammer size={32} strokeWidth={2.5} />
             </div>
             <div className="module-info">
               <div className="module-title">{t.moduleForgeTitle}</div>
               <div className="module-desc">{t.moduleForgeDesc}</div>
             </div>
-            <span className="module-arrow">›</span>
+            <span className="module-arrow"><ChevronRight size={24} /></span>
           </div>
         </div>
 
         {/* Daily Tip */}
         <div className="hint-box animate-fade-in-delay-2">
-          <span className="hint-icon">💡</span>
+          <span className="hint-icon"><Lightbulb size={24} /></span>
           <div>
             <strong style={{ display: 'block', marginBottom: '0.2rem' }}>{t.dailyTip}</strong>
             {todayTip}

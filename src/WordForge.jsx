@@ -1,7 +1,10 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { wordData } from './i18n';
+import { Trophy, Star, Flame, Volume2, Lightbulb, SkipForward, RotateCcw, HelpCircle, Leaf, Soup, Package, ChefHat, Beef, Circle, Fish, ConciergeBell, Wheat, Carrot, User, Crown, UserCheck, UserSquare, Heart, Smile, Building2, Tent, Trees, Mountain, Waves, Home, MapPin, TreePine, CloudRain, Sun, Bird, Droplets } from 'lucide-react';
 import speechEngine from './speech';
 import Confetti from './Confetti';
+
+const iconMap = { Leaf, Soup, Package, ChefHat, Beef, Circle, Fish, ConciergeBell, Wheat, Carrot, User, Crown, UserCheck, UserSquare, Star, Heart, Smile, Building2, Tent, Trees, Mountain, Waves, Home, MapPin, TreePine, CloudRain, Sun, Bird, Flame, Droplets };
 
 /**
  * WordForge — Spelling Builder
@@ -159,17 +162,19 @@ export default function WordForge({ t, lang }) {
     return (
       <div className="screen">
         <div className="screen-body" style={{ textAlign: 'center', paddingTop: '3rem' }}>
-          <div style={{ fontSize: '4rem', marginBottom: '1rem' }}>🏆</div>
+          <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1rem' }}>
+            <Trophy size={72} className="text-amber-500" strokeWidth={1.5} />
+          </div>
           <h2>{t.celebTitle}</h2>
           <p className="text-secondary" style={{ margin: '0.5rem 0 1.5rem' }}>
             {t.forgeComplete}
           </p>
           <div className="score-display" style={{ justifyContent: 'center', margin: '0 auto 1.5rem', width: 'fit-content' }}>
-            <span>⭐</span>
+            <Star size={18} className="text-amber-500" />
             <span>{t.forgeScore}: {score}/{words.length}</span>
           </div>
-          <button className="btn btn-primary btn-lg" onClick={handlePlayAgain} id="forge-play-again">
-            🔄 {t.forgePlayAgain}
+          <button className="btn btn-primary btn-lg" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }} onClick={handlePlayAgain} id="forge-play-again">
+            <RotateCcw size={20} /> {t.forgePlayAgain}
           </button>
         </div>
       </div>
@@ -190,8 +195,8 @@ export default function WordForge({ t, lang }) {
             <p className="text-sm text-muted">{t.forgeSubtitle}</p>
           </div>
           <div className="score-display">
-            {streak >= 3 && <span className="streak-fire">🔥</span>}
-            <span>⭐ {score}</span>
+            {streak >= 3 && <Flame size={20} className="streak-fire text-amber-500" />}
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Star size={16} className="text-amber-500" /> {score}</span>
           </div>
         </div>
       </div>
@@ -213,16 +218,21 @@ export default function WordForge({ t, lang }) {
 
         {/* Word Prompt Card */}
         <div className="word-prompt-card animate-fade-in" key={currentWord.word}>
-          <div className="word-prompt-emoji">{currentWord.emoji}</div>
+          <div className="word-prompt-emoji" style={{ display: 'flex', justifyContent: 'center', paddingTop: '1rem', paddingBottom: '0.5rem' }}>
+            {(() => {
+              const Icon = iconMap[currentWord.icon] || HelpCircle;
+              return <Icon size={80} className="text-primary" strokeWidth={1.5} />;
+            })()}
+          </div>
 
           {/* Speak button */}
           <button
             className="btn btn-sm btn-outline"
             onClick={handleSpeakWord}
-            style={{ margin: '0 auto 0.75rem', display: 'flex' }}
+            style={{ margin: '0 auto 0.75rem', display: 'flex', alignItems: 'center', gap: '6px' }}
             id="forge-speak-btn"
           >
-            🔊 {t.speakBtn}
+            <Volume2 size={16} /> {t.speakBtn}
           </button>
 
           {/* Letter Slots */}
@@ -244,8 +254,8 @@ export default function WordForge({ t, lang }) {
 
           {/* Hint */}
           {hintVisible && (
-            <p className="word-prompt-hint animate-fade-in">
-              💡 {currentWord.hint[lang]}
+            <p className="word-prompt-hint animate-fade-in" style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '6px' }}>
+              <Lightbulb size={20} className="text-amber-500" /> {currentWord.hint[lang]}
             </p>
           )}
         </div>
@@ -287,18 +297,20 @@ export default function WordForge({ t, lang }) {
             <>
               <button
                 className="btn btn-ghost btn-sm"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 onClick={() => setHintVisible(true)}
                 disabled={hintVisible}
                 id="forge-hint-btn"
               >
-                💡 {t.forgeHint}
+                <Lightbulb size={18} /> {t.forgeHint}
               </button>
               <button
                 className="btn btn-ghost btn-sm"
+                style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
                 onClick={handleSkip}
                 id="forge-skip-btn"
               >
-                ⏭️ {t.forgeSkip}
+                <SkipForward size={18} /> {t.forgeSkip}
               </button>
             </>
           )}
@@ -317,7 +329,7 @@ export default function WordForge({ t, lang }) {
         <div style={{ marginTop: '1.5rem' }}>
           <div className="flex justify-between text-xs text-muted" style={{ marginBottom: '0.3rem' }}>
             <span>{wordIndex + 1} / {words.length}</span>
-            {streak >= 2 && <span>🔥 {streak} {t.forgeStreak}</span>}
+            {streak >= 2 && <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}><Flame size={14} className="text-amber-500" /> {streak} {t.forgeStreak}</span>}
           </div>
           <div className="progress-bar">
             <div

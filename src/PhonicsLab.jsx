@@ -1,4 +1,5 @@
 import React, { useState, useCallback, useMemo } from 'react';
+import { Lightbulb } from 'lucide-react';
 import { phonicsData } from './i18n';
 import speechEngine from './speech';
 
@@ -72,7 +73,7 @@ export default function PhonicsLab({ t, lang }) {
 
         {/* Tip Box */}
         <div className="hint-box" style={{ marginTop: '1.5rem' }}>
-          <span className="hint-icon">💡</span>
+          <span className="hint-icon"><Lightbulb size={24} /></span>
           <span>{t.phonicsTip}</span>
         </div>
       </div>

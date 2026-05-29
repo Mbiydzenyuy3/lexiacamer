@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { Home, Type, Hammer, BookOpen, WifiOff } from 'lucide-react';
 import i18n from './i18n';
 import HomeScreen from './HomeScreen';
 import PhonicsLab from './PhonicsLab';
@@ -75,7 +76,7 @@ export default function App() {
       {/* Top Bar */}
       <header className="top-bar">
         <div className="top-bar-title">
-          <span>📖</span>
+          <BookOpen className="text-primary" size={24} />
           <span>{t.appName}</span>
         </div>
 
@@ -103,7 +104,7 @@ export default function App() {
       {/* Offline Banner */}
       {isOffline && (
         <div className="offline-banner" role="alert">
-          <span>📶</span>
+          <WifiOff size={18} />
           <span>{t.offline}</span>
         </div>
       )}
@@ -120,7 +121,7 @@ export default function App() {
           onClick={() => handleNavigate('home')}
           id="nav-home"
         >
-          <div className="nav-icon-bg">🏠</div>
+          <div className="nav-icon-bg"><Home size={22} /></div>
           <span>{t.navHome}</span>
         </button>
         <button
@@ -128,7 +129,7 @@ export default function App() {
           onClick={() => handleNavigate('phonics')}
           id="nav-phonics"
         >
-          <div className="nav-icon-bg">🔤</div>
+          <div className="nav-icon-bg"><Type size={22} /></div>
           <span>{t.navPhonics}</span>
         </button>
         <button
@@ -136,7 +137,7 @@ export default function App() {
           onClick={() => handleNavigate('forge')}
           id="nav-forge"
         >
-          <div className="nav-icon-bg">🔨</div>
+          <div className="nav-icon-bg"><Hammer size={22} /></div>
           <span>{t.navSpelling}</span>
         </button>
       </nav>
