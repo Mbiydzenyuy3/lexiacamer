@@ -76,7 +76,7 @@ export default function App() {
       {/* Top Bar */}
       <header className="top-bar">
         <div className="top-bar-title">
-          <BookOpen className="text-primary" size={24} />
+          <img src="/pwa-192x192.png" alt="LexiaCamer Logo" style={{ width: 48, height: 48, borderRadius: '6px' }} />
           <span>{t.appName}</span>
         </div>
 
