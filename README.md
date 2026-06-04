@@ -6,16 +6,16 @@
 
 ---
 
-## 🎯 The Problem and Solution
+##  The Problem and Solution
 
-### ⚠️ The Problem: Learning Poverty
+###  The Problem: Learning Poverty
 Many primary-school children in Cameroon face high rates of "Learning Poverty," which is defined as being unable to read and understand a simple text by age 10. Several factors contribute to this:
 1. **Connectivity Issues:** Unstable or non-existent internet in rural areas and conflict zones limits access to remote learning tools.
 2. **Lack of Localized Content:** Most educational software uses Western examples (Apple, Snowflake) that students can't relate to, decreasing engagement.
 3. **Hardware Constraints:** Expensive devices restrict app accessibility. Educational initiatives require solutions that work flawlessly on low-end, battery-constrained Android devices.
 4. **Bilingual Education Gap:** Cameroon is officially bilingual, and children often struggle to bridge the gap between English and French phonics.
 
-### 💡 The Solution: Lexia Cameroon
+###  The Solution: Lexia Cameroon
 Lexia bridges this educational gap by offering an interactive phonics ecosystem tailored specifically to Cameroonian context:
 - **Offline-First Delivery:** By implementing a Progressive Web App (PWA) architecture, Lexia only needs to be loaded once. Afterward, the interactive modules and text-to-speech functionality work perfectly entirely disconnected from the web, surviving network outages.
 - **Culturally Relevant Context:** All learning materials are built around Cameroonian cities (Douala, Yaoundé), foods (Ndolé, Koki, Achu), and names (Abena, Fon), creating immediate relevance and cultural resonance.
@@ -116,5 +116,4 @@ We welcome and encourage educational modules, translations, and UI contributions
 - **Design Enhancements:** Smooth SVG implementations, or better responsive scaling for `300px` Android screens.
 - **A11Y (Accessibility):** Enhancements on ARIA labels, contrast ratio, and screen-readable prompts.
 
----
-*Built to empower the next generation of Cameroonian readers! ❤️💚💛*
+

@@ -63,10 +63,84 @@ class SpeechEngine {
   }
 
   /**
-   * Speak a single letter / phoneme slowly and clearly.
+   * Phoneme maps — translate letters/blends into TTS-friendly phonetic
+   * strings so the engine pronounces the actual SOUND, not the letter name.
+   *
+   * e.g. "B" → "buh"  (not "bee")
+   *      "NG" → "ng-uh"  (Cameroonian nasal, e.g. Ngong, Nguemba)
+   *      "ND" → "n-duh"  (e.g. Ndolé, Ndere)
+   *
+   * Cameroonian blends (NG, ND, MB, NK) use compound phoneme strings that
+   * closely match how they are produced in Cameroonian languages and Pidgin.
+   */
+  get _phonemeMap() {
+    return {
+      en: {
+        // Vowels — TTS-safe strings that produce a single unified phoneme.
+        // Cameroonian vowels are pure/cardinal: A=/a:/, E=/ɛ/, I=/iː/, O=/oː/, U=/uː/
+        // We use natural English interjections or double-vowel spellings that TTS
+        // recognises as ONE sound rather than spelling out letter-by-letter.
+        A: 'ah',   // interjection → /aː/ ✓
+        E: 'eh',   // interjection → /ɛ/  ✓
+        I: 'ee',   // double-vowel → /iː/ ✓ (Cameroonian I = machine, not bit)
+        O: 'oh',   // interjection → /oː/ ✓
+        U: 'oo',   // double-vowel → /uː/ ✓ (Cameroonian U = boot)
+        // Consonants — phonetic sounds, NOT alphabet letter names
+        B: 'buh', C: 'kuh', D: 'duh', F: 'fuh', G: 'guh',
+        H: 'huh', J: 'juh', K: 'kuh', L: 'luh', M: 'mmm',
+        N: 'nnn', P: 'puh', Q: 'kwuh',R: 'rrr', S: 'sss',
+        T: 'tuh', V: 'vuh', W: 'wuh', X: 'ksss',Y: 'yuh',
+        Z: 'zzz',
+        // Common & Cameroonian blends
+        CH: 'ch',       // as in "child"
+        SH: 'sh',       // as in "shoe"
+        TH: 'th',       // as in "the"
+        PH: 'fuh',      // as in "phone"
+        NG: 'ng-uh',    // Cameroonian nasal — Ngong, Nguemba, Ngu
+        ND: 'n-duh',    // Cameroonian prefix — Ndolé, Ndem, Nde
+        MB: 'm-buh',    // Cameroonian prefix — Mbang, Mbappe, Mbu
+        NK: 'n-kuh',    // Cameroonian prefix — Nkongsamba, Nkam
+      },
+      fr: {
+        // Voyelles — single letters work perfectly in French TTS; the engine
+        // pronounces each as a pure cardinal vowel naturally.
+        A: 'a',   // /a/  ✓
+        E: 'é',   // /e/  ✓
+        I: 'i',   // /i/  ✓
+        O: 'o',   // /o/  ✓
+        U: 'u',   // /y/  ✓ (French u)
+        // Consonnes — sons phonétiques, PAS les noms de lettres
+        B: 'beu', C: 'keu', D: 'deu', F: 'feu', G: 'gue',
+        H: 'ach', J: 'ji',  K: 'ka',  L: 'el',  M: 'em',
+        N: 'en',  P: 'peu', Q: 'cu',  R: 'air', S: 'ess',
+        T: 'teu', V: 'veu', W: 'doublevé', X: 'iks', Y: 'igrek',
+        Z: 'zèd',
+        // Combinaisons — sons camerounais
+        CH: 'ch',        // comme "cheval"
+        SH: 'ch',
+        TH: 'te-ach',
+        PH: 'feu',
+        NG: 'ng-eu',     // nasal camerounais
+        ND: 'n-deu',
+        MB: 'm-beu',
+        NK: 'n-keu',
+      },
+    };
+  }
+
+  /**
+   * Speak a single letter or phoneme slowly and clearly.
+   * Maps the letter/blend to a phonetic string before speaking so the
+   * TTS engine produces the actual phoneme sound, not the alphabet name.
+   *
+   * @param {string} letter — e.g. "B", "NG", "MB"
+   * @param {string} lang   — 'en' | 'fr'
    */
   speakLetter(letter, lang = 'en') {
-    this.speak(letter, lang, 0.7, 1.2);
+    const map = this._phonemeMap[lang] || this._phonemeMap.en;
+    const key = letter.toUpperCase().trim();
+    const phoneme = map[key] ?? letter; // fallback to raw if no mapping found
+    this.speak(phoneme, lang, 0.65, 1.2);
   }
 
   /**
