@@ -31,23 +31,15 @@ class SpeechEngine {
     const candidates = this.voices.filter(v =>
       v.lang.startsWith(langCode)
     );
-
-    // Prefer local (offline-capable) voices
     const local = candidates.find(v => v.localService);
     return local || candidates[0] || null;
   }
 
   /**
    * Speak a string aloud.
-   * @param {string} text — the text to speak
-   * @param {string} lang — 'en' or 'fr'
-   * @param {number} rate — playback speed (0.5 – 2.0)
-   * @param {number} pitch — voice pitch (0 – 2)
    */
   speak(text, lang = 'en', rate = 0.9, pitch = 1.1) {
     if (!this.synth) return;
-
-    // Cancel any current speech
     this.synth.cancel();
 
     const utterance = new SpeechSynthesisUtterance(text);
@@ -63,10 +55,142 @@ class SpeechEngine {
   }
 
   /**
-   * Speak a single letter / phoneme slowly and clearly.
+   * Phoneme map — converts a letter / sound key into a TTS-safe string
+   * that the browser engine will pronounce as a SINGLE unified sound.
+   *
+   * Design rules used:
+   *  1. Vowels: use natural English interjections ("ah","eh","oh") or
+   *     double-vowel spellings ("ee","oo") that TTS reads as one phoneme.
+   *  2. Consonants: consonant + schwa CV syllable ("buh","kuh") — browsers
+   *     read these as one syllable because they match English syllable patterns.
+   *     Sonorants & fricatives use repeated letters ("mmm","sss","zzz").
+   *  3. Common blends: phonetic syllable form ("chuh","shh","thuh").
+   *  4. Cameroonian prenasalized blends (NG/ND/MB/NK): word-initial /ŋ/,
+   *     prenasalized /nd/, /mb/, /ŋk/ do NOT exist in English or French,
+   *     so no abstract string can produce them reliably. Instead PhonicsLab
+   *     passes the example word directly (e.g. "Ngong", "Ndolé") and this
+   *     map's fallback speaks it as a whole word at slow rate — which is
+   *     exactly how phonics teachers introduce such sounds in context.
+   *  5. NO HYPHENS — hyphens tell TTS to split into separate sounds.
+   */
+  get _phonemeMap() {
+    return {
+      en: {
+        // ── Vowels ────────────────────────────────────────────────────────
+        // Cameroonian vowels are pure cardinal vowels. We need TTS strings
+        // that produce ONE phoneme, not two letters.
+        A: 'ah',   // interjection   → /aː/  (as in "father")
+        E: 'eh',   // interjection   → /ɛ/   (as in "bed")
+        I: 'ee',   // double-vowel   → /iː/  (Cameroonian I = "machine", not "bit")
+        O: 'oh',   // interjection   → /oː/  (as in "go")
+        U: 'oo',   // double-vowel   → /uː/  (Cameroonian U = "boot")
+
+        // ── Single consonants ─────────────────────────────────────────────
+        // CV syllable (consonant + schwa). No hyphens. TTS reads as one unit.
+        B: 'buh',   // stop  /b/
+        C: 'kuh',   // stop  /k/  (hard C as in "Cameroon")
+        D: 'duh',   // stop  /d/  (also a known English interjection)
+        F: 'fuh',   // frica /f/
+        G: 'guh',   // stop  /ɡ/  (hard G as in "Garoua")
+        H: 'huh',   // aspir /h/  (also a known English interjection)
+        J: 'juh',   // affri /dʒ/
+        K: 'kuh',   // stop  /k/
+        L: 'luh',   // lat   /l/
+        M: 'mmm',   // nasal /m/  — hum; TTS reads repeated M as nasal hold
+        N: 'nnn',   // nasal /n/  — hum; TTS reads repeated N as nasal hold
+        P: 'puh',   // stop  /p/
+        Q: 'kwuh',  // /kw/  cluster
+        R: 'rrr',   // rhoti /r/  — pirate sound; TTS holds the rhotic
+        S: 'sss',   // frica /s/  — snake sound; TTS holds the fricative
+        T: 'tuh',   // stop  /t/
+        V: 'vuh',   // frica /v/
+        W: 'wuh',   // glide /w/
+        X: 'ksss',  // /ks/  — TTS reads as one hissing cluster
+        Y: 'yuh',   // glide /j/
+        Z: 'zzz',   // frica /z/  — buzzing sound; TTS holds fricative
+
+        // ── Common digraphs & blends ──────────────────────────────────────
+        // Each produces ONE syllable/phoneme, no hyphens.
+        CH: 'chuh',  // /tʃ/ add schwa so TTS reads as one syllable (Achu, Bamunka)
+        SH: 'shh',   // /ʃ/  the "silence" interjection — TTS knows this as one sound
+        TH: 'thuh',  // /θ/  unvoiced dental fricative + schwa (as in "thin")
+        PH: 'fuh',   // /f/  PH = F sound
+
+        // ── Cameroonian prenasalized blends ───────────────────────────────
+        // /ŋ/, /nd/, /mb/, /ŋk/ word-initially do NOT exist in English.
+        // PhonicsLab passes the full example word (e.g. "Ngong") for these
+        // tiles, so the keys below are used only when WordForge spells words
+        // containing these clusters letter by letter.
+        NG: 'ngoh',  // closest single-syllable approximation for /ŋ/
+        ND: 'ndoh',  // /nd/ onset approximation
+        MB: 'mboh',  // /mb/ onset approximation
+        NK: 'nkoh',  // /ŋk/ onset approximation
+      },
+
+      fr: {
+        // ── Voyelles ──────────────────────────────────────────────────────
+        // French TTS pronounces bare single vowel letters as pure cardinal
+        // vowels — exactly what Cameroonian French phonics needs.
+        A: 'a',    // /a/
+        E: 'é',    // /e/
+        I: 'i',    // /i/
+        O: 'o',    // /o/
+        U: 'u',    // /y/  (French rounded front vowel)
+
+        // ── Consonnes ─────────────────────────────────────────────────────
+        // Consonne + schwa en français. Pas de tirets.
+        B: 'beu',   // /b/
+        C: 'keu',   // /k/  (C dur)
+        D: 'deu',   // /d/
+        F: 'feu',   // /f/  — "feu" est un mot français, TTS le prononce /fø/ ✓
+        G: 'gue',   // /ɡ/  — "gue" muet, TTS produit /ɡ/ ✓
+        H: 'ach',   // H est muet en français — son d'aspiration
+        J: 'jeu',   // /ʒ/  — "jeu" est un mot français, TTS produit /ʒø/ ✓
+        K: 'ka',    // /k/  — syllabe simple
+        L: 'el',    // /l/  — nom de la lettre en français ✓
+        M: 'em',    // /m/  — nom de la lettre en français ✓
+        N: 'neu',   // /n/  — "neu" (et NON "en" qui est une voyelle nasale /ɑ̃/)
+        P: 'peu',   // /p/  — "peu" est un mot français
+        Q: 'cu',    // /k/
+        R: 'air',   // /ʁ/  — "air" en français prononce le R uvulaire /ʁ/ ✓
+        S: 'ess',   // /s/
+        T: 'teu',   // /t/
+        V: 'veu',   // /v/
+        W: 'oua',   // /w/  — son de W dans "oui", "week" en français
+        X: 'iks',   // /ks/ — nom de la lettre ✓
+        Y: 'igrek', // /i/  — "i grec", nom officiel en français
+        Z: 'zèd',   // /z/  — nom de la lettre ✓
+
+        // ── Combinaisons ─────────────────────────────────────────────────
+        CH: 'cheu',    // /ʃ/ comme "cheval" — une seule syllabe
+        SH: 'cheu',    // /ʃ/ même son en contexte camerounais
+        TH: 'teuach',  // /t/ + /ʃ/ — sans tiret pour rester une unité
+        PH: 'feu',     // /f/ — PH fait le son F
+
+        // Consonnes prénasalisées camerounaises — même logique qu'en anglais
+        NG: 'ngoh',
+        ND: 'ndoh',
+        MB: 'mboh',
+        NK: 'nkoh',
+      },
+    };
+  }
+
+  /**
+   * Speak a single letter or phoneme slowly and clearly.
+   *
+   * PhonicsLab passes item.sound (e.g. "ch", "sh", "Ngong", "Ndolé").
+   * WordForge passes the raw letter character (e.g. "B", "A").
+   *
+   * The lookup converts the key to uppercase and finds the phoneme map entry.
+   * If no entry exists (e.g. "NGONG"), the raw string is spoken — which is
+   * exactly right for the Cameroonian blend example words.
    */
   speakLetter(letter, lang = 'en') {
-    this.speak(letter, lang, 0.7, 1.2);
+    const map = this._phonemeMap[lang] || this._phonemeMap.en;
+    const key = letter.toUpperCase().trim();
+    const phoneme = map[key] ?? letter;
+    this.speak(phoneme, lang, 0.65, 1.2);
   }
 
   /**

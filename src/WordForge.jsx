@@ -133,6 +133,19 @@ export default function WordForge({ t, lang }) {
     handleNext();
   }, [handleNext]);
 
+  const handleUndo = useCallback(() => {
+    if (result || selected.length === 0) return;
+    // Remove the last placed letter and free its tile
+    setSelected(prev => prev.slice(0, -1));
+    setUsedKeys(prev => prev.slice(0, -1));
+  }, [result, selected.length]);
+
+  const handleClearAll = useCallback(() => {
+    if (result) return;
+    setSelected([]);
+    setUsedKeys([]);
+  }, [result]);
+
   const handlePlayAgain = useCallback(() => {
     setWordIndex(0);
     setScore(0);
@@ -239,13 +252,34 @@ export default function WordForge({ t, lang }) {
           <div className="flex gap-sm justify-center" style={{ marginBottom: '1rem', flexWrap: 'wrap' }}>
             {targetWord.split('').map((letter, i) => {
               let slotClass = 'letter-slot';
-              if (selected[i]) {
+              const isFilled = !!selected[i];
+              if (isFilled) {
                 slotClass += ' filled';
                 if (result === 'correct') slotClass += ' correct';
                 if (result === 'wrong') slotClass += ' wrong';
               }
               return (
-                <div key={i} className={slotClass}>
+                <div
+                  key={i}
+                  className={slotClass}
+                  role={isFilled && !result ? 'button' : undefined}
+                  tabIndex={isFilled && !result ? 0 : undefined}
+                  aria-label={isFilled && !result ? `Remove letter ${selected[i]}` : undefined}
+                  style={isFilled && !result ? { cursor: 'pointer' } : {}}
+                  onClick={() => {
+                    // Clicking a filled slot undoes from the end if it's the last slot
+                    if (!isFilled || result) return;
+                    // Only allow removing the last filled slot (most recent)
+                    const lastFilledIndex = selected.length - 1;
+                    if (i === lastFilledIndex) handleUndo();
+                  }}
+                  onKeyDown={(e) => {
+                    if ((e.key === 'Enter' || e.key === 'Backspace') && isFilled && !result) {
+                      const lastFilledIndex = selected.length - 1;
+                      if (i === lastFilledIndex) handleUndo();
+                    }
+                  }}
+                >
                   {selected[i] || ''}
                 </div>
               );
@@ -292,9 +326,20 @@ export default function WordForge({ t, lang }) {
         ) : null}
 
         {/* Action Buttons */}
-        <div className="flex gap-sm justify-center" style={{ marginTop: '1.5rem' }}>
+        <div className="flex gap-sm justify-center" style={{ marginTop: '1.5rem', flexWrap: 'wrap' }}>
           {!result && (
             <>
+              {selected.length > 0 && (
+                <button
+                  className="btn btn-ghost btn-sm"
+                  style={{ display: 'inline-flex', alignItems: 'center', gap: '6px', color: 'var(--rose-600)' }}
+                  onClick={handleUndo}
+                  id="forge-undo-btn"
+                  title="Remove last letter"
+                >
+                  ← {t.forgeUndo}
+                </button>
+              )}
               <button
                 className="btn btn-ghost btn-sm"
                 style={{ display: 'inline-flex', alignItems: 'center', gap: '6px' }}
