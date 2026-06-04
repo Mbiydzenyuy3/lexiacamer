@@ -173,15 +173,19 @@ export const phonicsData = [
   { letter: "Y", sound: "y", example: "Yaoundé", category: "consonants", color: "tile-amber" },
   { letter: "Z", sound: "z", example: "Zoa", category: "consonants", color: "tile-amber" },
 
-  // Blends
-  { letter: "CH", sound: "ch", example: "Achu", category: "blends", color: "tile-indigo" },
-  { letter: "SH", sound: "sh", example: "Shey", category: "blends", color: "tile-indigo" },
-  { letter: "TH", sound: "th", example: "Thandani", category: "blends", color: "tile-indigo" },
-  { letter: "PH", sound: "fuh", example: "Philip", category: "blends", color: "tile-indigo" },
-  { letter: "NG", sound: "nguh", example: "Ngong", category: "blends", color: "tile-rose" },
-  { letter: "ND", sound: "nduh", example: "Ndolé", category: "blends", color: "tile-rose" },
-  { letter: "MB", sound: "mbuh", example: "Mbang", category: "blends", color: "tile-rose" },
-  { letter: "NK", sound: "nkuh", example: "Nkongsamba", category: "blends", color: "tile-rose" },
+  // Blends — sound field must match a phoneme map key OR be a word the TTS can speak directly.
+  // CH/SH/TH/PH: keys exist in the phoneme map → map converts to clean single-syllable phoneme.
+  // NG/ND/MB/NK: prenasalised stops don't exist word-initially in English/French TTS;
+  //              pass the example word → TTS speaks the whole word slowly at rate 0.65,
+  //              which is how phonics teachers introduce these blends in context.
+  { letter: "CH", sound: "ch",    example: "Achu",         category: "blends", color: "tile-indigo" },
+  { letter: "SH", sound: "sh",    example: "Shey",         category: "blends", color: "tile-indigo" },
+  { letter: "TH", sound: "th",    example: "Thandani",     category: "blends", color: "tile-indigo" },
+  { letter: "PH", sound: "ph",    example: "Philip",       category: "blends", color: "tile-indigo" },
+  { letter: "NG", sound: "Ngong",        example: "Ngong",         category: "blends", color: "tile-rose" },
+  { letter: "ND", sound: "Ndolé",        example: "Ndolé",         category: "blends", color: "tile-rose" },
+  { letter: "MB", sound: "Mbang",        example: "Mbang",         category: "blends", color: "tile-rose" },
+  { letter: "NK", sound: "Nkam",         example: "Nkongsamba",    category: "blends", color: "tile-rose" },
 ];
 
 /** Word Forge vocabulary — Cameroonian context */
