@@ -125,8 +125,6 @@ html {
 body {
   font-family: 'Outfit', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
   background-color: var(--bg-body);
-  background-image: radial-gradient(rgba(0,0,0,0.06) 1px, transparent 1px);
-  background-size: 24px 24px;
   color: var(--text-primary);
   line-height: 1.6;
   overflow-x: hidden;
@@ -153,11 +151,6 @@ body.dyslexia-mode h3 {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
-  max-width: 600px;
-  margin: 0 auto;
-  background: var(--bg-card);
-  box-shadow: var(--shadow-xl);
-  position: relative;
 }
 
 img, svg {
@@ -422,10 +415,8 @@ p  { font-size: 1rem; line-height: 1.6; }
   font-weight: 600;
   position: fixed;
   bottom: var(--bottom-nav-height);
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 600px;
+  left: 0;
+  right: 0;
   z-index: var(--z-toast);
   display: flex;
   align-items: center;
@@ -438,10 +429,8 @@ p  { font-size: 1rem; line-height: 1.6; }
 .bottom-nav {
   position: fixed;
   bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 100%;
-  max-width: 600px;
+  left: 0;
+  right: 0;
   z-index: var(--z-sticky);
   background: var(--bg-elevated);
   backdrop-filter: blur(16px);

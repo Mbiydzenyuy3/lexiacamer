@@ -25,22 +25,23 @@ export default function Onboarding({ t, onComplete }) {
   };
 
   return (
-    <div className="screen flex-col items-center justify-center" style={{ minHeight: '100vh', padding: '2rem' }}>
+    <div className="screen flex items-center justify-center" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       {step === 3 && <Confetti active={true} />}
       
-      <div className="card w-full animate-fade-in" style={{ maxWidth: '400px', textAlign: 'center' }}>
+      <div className="card w-full animate-fade-in" style={{ maxWidth: '480px', margin: 'auto', textAlign: 'center', padding: '3rem 2rem', boxShadow: 'var(--shadow-xl)' }}>
         
         {step === 1 && (
           <div className="animate-fade-in">
-            <User size={64} className="text-primary mx-auto mb-4" />
-            <h2 className="mb-2">What is your name?</h2>
-            <p className="text-muted text-sm mb-4">Let's get you set up!</p>
+            <User size={80} className="text-primary mx-auto mb-6" />
+            <h2 className="mb-2 text-2xl">What is your name?</h2>
+            <p className="text-muted text-lg mb-8">Let's get you set up!</p>
+            
             <input 
               type="text" 
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
-              className="w-full p-4 mb-6 transition-all"
+              className="w-full p-4 mb-8 transition-all"
               style={{ 
                 fontSize: '1.25rem', 
                 borderRadius: 'var(--radius-xl)', 
@@ -61,8 +62,10 @@ export default function Onboarding({ t, onComplete }) {
               onKeyDown={(e) => e.key === 'Enter' && handleNext()}
               autoFocus
             />
+            
             <button 
-              className="btn btn-primary w-full btn-lg"
+              className="btn btn-primary w-full btn-lg mt-2 mb-2"
+              style={{ padding: '1.25rem' }}
               onClick={handleNext}
               disabled={!name.trim()}
             >
@@ -73,10 +76,10 @@ export default function Onboarding({ t, onComplete }) {
 
         {step === 2 && (
           <div className="animate-fade-in">
-            <h2 className="mb-2">Choose your Avatar</h2>
-            <p className="text-muted text-sm mb-6">Who will be your learning buddy?</p>
+            <h2 className="mb-2 text-2xl">Choose your Avatar</h2>
+            <p className="text-muted text-lg mb-8">Who will be your learning buddy?</p>
             
-            <div className="flex flex-wrap justify-center gap-md mb-8">
+            <div className="flex flex-wrap justify-center gap-lg mb-10">
               {avatars.map((a) => {
                 const Icon = a.icon;
                 const isSelected = avatar === a.id;
@@ -86,8 +89,8 @@ export default function Onboarding({ t, onComplete }) {
                     className="flex flex-col items-center justify-center gap-sm"
                     onClick={() => setAvatar(a.id)}
                     style={{
-                      width: '100px',
-                      height: '110px',
+                      width: '110px',
+                      height: '120px',
                       borderRadius: 'var(--radius-xl)',
                       border: `3px solid ${isSelected ? a.color : 'var(--border-light)'}`,
                       background: isSelected ? 'var(--bg-card)' : 'var(--bg-body)',
@@ -96,14 +99,18 @@ export default function Onboarding({ t, onComplete }) {
                       transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
                     }}
                   >
-                    <Icon size={42} color={isSelected ? a.color : 'var(--text-muted)'} />
-                    <span className="text-sm font-bold" style={{ color: isSelected ? a.color : 'var(--text-muted)' }}>{a.label}</span>
+                    <Icon size={48} color={isSelected ? a.color : 'var(--text-muted)'} />
+                    <span className="text-sm font-bold mt-2" style={{ color: isSelected ? a.color : 'var(--text-muted)' }}>{a.label}</span>
                   </button>
                 );
               })}
             </div>
 
-            <button className="btn btn-primary w-full btn-lg" onClick={handleNext}>
+            <button 
+              className="btn btn-primary w-full btn-lg mt-2 mb-2" 
+              style={{ padding: '1.25rem' }}
+              onClick={handleNext}
+            >
               Pick Avatar <ChevronRight size={24} />
             </button>
           </div>
@@ -111,10 +118,14 @@ export default function Onboarding({ t, onComplete }) {
 
         {step === 3 && (
           <div className="animate-fade-in">
-            <CheckCircle2 size={80} className="text-success mx-auto mb-4" />
-            <h2 className="mb-2">Welcome, {name}!</h2>
-            <p className="text-muted mb-6">Are you ready to learn and have fun?</p>
-            <button className="btn btn-primary btn-lg w-full" onClick={handleNext}>
+            <CheckCircle2 size={96} className="text-success mx-auto mb-6" />
+            <h2 className="mb-2 text-3xl">Welcome, {name}!</h2>
+            <p className="text-muted text-lg mb-10">Are you ready to learn and have fun?</p>
+            <button 
+              className="btn btn-primary btn-lg w-full mt-2 mb-2" 
+              style={{ padding: '1.25rem' }}
+              onClick={handleNext}
+            >
               Let's Go!
             </button>
           </div>
