@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Home, Type, Hammer, BookOpen, WifiOff } from 'lucide-react';
 import i18n from './i18n';
@@ -59,35 +60,13 @@ export default function App() {
     setLang(prev => prev === 'en' ? 'fr' : 'en');
   }, []);
 
-  // Word Forge progress callbacks — keep Home dashboard stats in sync
-  const handleWordCorrect = useCallback(() => {
-    setStats(s => ({ ...s, words: s.words + 1, streak: s.streak + 1 }));
-  }, []);
-
-  const handleWordMissed = useCallback(() => {
-    setStats(s => ({ ...s, streak: 0 }));
-  }, []);
-
-  const handleRoundComplete = useCallback(() => {
-    setStats(s => ({ ...s, stars: s.stars + 1 }));
-  }, []);
-
   // Render current screen
   const renderScreen = () => {
     switch (screen) {
       case 'phonics':
         return <PhonicsLab t={t} lang={lang} />;
       case 'forge':
-        return (
-          <WordForge
-            t={t}
-            lang={lang}
-            stats={stats}
-            onWordCorrect={handleWordCorrect}
-            onWordMissed={handleWordMissed}
-            onRoundComplete={handleRoundComplete}
-          />
-        );
+        return <WordForge t={t} lang={lang} />;
       default:
         return <HomeScreen t={t} lang={lang} onNavigate={handleNavigate} stats={stats} />;
     }
