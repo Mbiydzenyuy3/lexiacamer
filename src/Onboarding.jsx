@@ -1,12 +1,12 @@
 import React, { useState } from 'react';
-import { User, Cat, Dog, Bird, Snail, ChevronRight, CheckCircle2 } from 'lucide-react';
+import { User, Cat, Dog, Bird, Snail, ChevronRight, CheckCircle2, Sparkles } from 'lucide-react';
 import Confetti from './Confetti';
 
 const avatars = [
-  { id: 'lion', icon: Cat, color: 'var(--amber-500)', label: 'Lion' },
-  { id: 'parrot', icon: Bird, color: 'var(--sky-500)', label: 'Parrot' },
-  { id: 'tortoise', icon: Snail, color: 'var(--green-600)', label: 'Tortoise' },
-  { id: 'dog', icon: Dog, color: 'var(--indigo-500)', label: 'Dog' }
+  { id: 'lion', icon: Cat, color: '#f59e0b', bg: '#fffbeb', label: 'Lion' },
+  { id: 'parrot', icon: Bird, color: '#0ea5e9', bg: '#f0f9ff', label: 'Parrot' },
+  { id: 'tortoise', icon: Snail, color: '#059669', bg: '#ecfdf5', label: 'Tortoise' },
+  { id: 'dog', icon: Dog, color: '#6366f1', bg: '#eef2ff', label: 'Dog' }
 ];
 
 export default function Onboarding({ t, onComplete }) {
@@ -24,109 +24,160 @@ export default function Onboarding({ t, onComplete }) {
     }
   };
 
+  // Step indicator dots
+  const StepDots = () => (
+    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '2rem' }}>
+      {[1, 2, 3].map(s => (
+        <div key={s} style={{
+          width: s === step ? '2rem' : '0.5rem',
+          height: '0.5rem',
+          borderRadius: '9999px',
+          background: s === step ? 'var(--color-primary)' : 'var(--border-medium)',
+          transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        }} />
+      ))}
+    </div>
+  );
+
   return (
-    <div className="screen flex items-center justify-center" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
+    <div className="screen" style={{
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+      padding: '2rem', minHeight: 'calc(100vh - 8rem)',
+      background: 'linear-gradient(180deg, var(--green-50) 0%, var(--bg-body) 50%, var(--amber-50) 100%)'
+    }}>
       {step === 3 && <Confetti active={true} />}
 
-      <div className="card w-full animate-fade-in" style={{ maxWidth: '480px', margin: 'auto', textAlign: 'center', padding: '3rem 2rem', boxShadow: 'var(--shadow-xl)' }}>
+      <div className="animate-fade-in" style={{
+        maxWidth: '440px', width: '100%', margin: 'auto', marginTop: '-4rem', textAlign: 'center',
+        background: 'var(--bg-card)',
+        borderRadius: 'var(--radius-2xl)',
+        padding: '2.5rem 2rem',
+        boxShadow: '0 20px 60px rgba(0,0,0,0.08), 0 1px 3px rgba(0,0,0,0.04)',
+        border: '1px solid var(--border-light)',
+      }}>
+
+        <StepDots />
 
         {step === 1 && (
           <div className="animate-fade-in">
-            <User size={80} className="text-primary mx-auto mb-6" />
-            <h2 className="mb-6 text-2xl">What is your name?</h2>
-            <p className="text-muted text-lg mb-8">Let's get you set up!</p>
+            <div style={{
+              width: '80px', height: '80px', borderRadius: '50%', margin: '0 auto 1.5rem',
+              background: 'linear-gradient(135deg, var(--green-100), var(--green-50))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+              border: '3px solid var(--green-200)',
+            }}>
+              <User size={40} style={{ color: 'var(--green-700)' }} />
+            </div>
+
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>What is your name?</h2>
+            <p className="text-muted" style={{ fontSize: '1rem', marginBottom: '2rem' }}>Let's personalize your experience!</p>
 
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Your name"
-              className="w-full p-4 mb-8 transition-all"
+              placeholder="Type your name..."
               style={{
-                fontSize: '1.25rem',
+                width: '100%',
+                padding: '1rem 1.25rem',
+                fontSize: '1.15rem',
                 borderRadius: 'var(--radius-xl)',
-                border: '3px solid var(--border-medium)',
+                border: '2px solid var(--border-light)',
                 background: 'var(--bg-body)',
                 textAlign: 'center',
                 outline: 'none',
-                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+                transition: 'all 0.2s ease',
+                marginBottom: '2rem',
+                fontFamily: 'inherit',
               }}
               onFocus={(e) => {
                 e.target.style.borderColor = 'var(--color-primary)';
                 e.target.style.boxShadow = '0 0 0 4px var(--green-100)';
               }}
               onBlur={(e) => {
-                e.target.style.borderColor = 'var(--border-medium)';
-                e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.02)';
+                e.target.style.borderColor = 'var(--border-light)';
+                e.target.style.boxShadow = 'none';
               }}
               onKeyDown={(e) => e.key === 'Enter' && handleNext()}
               autoFocus
             />
 
             <button
-              className="btn btn-primary w-full btn-lg mt-12 mb-2"
-              style={{ padding: '1.25rem' }}
+              className="btn btn-primary w-full"
+              style={{ padding: '1rem', fontSize: '1.1rem' }}
               onClick={handleNext}
               disabled={!name.trim()}
             >
-              Next <ChevronRight size={24} />
+              Continue <ChevronRight size={22} />
             </button>
           </div>
         )}
 
         {step === 2 && (
           <div className="animate-fade-in">
-            <h2 className="mb-2 text-2xl">Choose your Avatar</h2>
-            <p className="text-muted text-lg mb-8">Who will be your learning buddy?</p>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Choose your buddy</h2>
+            <p className="text-muted" style={{ fontSize: '1rem', marginBottom: '2rem' }}>Pick an animal friend to learn with!</p>
 
-            <div className="flex flex-wrap justify-center gap-lg mb-10">
+            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '2rem' }}>
               {avatars.map((a) => {
                 const Icon = a.icon;
                 const isSelected = avatar === a.id;
                 return (
                   <button
                     key={a.id}
-                    className="flex flex-col items-center justify-center gap-sm"
                     onClick={() => setAvatar(a.id)}
                     style={{
-                      width: '110px',
-                      height: '120px',
+                      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
+                      gap: '0.5rem',
+                      padding: '1.25rem 0.75rem',
                       borderRadius: 'var(--radius-xl)',
                       border: `3px solid ${isSelected ? a.color : 'var(--border-light)'}`,
-                      background: isSelected ? 'var(--bg-card)' : 'var(--bg-body)',
-                      boxShadow: isSelected ? `0 8px 16px ${a.color}30` : 'none',
-                      transform: isSelected ? 'scale(1.05)' : 'scale(1)',
-                      transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
+                      background: isSelected ? a.bg : 'var(--bg-body)',
+                      boxShadow: isSelected ? `0 6px 20px ${a.color}25` : 'var(--shadow-xs)',
+                      transform: isSelected ? 'scale(1.03)' : 'scale(1)',
+                      transition: 'all 0.25s cubic-bezier(0.34, 1.56, 0.64, 1)',
+                      cursor: 'pointer',
                     }}
                   >
-                    <Icon size={48} color={isSelected ? a.color : 'var(--text-muted)'} />
-                    <span className="text-sm font-bold mt-2" style={{ color: isSelected ? a.color : 'var(--text-muted)' }}>{a.label}</span>
+                    <Icon size={44} color={isSelected ? a.color : 'var(--text-muted)'} strokeWidth={1.8} />
+                    <span style={{
+                      fontWeight: 700, fontSize: '0.85rem',
+                      color: isSelected ? a.color : 'var(--text-muted)',
+                    }}>{a.label}</span>
                   </button>
                 );
               })}
             </div>
 
             <button
-              className="btn btn-primary w-full btn-lg mt-2 mb-2"
-              style={{ padding: '1.25rem' }}
+              className="btn btn-primary w-full"
+              style={{ padding: '1rem', fontSize: '1.1rem' }}
               onClick={handleNext}
             >
-              Pick Avatar <ChevronRight size={24} />
+              Continue <ChevronRight size={22} />
             </button>
           </div>
         )}
 
         {step === 3 && (
           <div className="animate-fade-in">
-            <CheckCircle2 size={96} className="text-success mx-auto mb-6" />
-            <h2 className="mb-2 text-3xl">Welcome, {name}!</h2>
-            <p className="text-muted text-lg mb-10">Are you ready to learn and have fun?</p>
+            <div style={{
+              width: '96px', height: '96px', borderRadius: '50%', margin: '0 auto 1.5rem',
+              background: 'linear-gradient(135deg, var(--green-100), var(--green-200))',
+              display: 'flex', alignItems: 'center', justifyContent: 'center',
+            }}>
+              <CheckCircle2 size={56} style={{ color: 'var(--green-600)' }} />
+            </div>
+
+            <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Welcome, {name}!</h2>
+            <p className="text-muted" style={{ fontSize: '1.05rem', marginBottom: '2.5rem' }}>You're all set. Let's start learning! 🎉</p>
+
             <button
-              className="btn btn-primary btn-lg w-full mt-2 mb-2"
-              style={{ padding: '1.25rem' }}
+              className="btn btn-primary w-full"
+              style={{ padding: '1rem', fontSize: '1.1rem' }}
               onClick={handleNext}
             >
-              Let's Go!
+              <Sparkles size={20} /> Let's Go!
             </button>
           </div>
         )}

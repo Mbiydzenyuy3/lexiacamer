@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Home, Type, Hammer, BookOpen, WifiOff } from 'lucide-react';
+import { Home, Type, Hammer, BookOpen, WifiOff, Cat, Bird, Snail, Dog, ShieldCheck } from 'lucide-react';
 import i18n from './i18n';
 import HomeScreen from './HomeScreen';
 import PhonicsLab from './PhonicsLab';
@@ -97,9 +97,9 @@ export default function App() {
     setScreen(target);
   }, []);
 
-  const toggleLang = useCallback(() => {
-    setLang(prev => prev === 'en' ? 'fr' : 'en');
-  }, []);
+  // const toggleLang = useCallback(() => {
+  //   setLang(prev => prev === 'en' ? 'fr' : 'en');
+  // }, []);
 
   const handleWordCorrect = useCallback(() => {
     setStats(prev => ({
@@ -167,35 +167,66 @@ export default function App() {
     }
   };
 
+  const avatarIcons = { lion: Cat, parrot: Bird, tortoise: Snail, dog: Dog };
+  const AvatarIcon = user?.avatar ? avatarIcons[user.avatar] : BookOpen;
+
   return (
     <>
       {/* Top Bar */}
-      <header className="top-bar">
-        <div className="top-bar-title">
-          <img src="/pwa-192x192.png" alt="LexiaCamer Logo" style={{ width: 48, height: 48, borderRadius: '6px' }} />
-          <span>{t.appName}</span>
+      <header className="top-bar" style={{ position: 'relative' }}>
+        {/* Left: Logo */}
+        <button
+          className="top-bar-title"
+          onClick={() => handleNavigate('home')}
+          style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0, gap: 0, zIndex: 2 }}
+        >
+          <img src="/pwa-192x192.png" alt="Logo" style={{ width: 44, height: 44, borderRadius: '50%', zIndex: 2 }} />
+          <span style={{
+            color: '#059669',
+            fontWeight: 800,
+            fontSize: '1.4rem',
+            letterSpacing: '-0.03em',
+            marginLeft: '-0.6rem',
+            paddingLeft: '-3rem',
+            zIndex: 3,
+            // padding to offset margin so text doesn't actually overlap image but looks attached
+            lineHeight: 1
+          }}>exiaCamer</span>
+        </button>
+
+        {/* Center: Parent Dashboard */}
+        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>
+          <button
+            className={`btn btn-ghost ${screen === 'parent_dashboard' ? 'text-primary' : ''}`}
+            onClick={() => handleNavigate('parent_dashboard')}
+            style={{
+              display: 'flex', alignItems: 'center', gap: '0.35rem',
+              padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-full)',
+              fontSize: '0.85rem', fontWeight: 600, color: 'var(--indigo-700)'
+            }}
+          >
+            <ShieldCheck size={18} />
+            <span className="hidden sm:inline" style={{ fontSize: '1rem' }}>Parents Dashboard</span>
+          </button>
         </div>
 
-        <div className="flex items-center gap-sm">
-          {/* Language Toggle (Hidden for v1) */}
-          {/*
-          <div className="lang-toggle" id="lang-toggle">
+        {/* Right: Avatar */}
+        <div style={{ zIndex: 2 }}>
+          {user?.name && (
             <button
-              className={`lang-option ${lang === 'en' ? 'active' : ''}`}
-              onClick={() => setLang('en')}
-              aria-label="English"
+              onClick={() => handleNavigate('home')}
+              style={{
+                width: '38px', height: '38px', borderRadius: '50%', flexShrink: 0,
+                background: 'linear-gradient(135deg, var(--green-100), var(--green-50))',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                border: '2px solid var(--green-200)',
+                cursor: 'pointer', padding: 0,
+              }}
+              aria-label="Go to home"
             >
-              EN
+              <AvatarIcon size={20} style={{ color: 'var(--green-700)' }} />
             </button>
-            <button
-              className={`lang-option ${lang === 'fr' ? 'active' : ''}`}
-              onClick={() => setLang('fr')}
-              aria-label="Français"
-            >
-              FR
-            </button>
-          </div>
-          */}
+          )}
         </div>
       </header>
 
@@ -230,6 +261,7 @@ export default function App() {
           <div className="nav-icon-bg"><Type size={22} /></div>
           <span>{t.navPhonics}</span>
         </button>
+
         <button
           className={`bottom-nav-item ${screen === 'forge' ? 'active' : ''}`}
           onClick={() => handleNavigate('forge')}
@@ -242,3 +274,4 @@ export default function App() {
     </>
   );
 }
+

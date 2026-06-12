@@ -95,7 +95,7 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
 
       <div className="screen-body">
         {/* Mode Toggle */}
-        <div className="flex gap-sm mb-4">
+        <div style={{ marginBottom: '1rem' }}>
           {!isChallengeMode ? (
             <button className="btn btn-outline w-full" onClick={startChallenge}>
               <Play size={18} /> Play Challenge Mode
@@ -129,7 +129,12 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
         )}
 
         {isChallengeMode && targetItem && (
-          <div className="text-center mb-4 p-3 bg-indigo-50 border border-indigo-200 rounded-lg text-indigo-800 font-bold">
+          <div style={{
+            textAlign: 'center', marginBottom: '1rem', padding: '0.75rem 1rem',
+            background: 'var(--indigo-50)', border: '1px solid var(--indigo-200)',
+            borderRadius: 'var(--radius-lg)', color: 'var(--indigo-700)', fontWeight: 600,
+            fontSize: '0.9rem',
+          }}>
             Listen carefully! Find the letter that makes the sound.
           </div>
         )}
@@ -153,7 +158,7 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
         {/* Tip Box */}
         {!isChallengeMode && (
           <div className="hint-box" style={{ marginTop: '1.5rem' }}>
-            <span className="hint-icon"><Lightbulb size={24} /></span>
+            <span className="hint-icon" style={{ color: 'var(--amber-500)' }}><Lightbulb size={24} /></span>
             <span>{t.phonicsTip}</span>
           </div>
         )}
