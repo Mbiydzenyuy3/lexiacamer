@@ -27,25 +27,25 @@ export default function Onboarding({ t, onComplete }) {
   return (
     <div className="screen flex items-center justify-center" style={{ padding: '2rem', display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center' }}>
       {step === 3 && <Confetti active={true} />}
-      
+
       <div className="card w-full animate-fade-in" style={{ maxWidth: '480px', margin: 'auto', textAlign: 'center', padding: '3rem 2rem', boxShadow: 'var(--shadow-xl)' }}>
-        
+
         {step === 1 && (
           <div className="animate-fade-in">
             <User size={80} className="text-primary mx-auto mb-6" />
-            <h2 className="mb-2 text-2xl">What is your name?</h2>
+            <h2 className="mb-6 text-2xl">What is your name?</h2>
             <p className="text-muted text-lg mb-8">Let's get you set up!</p>
-            
-            <input 
-              type="text" 
+
+            <input
+              type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
               className="w-full p-4 mb-8 transition-all"
-              style={{ 
-                fontSize: '1.25rem', 
-                borderRadius: 'var(--radius-xl)', 
-                border: '3px solid var(--border-medium)', 
+              style={{
+                fontSize: '1.25rem',
+                borderRadius: 'var(--radius-xl)',
+                border: '3px solid var(--border-medium)',
                 background: 'var(--bg-body)',
                 textAlign: 'center',
                 outline: 'none',
@@ -62,9 +62,9 @@ export default function Onboarding({ t, onComplete }) {
               onKeyDown={(e) => e.key === 'Enter' && handleNext()}
               autoFocus
             />
-            
-            <button 
-              className="btn btn-primary w-full btn-lg mt-2 mb-2"
+
+            <button
+              className="btn btn-primary w-full btn-lg mt-12 mb-2"
               style={{ padding: '1.25rem' }}
               onClick={handleNext}
               disabled={!name.trim()}
@@ -78,7 +78,7 @@ export default function Onboarding({ t, onComplete }) {
           <div className="animate-fade-in">
             <h2 className="mb-2 text-2xl">Choose your Avatar</h2>
             <p className="text-muted text-lg mb-8">Who will be your learning buddy?</p>
-            
+
             <div className="flex flex-wrap justify-center gap-lg mb-10">
               {avatars.map((a) => {
                 const Icon = a.icon;
@@ -106,8 +106,8 @@ export default function Onboarding({ t, onComplete }) {
               })}
             </div>
 
-            <button 
-              className="btn btn-primary w-full btn-lg mt-2 mb-2" 
+            <button
+              className="btn btn-primary w-full btn-lg mt-2 mb-2"
               style={{ padding: '1.25rem' }}
               onClick={handleNext}
             >
@@ -121,8 +121,8 @@ export default function Onboarding({ t, onComplete }) {
             <CheckCircle2 size={96} className="text-success mx-auto mb-6" />
             <h2 className="mb-2 text-3xl">Welcome, {name}!</h2>
             <p className="text-muted text-lg mb-10">Are you ready to learn and have fun?</p>
-            <button 
-              className="btn btn-primary btn-lg w-full mt-2 mb-2" 
+            <button
+              className="btn btn-primary btn-lg w-full mt-2 mb-2"
               style={{ padding: '1.25rem' }}
               onClick={handleNext}
             >
