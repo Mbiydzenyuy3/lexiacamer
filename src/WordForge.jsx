@@ -37,14 +37,27 @@ function makeLetterPool(word) {
   return shuffleArray([...wordLetters, ...distractors]);
 }
 
-export default function WordForge({ t, lang }) {
-  const [category, setCategory] = useState('all');
-  const [wordIndex, setWordIndex] = useState(0);
+const FORGE_STORAGE_KEY = 'lexia_forge_state';
+
+function loadForgeState() {
+  try {
+    const raw = localStorage.getItem(FORGE_STORAGE_KEY);
+    if (raw) return JSON.parse(raw);
+  } catch (e) { /* ignore */ }
+  return { category: 'all', wordIndex: 0, score: 0 };
+}
+
+function saveForgeState(state) {
+  try {
+    localStorage.setItem(FORGE_STORAGE_KEY, JSON.stringify(state));
+  } catch (e) { /* ignore */ }
+}
+
+export default function WordForge({ t, lang, stats, onWordCorrect, onWordMissed, onRoundComplete }) {
+  const [{ category, wordIndex, score }, setProgress] = useState(() => loadForgeState());
   const [selected, setSelected] = useState([]);
   const [usedKeys, setUsedKeys] = useState([]);
   const [result, setResult] = useState(null); // 'correct' | 'wrong' | null
-  const [score, setScore] = useState(0);
-  const [streak, setStreak] = useState(0);
   const [showCelebration, setShowCelebration] = useState(false);
   const [hintVisible, setHintVisible] = useState(false);
   const [completed, setCompleted] = useState(false);
@@ -69,6 +82,18 @@ export default function WordForge({ t, lang }) {
     if (!targetWord) return [];
     return makeLetterPool(targetWord);
   }, [targetWord]);
+
+  // Keep wordIndex valid if the category pool is smaller than a saved index
+  useEffect(() => {
+    if (wordIndex >= words.length) {
+      setProgress(p => ({ ...p, wordIndex: 0 }));
+    }
+  }, [words, wordIndex]);
+
+  // Persist progress so leaving and returning resumes where the learner left off
+  useEffect(() => {
+    saveForgeState({ category, wordIndex, score });
+  }, [category, wordIndex, score]);
 
   // Reset when category or word changes
   useEffect(() => {
@@ -98,8 +123,8 @@ export default function WordForge({ t, lang }) {
       setTimeout(() => {
         if (attempt === targetWord) {
           setResult('correct');
-          setScore(s => s + 1);
-          setStreak(s => s + 1);
+          setProgress(p => ({ ...p, score: p.score + 1 }));
+          onWordCorrect();
           speechEngine.speakCelebration(lang);
 
           // Show confetti briefly
@@ -107,7 +132,7 @@ export default function WordForge({ t, lang }) {
           setTimeout(() => setShowCelebration(false), 2500);
         } else {
           setResult('wrong');
-          setStreak(0);
+          onWordMissed();
 
           // Shake & reset after 1.2s
           setTimeout(() => {
@@ -118,20 +143,21 @@ export default function WordForge({ t, lang }) {
         }
       }, 300);
     }
-  }, [selected, usedKeys, targetWord, result, lang]);
+  }, [selected, usedKeys, targetWord, result, lang, onWordCorrect, onWordMissed]);
 
   const handleNext = useCallback(() => {
     if (wordIndex + 1 >= words.length) {
       setCompleted(true);
+      onRoundComplete();
     } else {
-      setWordIndex(i => i + 1);
+      setProgress(p => ({ ...p, wordIndex: p.wordIndex + 1 }));
     }
-  }, [wordIndex, words.length]);
+  }, [wordIndex, words.length, onRoundComplete]);
 
   const handleSkip = useCallback(() => {
-    setStreak(0);
+    onWordMissed();
     handleNext();
-  }, [handleNext]);
+  }, [handleNext, onWordMissed]);
 
   const handleUndo = useCallback(() => {
     if (result || selected.length === 0) return;
@@ -147,9 +173,7 @@ export default function WordForge({ t, lang }) {
   }, [result]);
 
   const handlePlayAgain = useCallback(() => {
-    setWordIndex(0);
-    setScore(0);
-    setStreak(0);
+    setProgress(p => ({ ...p, wordIndex: 0, score: 0 }));
     setCompleted(false);
     setResult(null);
     setSelected([]);
@@ -157,10 +181,7 @@ export default function WordForge({ t, lang }) {
   }, []);
 
   const handleCategoryChange = useCallback((cat) => {
-    setCategory(cat);
-    setWordIndex(0);
-    setScore(0);
-    setStreak(0);
+    setProgress({ category: cat, wordIndex: 0, score: 0 });
     setCompleted(false);
   }, []);
 
@@ -208,7 +229,7 @@ export default function WordForge({ t, lang }) {
             <p className="text-sm text-muted">{t.forgeSubtitle}</p>
           </div>
           <div className="score-display">
-            {streak >= 3 && <Flame size={20} className="streak-fire text-amber-500" />}
+            {stats.streak >= 3 && <Flame size={20} className="streak-fire text-amber-500" />}
             <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Star size={16} className="text-amber-500" /> {score}</span>
           </div>
         </div>
@@ -374,7 +395,7 @@ export default function WordForge({ t, lang }) {
         <div style={{ marginTop: '1.5rem' }}>
           <div className="flex justify-between text-xs text-muted" style={{ marginBottom: '0.3rem' }}>
             <span>{wordIndex + 1} / {words.length}</span>
-            {streak >= 2 && <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}><Flame size={14} className="text-amber-500" /> {streak} {t.forgeStreak}</span>}
+            {stats.streak >= 2 && <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}><Flame size={14} className="text-amber-500" /> {stats.streak} {t.forgeStreak}</span>}
           </div>
           <div className="progress-bar">
             <div

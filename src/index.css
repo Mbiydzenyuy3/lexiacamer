@@ -101,6 +101,9 @@
   --z-overlay: 500;
   --z-modal: 1000;
   --z-toast: 1500;
+
+  /* Bottom nav height — used to stack the offline banner above it */
+  --bottom-nav-height: calc(3.75rem + max(0.5rem, env(safe-area-inset-bottom)));
 }
 
 /* ——— Reset ——— */
@@ -395,7 +398,7 @@ p  { font-size: 1rem; line-height: 1.6; }
   font-size: 0.8rem;
   font-weight: 600;
   position: fixed;
-  bottom: 0;
+  bottom: var(--bottom-nav-height);
   left: 0;
   right: 0;
   z-index: var(--z-toast);
