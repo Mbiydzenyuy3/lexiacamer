@@ -14,11 +14,22 @@ import WordForge from './WordForge';
 const STORAGE_KEY = 'lexia_state';
 
 function loadState() {
+  const defaultState = { lang: 'en', stats: { words: 0, streak: 0, stars: 0 } };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return {
+        ...defaultState,
+        ...parsed,
+        stats: {
+          ...defaultState.stats,
+          ...(parsed.stats || {})
+        }
+      };
+    }
   } catch (e) { /* ignore */ }
-  return { lang: 'en', stats: { words: 0, streak: 0, stars: 0 } };
+  return defaultState;
 }
 
 function saveState(state) {
@@ -29,7 +40,7 @@ function saveState(state) {
 
 export default function App() {
   const [screen, setScreen] = useState('home');
-  const [lang, setLang] = useState(() => loadState().lang);
+  const [lang, setLang] = useState('en');
   const [stats, setStats] = useState(() => loadState().stats);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
@@ -60,13 +71,45 @@ export default function App() {
     setLang(prev => prev === 'en' ? 'fr' : 'en');
   }, []);
 
+  const handleWordCorrect = useCallback(() => {
+    setStats(prev => ({
+      ...prev,
+      words: (prev.words || 0) + 1,
+      streak: (prev.streak || 0) + 1,
+      stars: (prev.stars || 0) + 5
+    }));
+  }, []);
+
+  const handleWordMissed = useCallback(() => {
+    setStats(prev => ({
+      ...prev,
+      streak: 0
+    }));
+  }, []);
+
+  const handleRoundComplete = useCallback(() => {
+    setStats(prev => ({
+      ...prev,
+      stars: (prev.stars || 0) + 20
+    }));
+  }, []);
+
   // Render current screen
   const renderScreen = () => {
     switch (screen) {
       case 'phonics':
         return <PhonicsLab t={t} lang={lang} />;
       case 'forge':
-        return <WordForge t={t} lang={lang} />;
+        return (
+          <WordForge
+            t={t}
+            lang={lang}
+            stats={stats}
+            onWordCorrect={handleWordCorrect}
+            onWordMissed={handleWordMissed}
+            onRoundComplete={handleRoundComplete}
+          />
+        );
       default:
         return <HomeScreen t={t} lang={lang} onNavigate={handleNavigate} stats={stats} />;
     }
@@ -82,7 +125,8 @@ export default function App() {
         </div>
 
         <div className="flex items-center gap-sm">
-          {/* Language Toggle */}
+          {/* Language Toggle (Hidden for v1) */}
+          {/*
           <div className="lang-toggle" id="lang-toggle">
             <button
               className={`lang-option ${lang === 'en' ? 'active' : ''}`}
@@ -99,6 +143,7 @@ export default function App() {
               FR
             </button>
           </div>
+          */}
         </div>
       </header>
 
