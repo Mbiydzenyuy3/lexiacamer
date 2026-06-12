@@ -133,6 +133,20 @@ body {
   -moz-osx-font-smoothing: grayscale;
 }
 
+body.dyslexia-mode {
+  font-family: 'Comic Neue', cursive, sans-serif;
+  letter-spacing: 0.12em;
+  word-spacing: 0.25em;
+  --bg-body: #fafdf7; /* Keep high contrast but soft */
+  --bg-card: #f9fbf4; /* Reduce stark white glare */
+}
+
+body.dyslexia-mode h1,
+body.dyslexia-mode h2,
+body.dyslexia-mode h3 {
+  letter-spacing: 0.08em;
+}
+
 #root {
   min-height: 100vh;
   display: flex;
@@ -552,13 +566,13 @@ p  { font-size: 1rem; line-height: 1.6; }
 }
 
 .letter-key {
-  width: 2.8rem;
-  height: 3rem;
+  width: 3.2rem;
+  height: 3.4rem;
   display: flex;
   align-items: center;
   justify-content: center;
   border-radius: var(--radius-sm);
-  font-size: 1.25rem;
+  font-size: 1.4rem;
   font-weight: 700;
   background: var(--bg-card);
   border: 2px solid var(--border-light);
@@ -567,11 +581,13 @@ p  { font-size: 1rem; line-height: 1.6; }
   text-transform: uppercase;
   user-select: none;
   -webkit-user-select: none;
+  box-shadow: 0 2px 0 var(--border-medium);
 }
 
 .letter-key:active {
-  transform: scale(0.9);
+  transform: translateY(2px) scale(0.96);
   background: var(--color-primary-light);
+  box-shadow: 0 0 0 transparent;
 }
 
 .letter-key.used {

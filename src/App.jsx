@@ -5,6 +5,10 @@ import i18n from './i18n';
 import HomeScreen from './HomeScreen';
 import PhonicsLab from './PhonicsLab';
 import WordForge from './WordForge';
+import Settings from './Settings';
+import ParentDashboard from './ParentDashboard';
+import StickerBook from './StickerBook';
+import Onboarding from './Onboarding';
 
 /**
  * App — Root Shell
@@ -14,7 +18,14 @@ import WordForge from './WordForge';
 const STORAGE_KEY = 'lexia_state';
 
 function loadState() {
-  const defaultState = { lang: 'en', stats: { words: 0, streak: 0, stars: 0 } };
+  const defaultState = {
+    lang: 'en',
+    stats: { words: 0, streak: 0, stars: 0, timeSpent: 0 },
+    settings: { dyslexiaMode: false },
+    user: { name: '', avatar: '' },
+    unlockedStickers: [],
+    missedPhonemes: {}
+  };
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
@@ -22,10 +33,9 @@ function loadState() {
       return {
         ...defaultState,
         ...parsed,
-        stats: {
-          ...defaultState.stats,
-          ...(parsed.stats || {})
-        }
+        stats: { ...defaultState.stats, ...(parsed.stats || {}) },
+        settings: { ...defaultState.settings, ...(parsed.settings || {}) },
+        user: { ...defaultState.user, ...(parsed.user || {}) },
       };
     }
   } catch (e) { /* ignore */ }
@@ -42,14 +52,34 @@ export default function App() {
   const [screen, setScreen] = useState('home');
   const [lang, setLang] = useState('en');
   const [stats, setStats] = useState(() => loadState().stats);
+  const [settings, setSettings] = useState(() => loadState().settings);
+  const [user, setUser] = useState(() => loadState().user);
+  const [unlockedStickers, setUnlockedStickers] = useState(() => loadState().unlockedStickers);
+  const [missedPhonemes, setMissedPhonemes] = useState(() => loadState().missedPhonemes);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
 
   const t = useMemo(() => i18n[lang] || i18n.en, [lang]);
 
+  // Apply Dyslexia Mode
+  useEffect(() => {
+    if (settings.dyslexiaMode) {
+      document.body.classList.add('dyslexia-mode');
+    } else {
+      document.body.classList.remove('dyslexia-mode');
+    }
+  }, [settings.dyslexiaMode]);
+
+  // Check Onboarding
+  useEffect(() => {
+    if (!user.name && screen !== 'onboarding') {
+      setScreen('onboarding');
+    }
+  }, [user.name, screen]);
+
   // Persist state
   useEffect(() => {
-    saveState({ lang, stats });
-  }, [lang, stats]);
+    saveState({ lang, stats, settings, user, unlockedStickers, missedPhonemes });
+  }, [lang, stats, settings, user, unlockedStickers, missedPhonemes]);
 
   // Offline detection
   useEffect(() => {
@@ -80,11 +110,22 @@ export default function App() {
     }));
   }, []);
 
-  const handleWordMissed = useCallback(() => {
+  const handleWordMissed = useCallback((incorrectLetters = []) => {
     setStats(prev => ({
       ...prev,
       streak: 0
     }));
+
+    if (incorrectLetters.length > 0) {
+      setMissedPhonemes(prev => {
+        const next = { ...prev };
+        incorrectLetters.forEach(l => {
+          if (!next[l]) next[l] = 0;
+          next[l] += 1;
+        });
+        return next;
+      });
+    }
   }, []);
 
   const handleRoundComplete = useCallback(() => {
@@ -97,8 +138,19 @@ export default function App() {
   // Render current screen
   const renderScreen = () => {
     switch (screen) {
+      case 'onboarding':
+        return <Onboarding t={t} onComplete={(userData) => {
+          setUser(userData);
+          setScreen('home');
+        }} />;
+      case 'settings':
+        return <Settings settings={settings} setSettings={setSettings} onBack={() => setScreen('home')} />;
+      case 'parent_dashboard':
+        return <ParentDashboard stats={stats} missedPhonemes={missedPhonemes} onBack={() => setScreen('home')} />;
+      case 'sticker_book':
+        return <StickerBook stats={stats} setStats={setStats} unlockedStickers={unlockedStickers} setUnlockedStickers={setUnlockedStickers} onBack={() => setScreen('home')} />;
       case 'phonics':
-        return <PhonicsLab t={t} lang={lang} />;
+        return <PhonicsLab t={t} lang={lang} stats={stats} setStats={setStats} />;
       case 'forge':
         return (
           <WordForge
@@ -111,7 +163,7 @@ export default function App() {
           />
         );
       default:
-        return <HomeScreen t={t} lang={lang} onNavigate={handleNavigate} stats={stats} />;
+        return <HomeScreen t={t} lang={lang} user={user} onNavigate={handleNavigate} stats={stats} />;
     }
   };
 

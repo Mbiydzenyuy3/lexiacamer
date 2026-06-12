@@ -132,7 +132,8 @@ export default function WordForge({ t, lang, stats, onWordCorrect, onWordMissed,
           setTimeout(() => setShowCelebration(false), 2500);
         } else {
           setResult('wrong');
-          onWordMissed();
+          const incorrectLetters = attempt.split('').filter((letter, i) => letter !== targetWord[i]);
+          onWordMissed(incorrectLetters);
 
           // Shake & reset after 1.2s
           setTimeout(() => {
@@ -155,9 +156,10 @@ export default function WordForge({ t, lang, stats, onWordCorrect, onWordMissed,
   }, [wordIndex, words.length, onRoundComplete]);
 
   const handleSkip = useCallback(() => {
-    onWordMissed();
+    const unpicked = targetWord.split('').filter((l, i) => selected[i] !== l);
+    onWordMissed(unpicked);
     handleNext();
-  }, [handleNext, onWordMissed]);
+  }, [handleNext, onWordMissed, targetWord, selected]);
 
   const handleUndo = useCallback(() => {
     if (result || selected.length === 0) return;
