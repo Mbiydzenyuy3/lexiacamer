@@ -40,17 +40,33 @@ export default function Onboarding({ t, onComplete }) {
               value={name}
               onChange={(e) => setName(e.target.value)}
               placeholder="Your name"
-              className="w-full p-3 mb-4"
-              style={{ fontSize: '1.2rem', borderRadius: '8px', border: '2px solid var(--border-medium)', textAlign: 'center' }}
+              className="w-full p-4 mb-6 transition-all"
+              style={{ 
+                fontSize: '1.25rem', 
+                borderRadius: 'var(--radius-xl)', 
+                border: '3px solid var(--border-medium)', 
+                background: 'var(--bg-body)',
+                textAlign: 'center',
+                outline: 'none',
+                boxShadow: 'inset 0 2px 4px rgba(0,0,0,0.02)'
+              }}
+              onFocus={(e) => {
+                e.target.style.borderColor = 'var(--color-primary)';
+                e.target.style.boxShadow = '0 0 0 4px var(--green-100)';
+              }}
+              onBlur={(e) => {
+                e.target.style.borderColor = 'var(--border-medium)';
+                e.target.style.boxShadow = 'inset 0 2px 4px rgba(0,0,0,0.02)';
+              }}
               onKeyDown={(e) => e.key === 'Enter' && handleNext()}
               autoFocus
             />
             <button 
-              className="btn btn-primary w-full"
+              className="btn btn-primary w-full btn-lg"
               onClick={handleNext}
               disabled={!name.trim()}
             >
-              Next <ChevronRight size={20} />
+              Next <ChevronRight size={24} />
             </button>
           </div>
         )}
@@ -58,33 +74,37 @@ export default function Onboarding({ t, onComplete }) {
         {step === 2 && (
           <div className="animate-fade-in">
             <h2 className="mb-2">Choose your Avatar</h2>
-            <p className="text-muted text-sm mb-4">Who will be your learning buddy?</p>
+            <p className="text-muted text-sm mb-6">Who will be your learning buddy?</p>
             
-            <div className="flex flex-wrap justify-center gap-md mb-6">
+            <div className="flex flex-wrap justify-center gap-md mb-8">
               {avatars.map((a) => {
                 const Icon = a.icon;
                 const isSelected = avatar === a.id;
                 return (
                   <button
                     key={a.id}
-                    className="flex flex-col items-center gap-sm p-3"
+                    className="flex flex-col items-center justify-center gap-sm"
                     onClick={() => setAvatar(a.id)}
                     style={{
-                      borderRadius: '16px',
-                      border: `3px solid ${isSelected ? a.color : 'transparent'}`,
-                      background: isSelected ? 'var(--green-50)' : 'transparent',
-                      transition: 'all 0.2s ease'
+                      width: '100px',
+                      height: '110px',
+                      borderRadius: 'var(--radius-xl)',
+                      border: `3px solid ${isSelected ? a.color : 'var(--border-light)'}`,
+                      background: isSelected ? 'var(--bg-card)' : 'var(--bg-body)',
+                      boxShadow: isSelected ? `0 8px 16px ${a.color}30` : 'none',
+                      transform: isSelected ? 'scale(1.05)' : 'scale(1)',
+                      transition: 'all 0.2s cubic-bezier(0.34, 1.56, 0.64, 1)'
                     }}
                   >
-                    <Icon size={48} color={a.color} />
-                    <span className="text-sm font-bold" style={{ color: a.color }}>{a.label}</span>
+                    <Icon size={42} color={isSelected ? a.color : 'var(--text-muted)'} />
+                    <span className="text-sm font-bold" style={{ color: isSelected ? a.color : 'var(--text-muted)' }}>{a.label}</span>
                   </button>
                 );
               })}
             </div>
 
-            <button className="btn btn-primary w-full" onClick={handleNext}>
-              Pick Avatar <ChevronRight size={20} />
+            <button className="btn btn-primary w-full btn-lg" onClick={handleNext}>
+              Pick Avatar <ChevronRight size={24} />
             </button>
           </div>
         )}
