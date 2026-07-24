@@ -173,59 +173,39 @@ export default function App() {
   return (
     <>
       {/* Top Bar */}
-      <header className="top-bar" style={{ position: 'relative' }}>
-        {/* Left: Logo */}
-        <button
-          className="top-bar-title"
-          onClick={() => handleNavigate('home')}
-          style={{ cursor: 'pointer', background: 'none', border: 'none', padding: 0, gap: 0, zIndex: 2 }}
-        >
-          <img src="/pwa-192x192.png" alt="Logo" style={{ width: 44, height: 44, borderRadius: '50%', zIndex: 2 }} />
-          <span style={{
-            color: '#059669',
-            fontWeight: 800,
-            fontSize: '1.4rem',
-            letterSpacing: '-0.03em',
-            marginLeft: '-0.6rem',
-            paddingLeft: '-3rem',
-            zIndex: 3,
-            // padding to offset margin so text doesn't actually overlap image but looks attached
-            lineHeight: 1
-          }}>exiaCamer</span>
-        </button>
-
-        {/* Center: Parent Dashboard */}
-        <div style={{ position: 'absolute', left: '50%', transform: 'translateX(-50%)', zIndex: 1 }}>
+      <header className="top-bar">
+        <div className="top-bar-inner">
+          {/* Left: Logo */}
           <button
-            className={`btn btn-ghost ${screen === 'parent_dashboard' ? 'text-primary' : ''}`}
+            className="top-bar-logo"
+            onClick={() => handleNavigate('home')}
+            aria-label="LexiaCamer home"
+          >
+            <img src="/pwa-192x192.png" alt="" className="top-bar-logo-img" />
+            <span className="top-bar-logo-text">exiaCamer</span>
+          </button>
+
+          {/* Center: Parent Dashboard */}
+          <button
+            className={`top-bar-parents ${screen === 'parent_dashboard' ? 'active' : ''}`}
             onClick={() => handleNavigate('parent_dashboard')}
-            style={{
-              display: 'flex', alignItems: 'center', gap: '0.35rem',
-              padding: '0.4rem 0.75rem', borderRadius: 'var(--radius-full)',
-              fontSize: '0.85rem', fontWeight: 600, color: 'var(--indigo-700)'
-            }}
+            aria-label="Parents Dashboard"
           >
             <ShieldCheck size={18} />
-            <span className="hidden sm:inline" style={{ fontSize: '1rem' }}>Parents Dashboard</span>
+            <span className="top-bar-parents-label">Parents Dashboard</span>
           </button>
-        </div>
 
-        {/* Right: Avatar */}
-        <div style={{ zIndex: 2 }}>
-          {user?.name && (
+          {/* Right: Avatar */}
+          {user?.name ? (
             <button
+              className="top-bar-avatar"
               onClick={() => handleNavigate('home')}
-              style={{
-                width: '38px', height: '38px', borderRadius: '50%', flexShrink: 0,
-                background: 'linear-gradient(135deg, var(--green-100), var(--green-50))',
-                display: 'flex', alignItems: 'center', justifyContent: 'center',
-                border: '2px solid var(--green-200)',
-                cursor: 'pointer', padding: 0,
-              }}
               aria-label="Go to home"
             >
               <AvatarIcon size={20} style={{ color: 'var(--green-700)' }} />
             </button>
+          ) : (
+            <span className="top-bar-avatar-placeholder" aria-hidden="true" />
           )}
         </div>
       </header>

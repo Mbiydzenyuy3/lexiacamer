@@ -1,0 +1,16 @@
+- generic [ref=e2]:
+  - banner [ref=e3]:
+    - generic [ref=e4]:
+      - button "LexiaCamer home" [ref=e5] [cursor=pointer]:
+        - generic [ref=e6]: exiaCamer
+      - button "Parents Dashboard" [ref=e7] [cursor=pointer]
+  - main [ref=e13]:
+    - generic [ref=e20]:
+      - heading "What is your name?" [level=2] [ref=e25]
+      - paragraph [ref=e26]: Let's personalize your experience!
+      - textbox "Type your name..." [active] [ref=e27]
+      - button "Continue" [disabled]
+  - navigation "Main navigation" [ref=e28]:
+    - button "Home" [ref=e29] [cursor=pointer]
+    - button "Sounds" [ref=e35] [cursor=pointer]
+    - button "Spelling" [ref=e40] [cursor=pointer]
