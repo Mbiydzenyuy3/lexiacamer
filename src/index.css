@@ -106,8 +106,10 @@
   --z-modal: 1000;
   --z-toast: 1500;
 
-  /* Bottom nav height — used to stack the offline banner above it */
-  --bottom-nav-height: calc(3.75rem + max(0.5rem, env(safe-area-inset-bottom)));
+  /* Bottom nav height — reserves scroll space so content clears the fixed nav,
+     and positions the offline banner above it. Grows with the safe-area inset
+     on notched phones. */
+  --bottom-nav-height: calc(4.75rem + env(safe-area-inset-bottom));
 }
 
 /* ——— Reset ——— */
@@ -124,6 +126,10 @@ html {
   font-size: 16px;
   -webkit-text-size-adjust: 100%;
   scroll-behavior: smooth;
+  /* Clip horizontal overflow at the viewport (the html element) so the page
+     stays the normal vertical scroll container. Putting this on <body> instead
+     turns the body into the scroller and breaks scroll-to-bottom on iOS. */
+  overflow-x: hidden;
 }
 
 body {
@@ -131,7 +137,6 @@ body {
   background-color: var(--bg-body);
   color: var(--text-primary);
   line-height: 1.6;
-  overflow-x: hidden;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -811,7 +816,9 @@ p  { font-size: 1rem; line-height: 1.6; }
 /* ——— Screen Layout ——— */
 .screen {
   flex: 1;
-  padding-bottom: 5rem; /* space for bottom nav */
+  /* Always clear the fixed bottom nav plus a comfortable gap, so no button or
+     row is ever hidden underneath it. */
+  padding-bottom: calc(var(--bottom-nav-height) + var(--space-lg));
   animation: fadeIn 0.3s var(--ease-out);
 }
 
@@ -1177,9 +1184,9 @@ p  { font-size: 1rem; line-height: 1.6; }
     box-shadow: var(--shadow-lg);
   }
 
-  /* Keep the offline banner aligned above the floating pill. */
+  /* The floating pill sits 1rem off the bottom, so reserve a little more. */
   :root {
-    --bottom-nav-height: calc(4.75rem + env(safe-area-inset-bottom));
+    --bottom-nav-height: 5.5rem;
   }
 }
 
