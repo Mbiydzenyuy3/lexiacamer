@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
-import { User, Cat, Dog, Bird, Snail, ChevronRight, CheckCircle2, Sparkles } from 'lucide-react';
+import { User, ChevronRight, CheckCircle2, Sparkles } from 'lucide-react';
 import Confetti from './Confetti';
-
-const avatars = [
-  { id: 'lion', icon: Cat, color: '#f59e0b', bg: '#fffbeb', label: 'Lion' },
-  { id: 'parrot', icon: Bird, color: '#0ea5e9', bg: '#f0f9ff', label: 'Parrot' },
-  { id: 'tortoise', icon: Snail, color: '#059669', bg: '#ecfdf5', label: 'Tortoise' },
-  { id: 'dog', icon: Dog, color: '#6366f1', bg: '#eef2ff', label: 'Dog' }
-];
+import { AVATARS as avatars } from './avatars';
 
 export default function Onboarding({ t, onComplete }) {
   const [step, setStep] = useState(1);

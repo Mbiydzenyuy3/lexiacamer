@@ -31,7 +31,15 @@ export default function Settings({ settings, setSettings, onBack }) {
               </p>
             </div>
             
-            <label style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', flexShrink: 0 }}>
+            <button
+              type="button"
+              role="switch"
+              aria-checked={settings.dyslexiaMode}
+              aria-label="Dyslexia-friendly mode"
+              onClick={toggleDyslexiaMode}
+              className="switch"
+              style={{ flexShrink: 0, padding: 0, borderRadius: '15px', cursor: 'pointer' }}
+            >
               <div style={{
                 width: '52px',
                 height: '30px',
@@ -53,13 +61,7 @@ export default function Settings({ settings, setSettings, onBack }) {
                   boxShadow: '0 2px 4px rgba(0,0,0,0.15)'
                 }} />
               </div>
-              <input 
-                type="checkbox" 
-                checked={settings.dyslexiaMode} 
-                onChange={toggleDyslexiaMode} 
-                style={{ display: 'none' }} 
-              />
-            </label>
+            </button>
           </div>
         </div>
 

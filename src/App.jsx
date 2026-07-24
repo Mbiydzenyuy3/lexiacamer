@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Home, Type, Hammer, BookOpen, WifiOff, Cat, Bird, Snail, Dog, ShieldCheck } from 'lucide-react';
+import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck } from 'lucide-react';
+import { getAvatarIcon } from './avatars';
 import i18n from './i18n';
 import HomeScreen from './HomeScreen';
 import PhonicsLab from './PhonicsLab';
@@ -167,8 +168,7 @@ export default function App() {
     }
   };
 
-  const avatarIcons = { lion: Cat, parrot: Bird, tortoise: Snail, dog: Dog };
-  const AvatarIcon = user?.avatar ? avatarIcons[user.avatar] : BookOpen;
+  const AvatarIcon = getAvatarIcon(user?.avatar, BookOpen);
 
   return (
     <>
@@ -181,7 +181,7 @@ export default function App() {
             onClick={() => handleNavigate('home')}
             aria-label="LexiaCamer home"
           >
-            <img src="/pwa-192x192.png" alt="" className="top-bar-logo-img" />
+            <img src="/pwa-192x192.png" alt="L" className="top-bar-logo-img" />
             <span className="top-bar-logo-text">exiaCamer</span>
           </button>
 

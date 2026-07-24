@@ -13,13 +13,20 @@ const STICKERS = [
 
 export default function StickerBook({ stats, setStats, unlockedStickers, setUnlockedStickers, onBack }) {
   const [showCelebration, setShowCelebration] = React.useState(false);
+  const celebrationTimer = React.useRef(null);
+
+  // App keys <main> by screen, so tapping Back mid-celebration unmounts this
+  // component while the timeout is still pending. Clear it on unmount so it
+  // never fires setState on an unmounted tree.
+  React.useEffect(() => () => clearTimeout(celebrationTimer.current), []);
 
   const handleUnlock = (sticker) => {
     if (stats.stars >= sticker.cost && !unlockedStickers.includes(sticker.id)) {
       setStats(prev => ({ ...prev, stars: prev.stars - sticker.cost }));
       setUnlockedStickers(prev => [...prev, sticker.id]);
       setShowCelebration(true);
-      setTimeout(() => setShowCelebration(false), 3000);
+      clearTimeout(celebrationTimer.current);
+      celebrationTimer.current = setTimeout(() => setShowCelebration(false), 3000);
     }
   };
 
@@ -57,7 +64,7 @@ export default function StickerBook({ stats, setStats, unlockedStickers, setUnlo
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
             {[
-              { Icon: Star, color: 'var(--amber-500)', title: 'Earn stars', text: 'You get stars for every word you read in Sounds & Spelling.' },
+              { Icon: Star, color: 'var(--amber-500)', title: 'Earn stars', text: 'You get stars for every word you read in Phonics Lab & Word Forge.' },
               { Icon: HelpCircle, color: 'var(--indigo-500)', title: 'Pick a sticker', text: 'The number on each locked sticker is its star price. Choose one you can afford.' },
               { Icon: CheckCircle2, color: 'var(--green-600)', title: 'Tap to unlock', text: 'Tap it to spend your stars. It joins your collection to keep forever!' },
             ].map((s, i) => (

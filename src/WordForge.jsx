@@ -132,8 +132,12 @@ export default function WordForge({ t, lang, stats, onWordCorrect, onWordMissed,
           setTimeout(() => setShowCelebration(false), 2500);
         } else {
           setResult('wrong');
-          const incorrectLetters = attempt.split('').filter((letter, i) => letter !== targetWord[i]);
-          onWordMissed(incorrectLetters);
+          // Record the letters the child SHOULD have placed (the target's
+          // letters at the wrong positions), not the distractor they picked —
+          // otherwise the Parent Dashboard blames letters that aren't even in
+          // the word.
+          const missedLetters = targetWord.split('').filter((letter, i) => attempt[i] !== letter);
+          onWordMissed(missedLetters);
 
           // Shake & reset after 1.2s
           setTimeout(() => {
@@ -156,8 +160,14 @@ export default function WordForge({ t, lang, stats, onWordCorrect, onWordMissed,
   }, [wordIndex, words.length, onRoundComplete]);
 
   const handleSkip = useCallback(() => {
-    const unpicked = targetWord.split('').filter((l, i) => selected[i] !== l);
-    onWordMissed(unpicked);
+    // Only count letters the child actually placed and got wrong. Skipping an
+    // untouched word would otherwise log every letter as "missed" and swamp the
+    // Parent Dashboard's practice ranking. An empty attempt still breaks the
+    // streak (onWordMissed resets it) but records nothing.
+    const missedLetters = targetWord
+      .split('')
+      .filter((letter, i) => selected[i] !== undefined && selected[i] !== letter);
+    onWordMissed(missedLetters);
     handleNext();
   }, [handleNext, onWordMissed, targetWord, selected]);
 

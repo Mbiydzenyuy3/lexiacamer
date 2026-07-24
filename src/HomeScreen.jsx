@@ -31,18 +31,19 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             </div>
             <div className="stat-label">{t.statsStreak}</div>
           </div>
-          <div className="stat-card card-interactive" onClick={() => onNavigate('sticker_book')} style={{ cursor: 'pointer' }}>
+          <button type="button" className="stat-card card-interactive" onClick={() => onNavigate('sticker_book')} aria-label={`${stats.stars} stars — open Sticker Book`} style={{ cursor: 'pointer', width: '100%' }}>
             <div className="stat-value" style={{ color: 'var(--indigo-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
               <Star size={20} /> {stats.stars}
             </div>
             <div className="stat-label">{t.statsStars}</div>
-          </div>
+          </button>
         </div>
 
         {/* Action Grid */}
         <div className="animate-fade-in-delay" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '1.5rem' }}>
 
-          <div className="card card-interactive" onClick={() => onNavigate('phonics')} style={{
+          <button type="button" className="card card-interactive" onClick={() => onNavigate('phonics')} style={{
+            width: '100%',
             background: 'linear-gradient(145deg, var(--green-50), #ffffff)',
             borderColor: 'var(--green-200)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
@@ -57,9 +58,10 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             </div>
             <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Phonics Lab</div>
             <div className="text-xs" style={{ color: 'var(--green-700)' }}>Learn sounds</div>
-          </div>
+          </button>
 
-          <div className="card card-interactive" onClick={() => onNavigate('forge')} style={{
+          <button type="button" className="card card-interactive" onClick={() => onNavigate('forge')} style={{
+            width: '100%',
             background: 'linear-gradient(145deg, var(--amber-50), #ffffff)',
             borderColor: 'var(--amber-200)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
@@ -74,9 +76,10 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             </div>
             <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Word Forge</div>
             <div className="text-xs" style={{ color: 'var(--amber-600)' }}>Spell words</div>
-          </div>
+          </button>
 
-          <div className="card card-interactive" onClick={() => onNavigate('sticker_book')} style={{
+          <button type="button" className="card card-interactive" onClick={() => onNavigate('sticker_book')} style={{
+            width: '100%',
             background: 'linear-gradient(145deg, var(--indigo-50), #ffffff)',
             borderColor: 'var(--indigo-200)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
@@ -91,9 +94,10 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             </div>
             <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Sticker Book</div>
             <div className="text-xs" style={{ color: 'var(--indigo-600)' }}>Spend stars</div>
-          </div>
+          </button>
 
-          <div className="card card-interactive" onClick={() => onNavigate('settings')} style={{
+          <button type="button" className="card card-interactive" onClick={() => onNavigate('settings')} style={{
+            width: '100%',
             background: 'linear-gradient(145deg, #f5f5f5, #ffffff)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             padding: '1.5rem 1rem',
@@ -107,7 +111,7 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             </div>
             <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Settings</div>
             <div className="text-xs text-muted">Dyslexia mode</div>
-          </div>
+          </button>
         </div>
 
         {/* Parent Dashboard Link */}
