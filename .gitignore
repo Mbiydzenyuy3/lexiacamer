@@ -2,6 +2,10 @@ node_modules
 dist
 .DS_Store
 *.local
+
+# Browser QA / Playwright test artifacts
+.playwright-mcp/
+/*.png
 .env
 .env.*
 !.env.example

@@ -455,7 +455,7 @@ p  { font-size: 1rem; line-height: 1.6; }
    center action and the avatar in their own lanes so they can never overlap. */
 .top-bar-inner {
   width: 100%;
-  max-width: 640px;
+  max-width: 680px;
   margin: 0 auto;
   display: grid;
   grid-template-columns: 1fr auto 1fr;
