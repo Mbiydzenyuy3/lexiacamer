@@ -97,7 +97,7 @@ export default function ParentDashboard({ stats, missedPhonemes, onBack }) {
         <div className="card" style={{ borderColor: hasMissed ? 'var(--amber-200)' : 'var(--border-light)' }}>
           <h3 className="flex items-center gap-sm mb-4" style={{ fontSize: '1rem' }}>
             <AlertTriangle size={20} style={{ color: hasMissed ? 'var(--amber-500)' : 'var(--text-muted)' }} />
-            Areas for Practice
+            Practice Areas
           </h3>
 
           {!hasMissed ? (
