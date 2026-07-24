@@ -822,13 +822,28 @@ p  { font-size: 1rem; line-height: 1.6; }
   animation: fadeIn 0.3s var(--ease-out);
 }
 
+/* Header and body share the same centered, max-width column as the Home
+   screen's .container, so no screen sprawls edge-to-edge on tablet/desktop. */
 .screen-header {
+  width: 100%;
+  max-width: 640px;
+  margin-inline: auto;
   padding: var(--space-lg);
   padding-bottom: var(--space-sm);
 }
 
 .screen-body {
+  width: 100%;
+  max-width: 640px;
+  margin-inline: auto;
   padding: var(--space-lg);
+}
+
+@media (min-width: 768px) {
+  .screen-header,
+  .screen-body {
+    max-width: 680px;
+  }
 }
 
 /* ——— Language Toggle ——— */
