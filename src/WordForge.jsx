@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
 import { wordData } from './i18n';
-import { Trophy, Star, Flame, Volume2, Lightbulb, SkipForward, RotateCcw, HelpCircle, Leaf, Soup, Package, ChefHat, Beef, Circle, Fish, ConciergeBell, Wheat, Carrot, User, Crown, UserCheck, UserSquare, Heart, Smile, Building2, Tent, Trees, Mountain, Waves, Home, MapPin, TreePine, CloudRain, Sun, Bird, Droplets } from 'lucide-react';
+import { Trophy, Star, Flame, Volume2, Lightbulb, SkipForward, RotateCcw, HelpCircle, CheckCircle2, Leaf, Soup, Package, ChefHat, Beef, Circle, Fish, ConciergeBell, Wheat, Carrot, User, Crown, UserCheck, UserSquare, Heart, Smile, Building2, Tent, Trees, Mountain, Waves, Home, MapPin, TreePine, CloudRain, Sun, Bird, Droplets } from 'lucide-react';
 import speechEngine from './speech';
 import Confetti from './Confetti';
 
@@ -206,7 +206,7 @@ export default function WordForge({ t, lang, stats, onWordCorrect, onWordMissed,
             {t.forgeComplete}
           </p>
           <div className="score-display" style={{ justifyContent: 'center', margin: '0 auto 1.5rem', width: 'fit-content' }}>
-            <Star size={18} className="text-amber-500" />
+            <CheckCircle2 size={18} style={{ color: 'var(--green-600)' }} />
             <span>{t.forgeScore}: {score}/{words.length}</span>
           </div>
           <button className="btn btn-primary btn-lg" style={{ display: 'inline-flex', alignItems: 'center', gap: '8px' }} onClick={handlePlayAgain} id="forge-play-again">
@@ -232,7 +232,7 @@ export default function WordForge({ t, lang, stats, onWordCorrect, onWordMissed,
           </div>
           <div className="score-display">
             {stats.streak >= 3 && <Flame size={20} className="streak-fire text-amber-500" />}
-            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><Star size={16} className="text-amber-500" /> {score}</span>
+            <span style={{ display: 'flex', alignItems: 'center', gap: '4px' }}><CheckCircle2 size={16} style={{ color: 'var(--green-600)' }} /> {score}</span>
           </div>
         </div>
       </div>
@@ -397,7 +397,7 @@ export default function WordForge({ t, lang, stats, onWordCorrect, onWordMissed,
         <div style={{ marginTop: '1.5rem' }}>
           <div className="flex justify-between text-xs text-muted" style={{ marginBottom: '0.3rem' }}>
             <span>{wordIndex + 1} / {words.length}</span>
-            {stats.streak >= 2 && <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}><Flame size={14} className="text-amber-500" /> {stats.streak} {t.forgeStreak}</span>}
+            {stats.streak >= 3 && <span style={{ display: 'flex', alignItems: 'center', gap: '2px' }}><Flame size={14} className="text-amber-500" /> {stats.streak} {t.forgeStreak}</span>}
           </div>
           <div className="progress-bar">
             <div

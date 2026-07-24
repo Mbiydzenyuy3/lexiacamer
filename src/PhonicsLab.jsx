@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useMemo, useEffect } from 'react';
-import { Lightbulb, Play, Star, RotateCcw } from 'lucide-react';
+import { Lightbulb, Play, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { phonicsData } from './i18n';
 import speechEngine from './speech';
 import Confetti from './Confetti';
@@ -44,15 +44,19 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
     
     if (isChallengeMode && targetItem) {
       if (item.letter === targetItem.letter) {
-        // Correct!
+        // Correct! Award stars and extend the shared "in a row" streak.
         setScore(s => s + 1);
         if (setStats) {
-          setStats(prev => ({ ...prev, stars: (prev.stars || 0) + 2 }));
+          setStats(prev => ({
+            ...prev,
+            stars: (prev.stars || 0) + 2,
+            streak: (prev.streak || 0) + 1,
+          }));
         }
         speechEngine.speakCelebration(lang);
         setShowCelebration(true);
         setTimeout(() => setShowCelebration(false), 2000);
-        
+
         // Next sound
         setTimeout(() => {
           const nextItem = filtered[Math.floor(Math.random() * filtered.length)];
@@ -60,8 +64,11 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
           speechEngine.speakLetter(nextItem.sound, lang);
         }, 2000);
       } else {
-        // Wrong
-        speechEngine.speakLetter(targetItem.sound, lang); // repeat target sound
+        // Wrong — repeat the target sound and break the streak.
+        if (setStats) {
+          setStats(prev => ({ ...prev, streak: 0 }));
+        }
+        speechEngine.speakLetter(targetItem.sound, lang);
       }
     } else {
       // Normal mode
@@ -88,7 +95,7 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
         </div>
         {isChallengeMode && (
           <div className="score-display">
-            <Star size={16} className="text-amber-500" /> {score}
+            <CheckCircle2 size={16} style={{ color: 'var(--green-600)' }} /> {score}
           </div>
         )}
       </div>

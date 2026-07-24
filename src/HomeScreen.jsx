@@ -27,7 +27,7 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
           </div>
           <div className="stat-card">
             <div className="stat-value" style={{ color: 'var(--amber-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
-              {stats.streak > 0 && <Flame size={20} />} {stats.streak}
+              {stats.streak >= 3 && <Flame size={20} />} {stats.streak}
             </div>
             <div className="stat-label">{t.statsStreak}</div>
           </div>
@@ -55,8 +55,8 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             }}>
               <Type size={28} style={{ color: 'var(--green-700)' }} />
             </div>
-            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Sounds</div>
-            <div className="text-xs" style={{ color: 'var(--green-700)' }}>Learn letter sounds</div>
+            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Phonics Lab</div>
+            <div className="text-xs" style={{ color: 'var(--green-700)' }}>Learn sounds</div>
           </div>
 
           <div className="card card-interactive" onClick={() => onNavigate('forge')} style={{
@@ -72,8 +72,8 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             }}>
               <Hammer size={28} style={{ color: 'var(--amber-600)' }} />
             </div>
-            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Spelling</div>
-            <div className="text-xs" style={{ color: 'var(--amber-600)' }}>Spell words out loud</div>
+            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Word Forge</div>
+            <div className="text-xs" style={{ color: 'var(--amber-600)' }}>Spell words</div>
           </div>
 
           <div className="card card-interactive" onClick={() => onNavigate('sticker_book')} style={{

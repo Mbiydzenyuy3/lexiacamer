@@ -20,7 +20,7 @@ const STORAGE_KEY = 'lexia_state';
 function loadState() {
   const defaultState = {
     lang: 'en',
-    stats: { words: 0, streak: 0, stars: 0, timeSpent: 0 },
+    stats: { words: 0, streak: 0, stars: 0 },
     settings: { dyslexiaMode: false },
     user: { name: '', avatar: '' },
     unlockedStickers: [],
