@@ -189,7 +189,7 @@ export default function App() {
           <button
             className={`top-bar-parents ${screen === 'parent_dashboard' ? 'active' : ''}`}
             onClick={() => handleNavigate('parent_dashboard')}
-            aria-label="Dashboard"
+            aria-label={t.dashboardLabel}
           >
             <ShieldCheck size={18} />
             <span className="top-bar-parents-label">{t.dashboardLabel}</span>
