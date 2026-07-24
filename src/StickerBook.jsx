@@ -1,5 +1,5 @@
 import React from 'react';
-import { ArrowLeft, Star, Cat, Dog, Bird, Snail, Trees, Mountain, HelpCircle, Lock } from 'lucide-react';
+import { ArrowLeft, Star, Cat, Dog, Bird, Snail, Trees, Mountain, HelpCircle, Lock, Sparkles, CheckCircle2 } from 'lucide-react';
 import Confetti from './Confetti';
 
 const STICKERS = [
@@ -42,8 +42,45 @@ export default function StickerBook({ stats, setStats, unlockedStickers, setUnlo
       </div>
 
       <div className="screen-body">
-        <p className="text-muted text-center" style={{ marginBottom: '1.5rem', lineHeight: 1.6 }}>
-          Spend your stars to unlock Cameroonian friends and places!
+        {/* How it works — so anyone understands the feature without being told */}
+        <div className="card" style={{
+          marginBottom: '1.25rem',
+          background: 'linear-gradient(145deg, var(--amber-50), #ffffff)',
+          borderColor: 'var(--amber-200)',
+        }}>
+          <div style={{
+            fontWeight: 800, fontSize: '1rem', marginBottom: '0.85rem',
+            display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--amber-600)',
+          }}>
+            <Sparkles size={18} /> How to collect stickers
+          </div>
+
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+            {[
+              { Icon: Star, color: 'var(--amber-500)', title: 'Earn stars', text: 'You get stars for every word you read in Sounds & Spelling.' },
+              { Icon: HelpCircle, color: 'var(--indigo-500)', title: 'Pick a sticker', text: 'The number on each locked sticker is its star price. Choose one you can afford.' },
+              { Icon: CheckCircle2, color: 'var(--green-600)', title: 'Tap to unlock', text: 'Tap it to spend your stars. It joins your collection to keep forever!' },
+            ].map((s, i) => (
+              <div key={i} style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
+                <div style={{
+                  width: '1.85rem', height: '1.85rem', borderRadius: '50%',
+                  background: 'var(--bg-body)', color: s.color,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                }}>
+                  <s.Icon size={16} />
+                </div>
+                <div style={{ textAlign: 'left' }}>
+                  <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{i + 1}. {s.title}</div>
+                  <div className="text-xs text-muted" style={{ lineHeight: 1.4 }}>{s.text}</div>
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Collection progress — reinforces the goal */}
+        <p className="text-center text-sm" style={{ marginBottom: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
+          {unlockedStickers.length} of {STICKERS.length} stickers collected
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.75rem' }}>
@@ -93,15 +130,23 @@ export default function StickerBook({ stats, setStats, unlockedStickers, setUnlo
                 
                 {isUnlocked ? (
                   <p className="text-xs text-muted" style={{ lineHeight: 1.4 }}>{sticker.desc}</p>
-                ) : (
-                  <button 
-                    className={`btn btn-sm ${canAfford ? 'btn-secondary' : 'btn-ghost'}`}
-                    style={{ marginTop: '0.5rem', padding: '0.3rem 0.75rem', fontSize: '0.75rem' }}
-                    disabled={!canAfford}
+                ) : canAfford ? (
+                  <button
+                    className="btn btn-sm btn-secondary"
+                    style={{ marginTop: '0.5rem', padding: '0.3rem 0.85rem', fontSize: '0.75rem' }}
                     onClick={(e) => { e.stopPropagation(); handleUnlock(sticker); }}
                   >
-                    {canAfford ? <><Star size={12} /> {sticker.cost}</> : <><Lock size={12} /> {sticker.cost}</>}
+                    <Star size={12} /> Unlock · {sticker.cost}
                   </button>
+                ) : (
+                  <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.15rem' }}>
+                    <div style={{ display: 'flex', alignItems: 'center', gap: '0.25rem', fontWeight: 700, fontSize: '0.8rem', color: 'var(--text-secondary)' }}>
+                      <Lock size={12} /> {sticker.cost} <Star size={11} style={{ color: 'var(--amber-500)' }} />
+                    </div>
+                    <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
+                      {sticker.cost - stats.stars} more to go
+                    </div>
+                  </div>
                 )}
               </div>
             );
