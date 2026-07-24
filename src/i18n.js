@@ -71,6 +71,72 @@ const i18n = {
     // Accessibility
     speakBtn: "Listen",
     backBtn: "Back",
+
+    // Home — action grid
+    defaultUserName: "Young Reader",
+    homePhonicsTitle: "Phonics Lab",
+    homePhonicsDesc: "Learn sounds",
+    homeForgeTitle: "Word Forge",
+    homeForgeDesc: "Spell words",
+    homeStickerTitle: "Sticker Book",
+    homeStickerDesc: "Spend stars",
+    homeSettingsTitle: "Settings",
+    homeSettingsDesc: "Dyslexia mode",
+
+    // Onboarding
+    onboardNameTitle: "What is your name?",
+    onboardNameSubtitle: "Let's personalize your experience!",
+    onboardNamePlaceholder: "Type your name...",
+    onboardContinue: "Continue",
+    onboardAvatarTitle: "Choose your buddy",
+    onboardAvatarSubtitle: "Pick an animal friend to learn with!",
+    onboardReady: "You're all set. Let's start learning! 🎉",
+    onboardLetsGo: "Let's Go!",
+    onboardWelcome: "Welcome, {name}!",
+
+    // Phonics Lab — challenge mode
+    phonicsPlayChallenge: "Play Challenge Mode",
+    phonicsRepeatSound: "Repeat Sound",
+    phonicsQuit: "Quit",
+    phonicsListenPrompt: "Listen carefully! Find the letter that makes the sound.",
+
+    // Settings
+    settingsTitle: "Settings",
+    settingsDyslexiaTitle: "Dyslexia-Friendly Mode",
+    settingsDyslexiaDesc: "Uses the Comic Neue font and increased letter spacing for easier reading.",
+    settingsAboutTitle: "About LexiaCamer",
+    settingsAboutDesc: "Helping Cameroon's children master reading, one sound at a time. This app is 100% free and works offline!",
+
+    // Parent Dashboard
+    parentTitle: "Parent Area",
+    parentUnlockPrompt: "Tap the button below 3 times to unlock the parent dashboard.",
+    parentTapUnlock: "Tap to Unlock",
+    parentLeft: "left",
+    parentCancel: "Cancel",
+    parentOverview: "Overview",
+    parentWordsBuilt: "Words Built",
+    parentTotalStars: "Total Stars",
+    parentPracticeAreas: "Practice Areas",
+    parentNoData: "Not enough data yet. Let your child play more Word Forge!",
+    parentMissedLetters: "These are the letters your child frequently misses when spelling:",
+    parentTip: "Go to the Phonics Lab and practice the sounds for these specific letters together!",
+    parentTipLabel: "Parent Tip:",
+
+    // Sticker Book
+    stickerTitle: "Sticker Book",
+    stickerHowTo: "How to collect stickers",
+    stickerStepEarn: "Earn stars",
+    stickerStepEarnDesc: "You get stars for every word you read in Phonics Lab & Word Forge.",
+    stickerStepPick: "Pick a sticker",
+    stickerStepPickDesc: "The number on each locked sticker is its star price. Choose one you can afford.",
+    stickerStepUnlock: "Tap to unlock",
+    stickerStepUnlockDesc: "Tap it to spend your stars. It joins your collection to keep forever!",
+    stickerCollected: "stickers collected",
+    stickerUnlock: "Unlock",
+    stickerMoreToGo: "more to go",
+
+    // Top bar
+    dashboardLabel: "Dashboard",
   },
 
   fr: {
@@ -140,6 +206,72 @@ const i18n = {
     // Accessibility
     speakBtn: "Écouter",
     backBtn: "Retour",
+
+    // Home — action grid
+    defaultUserName: "Jeune Lecteur",
+    homePhonicsTitle: "Labo Phonique",
+    homePhonicsDesc: "Apprends les sons",
+    homeForgeTitle: "Forge de Mots",
+    homeForgeDesc: "Épelle les mots",
+    homeStickerTitle: "Album d'Autocollants",
+    homeStickerDesc: "Dépense tes étoiles",
+    homeSettingsTitle: "Réglages",
+    homeSettingsDesc: "Mode dyslexie",
+
+    // Onboarding
+    onboardNameTitle: "Comment tu t'appelles ?",
+    onboardNameSubtitle: "Personnalisons ton expérience !",
+    onboardNamePlaceholder: "Tape ton nom...",
+    onboardContinue: "Continuer",
+    onboardAvatarTitle: "Choisis ton compagnon",
+    onboardAvatarSubtitle: "Choisis un ami animal pour apprendre !",
+    onboardReady: "Tu es prêt. Apprenons ensemble ! 🎉",
+    onboardLetsGo: "C'est parti !",
+    onboardWelcome: "Bienvenue, {name} !",
+
+    // Phonics Lab — challenge mode
+    phonicsPlayChallenge: "Mode Défi",
+    phonicsRepeatSound: "Répéter le son",
+    phonicsQuit: "Quitter",
+    phonicsListenPrompt: "Écoute bien ! Trouve la lettre qui fait ce son.",
+
+    // Settings
+    settingsTitle: "Réglages",
+    settingsDyslexiaTitle: "Mode Dyslexie",
+    settingsDyslexiaDesc: "Utilise la police Comic Neue et un espacement plus large pour faciliter la lecture.",
+    settingsAboutTitle: "À propos de LexiaCamer",
+    settingsAboutDesc: "Aider les enfants du Cameroun à maîtriser la lecture, un son à la fois. Cette application est 100% gratuite et fonctionne hors ligne !",
+
+    // Parent Dashboard
+    parentTitle: "Espace Parent",
+    parentUnlockPrompt: "Appuyez 3 fois sur le bouton pour déverrouiller le tableau de bord.",
+    parentTapUnlock: "Appuyez pour déverrouiller",
+    parentLeft: "restant(s)",
+    parentCancel: "Annuler",
+    parentOverview: "Aperçu",
+    parentWordsBuilt: "Mots Construits",
+    parentTotalStars: "Étoiles Totales",
+    parentPracticeAreas: "Domaines à Pratiquer",
+    parentNoData: "Pas assez de données. Laissez votre enfant jouer plus à Forge de Mots !",
+    parentMissedLetters: "Voici les lettres que votre enfant rate souvent en épelant :",
+    parentTip: "Allez au Labo Phonique et pratiquez les sons de ces lettres ensemble !",
+    parentTipLabel: "Conseil parent :",
+
+    // Sticker Book
+    stickerTitle: "Album d'Autocollants",
+    stickerHowTo: "Comment collectionner les autocollants",
+    stickerStepEarn: "Gagne des étoiles",
+    stickerStepEarnDesc: "Tu gagnes des étoiles pour chaque mot lu au Labo Phonique et à la Forge de Mots.",
+    stickerStepPick: "Choisis un autocollant",
+    stickerStepPickDesc: "Le nombre sur chaque autocollant verrouillé est son prix en étoiles. Choisis-en un que tu peux te permettre.",
+    stickerStepUnlock: "Touche pour débloquer",
+    stickerStepUnlockDesc: "Touche-le pour dépenser tes étoiles. Il rejoint ta collection pour toujours !",
+    stickerCollected: "autocollants collectionnés",
+    stickerUnlock: "Débloquer",
+    stickerMoreToGo: "encore",
+
+    // Top bar
+    dashboardLabel: "Tableau de bord",
   },
 };
 

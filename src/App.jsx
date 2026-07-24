@@ -145,11 +145,11 @@ export default function App() {
           setScreen('home');
         }} />;
       case 'settings':
-        return <Settings settings={settings} setSettings={setSettings} onBack={() => setScreen('home')} />;
+        return <Settings t={t} settings={settings} setSettings={setSettings} onBack={() => setScreen('home')} />;
       case 'parent_dashboard':
-        return <ParentDashboard stats={stats} missedPhonemes={missedPhonemes} onBack={() => setScreen('home')} />;
+        return <ParentDashboard t={t} stats={stats} missedPhonemes={missedPhonemes} onBack={() => setScreen('home')} />;
       case 'sticker_book':
-        return <StickerBook stats={stats} setStats={setStats} unlockedStickers={unlockedStickers} setUnlockedStickers={setUnlockedStickers} onBack={() => setScreen('home')} />;
+        return <StickerBook t={t} stats={stats} setStats={setStats} unlockedStickers={unlockedStickers} setUnlockedStickers={setUnlockedStickers} onBack={() => setScreen('home')} />;
       case 'phonics':
         return <PhonicsLab t={t} lang={lang} stats={stats} setStats={setStats} />;
       case 'forge':
@@ -192,7 +192,7 @@ export default function App() {
             aria-label="Dashboard"
           >
             <ShieldCheck size={18} />
-            <span className="top-bar-parents-label">Dashboard</span>
+            <span className="top-bar-parents-label">{t.dashboardLabel}</span>
           </button>
 
           {/* Right: Avatar */}

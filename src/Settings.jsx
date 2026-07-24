@@ -1,7 +1,7 @@
 import React from 'react';
 import { Settings as SettingsIcon, Type, ArrowLeft, Info } from 'lucide-react';
 
-export default function Settings({ settings, setSettings, onBack }) {
+export default function Settings({ t, settings, setSettings, onBack }) {
   const toggleDyslexiaMode = () => {
     setSettings(prev => ({ ...prev, dyslexiaMode: !prev.dyslexiaMode }));
   };
@@ -13,7 +13,7 @@ export default function Settings({ settings, setSettings, onBack }) {
           <ArrowLeft size={24} />
         </button>
         <h2 className="flex items-center gap-sm mb-0">
-          <SettingsIcon size={24} /> Settings
+          <SettingsIcon size={24} /> {t.settingsTitle}
         </h2>
       </div>
 
@@ -24,10 +24,10 @@ export default function Settings({ settings, setSettings, onBack }) {
             <div style={{ flex: 1 }}>
               <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.35rem' }}>
                 <Type size={20} style={{ color: 'var(--color-primary)' }} />
-                Dyslexia-Friendly Mode
+                {t.settingsDyslexiaTitle}
               </div>
               <p className="text-sm text-muted" style={{ lineHeight: 1.5 }}>
-                Uses the Comic Neue font and increased letter spacing for easier reading.
+                {t.settingsDyslexiaDesc}
               </p>
             </div>
             
@@ -78,9 +78,8 @@ export default function Settings({ settings, setSettings, onBack }) {
         }}>
           <Info size={20} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
           <div>
-            <strong style={{ display: 'block', marginBottom: '0.25rem' }}>About LexiaCamer</strong>
-            Helping Cameroon's children master reading, one sound at a time. 
-            This app is 100% free and works offline!
+            <strong style={{ display: 'block', marginBottom: '0.25rem' }}>{t.settingsAboutTitle}</strong>
+            {t.settingsAboutDesc}
           </div>
         </div>
       </div>

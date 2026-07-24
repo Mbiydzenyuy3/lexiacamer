@@ -8,7 +8,7 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
     return tips[dayIdx];
   }, [t]);
 
-  const userName = user?.name || 'Young Reader';
+  const userName = user?.name || t.defaultUserName;
 
   return (
     <div className="screen">
@@ -56,8 +56,8 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             }}>
               <Type size={28} style={{ color: 'var(--green-700)' }} />
             </div>
-            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Phonics Lab</div>
-            <div className="text-xs" style={{ color: 'var(--green-700)' }}>Learn sounds</div>
+            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>{t.homePhonicsTitle}</div>
+            <div className="text-xs" style={{ color: 'var(--green-700)' }}>{t.homePhonicsDesc}</div>
           </button>
 
           <button type="button" className="card card-interactive" onClick={() => onNavigate('forge')} style={{
@@ -74,8 +74,8 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             }}>
               <Hammer size={28} style={{ color: 'var(--amber-600)' }} />
             </div>
-            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Word Forge</div>
-            <div className="text-xs" style={{ color: 'var(--amber-600)' }}>Spell words</div>
+            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>{t.homeForgeTitle}</div>
+            <div className="text-xs" style={{ color: 'var(--amber-600)' }}>{t.homeForgeDesc}</div>
           </button>
 
           <button type="button" className="card card-interactive" onClick={() => onNavigate('sticker_book')} style={{
@@ -92,8 +92,8 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             }}>
               <Star size={28} style={{ color: 'var(--indigo-600)' }} />
             </div>
-            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Sticker Book</div>
-            <div className="text-xs" style={{ color: 'var(--indigo-600)' }}>Spend stars</div>
+            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>{t.homeStickerTitle}</div>
+            <div className="text-xs" style={{ color: 'var(--indigo-600)' }}>{t.homeStickerDesc}</div>
           </button>
 
           <button type="button" className="card card-interactive" onClick={() => onNavigate('settings')} style={{
@@ -109,8 +109,8 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             }}>
               <Settings size={28} style={{ color: 'var(--text-secondary)' }} />
             </div>
-            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>Settings</div>
-            <div className="text-xs text-muted">Dyslexia mode</div>
+            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>{t.homeSettingsTitle}</div>
+            <div className="text-xs text-muted">{t.homeSettingsDesc}</div>
           </button>
         </div>
 

@@ -105,15 +105,15 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
         <div style={{ marginBottom: '1rem' }}>
           {!isChallengeMode ? (
             <button className="btn btn-outline w-full" onClick={startChallenge}>
-              <Play size={18} /> Play Challenge Mode
+              <Play size={18} /> {t.phonicsPlayChallenge}
             </button>
           ) : (
             <div className="flex w-full gap-sm">
               <button className="btn btn-primary flex-1" onClick={repeatSound}>
-                <RotateCcw size={18} /> Repeat Sound
+                <RotateCcw size={18} /> {t.phonicsRepeatSound}
               </button>
               <button className="btn btn-ghost" onClick={stopChallenge}>
-                Quit
+                {t.phonicsQuit}
               </button>
             </div>
           )}
@@ -142,7 +142,7 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
             borderRadius: 'var(--radius-lg)', color: 'var(--indigo-700)', fontWeight: 600,
             fontSize: '0.9rem',
           }}>
-            Listen carefully! Find the letter that makes the sound.
+            {t.phonicsListenPrompt}
           </div>
         )}
 

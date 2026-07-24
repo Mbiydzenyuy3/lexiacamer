@@ -63,14 +63,14 @@ export default function Onboarding({ t, onComplete }) {
               <User size={40} style={{ color: 'var(--green-700)' }} />
             </div>
 
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>What is your name?</h2>
-            <p className="text-muted" style={{ fontSize: '1rem', marginBottom: '2rem' }}>Let's personalize your experience!</p>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{t.onboardNameTitle}</h2>
+            <p className="text-muted" style={{ fontSize: '1rem', marginBottom: '2rem' }}>{t.onboardNameSubtitle}</p>
 
             <input
               type="text"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              placeholder="Type your name..."
+              placeholder={t.onboardNamePlaceholder}
               style={{
                 width: '100%',
                 padding: '1rem 1.25rem',
@@ -102,15 +102,15 @@ export default function Onboarding({ t, onComplete }) {
               onClick={handleNext}
               disabled={!name.trim()}
             >
-              Continue <ChevronRight size={22} />
+              {t.onboardContinue} <ChevronRight size={22} />
             </button>
           </div>
         )}
 
         {step === 2 && (
           <div className="animate-fade-in">
-            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>Choose your buddy</h2>
-            <p className="text-muted" style={{ fontSize: '1rem', marginBottom: '2rem' }}>Pick an animal friend to learn with!</p>
+            <h2 style={{ fontSize: '1.5rem', marginBottom: '0.5rem' }}>{t.onboardAvatarTitle}</h2>
+            <p className="text-muted" style={{ fontSize: '1rem', marginBottom: '2rem' }}>{t.onboardAvatarSubtitle}</p>
 
             <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '0.75rem', marginBottom: '2rem' }}>
               {avatars.map((a) => {
@@ -148,7 +148,7 @@ export default function Onboarding({ t, onComplete }) {
               style={{ padding: '1rem', fontSize: '1.1rem' }}
               onClick={handleNext}
             >
-              Continue <ChevronRight size={22} />
+              {t.onboardContinue} <ChevronRight size={22} />
             </button>
           </div>
         )}
@@ -163,15 +163,15 @@ export default function Onboarding({ t, onComplete }) {
               <CheckCircle2 size={56} style={{ color: 'var(--green-600)' }} />
             </div>
 
-            <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>Welcome, {name}!</h2>
-            <p className="text-muted" style={{ fontSize: '1.05rem', marginBottom: '2.5rem' }}>You're all set. Let's start learning! 🎉</p>
+            <h2 style={{ fontSize: '1.75rem', marginBottom: '0.5rem' }}>{t.onboardWelcome.replace('{name}', name)}</h2>
+            <p className="text-muted" style={{ fontSize: '1.05rem', marginBottom: '2.5rem' }}>{t.onboardReady}</p>
 
             <button
               className="btn btn-primary w-full"
               style={{ padding: '1rem', fontSize: '1.1rem' }}
               onClick={handleNext}
             >
-              <Sparkles size={20} /> Let's Go!
+              <Sparkles size={20} /> {t.onboardLetsGo}
             </button>
           </div>
         )}

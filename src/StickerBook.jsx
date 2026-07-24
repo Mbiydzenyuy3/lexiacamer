@@ -11,7 +11,7 @@ const STICKERS = [
   { id: 'mt_cameroon', name: 'Mount Cameroon', cost: 100, icon: Mountain, color: '#1a2e05', bg: '#f5f5f5', desc: 'Chariot of the gods.' }
 ];
 
-export default function StickerBook({ stats, setStats, unlockedStickers, setUnlockedStickers, onBack }) {
+export default function StickerBook({ t, stats, setStats, unlockedStickers, setUnlockedStickers, onBack }) {
   const [showCelebration, setShowCelebration] = React.useState(false);
   const celebrationTimer = React.useRef(null);
 
@@ -40,7 +40,7 @@ export default function StickerBook({ stats, setStats, unlockedStickers, setUnlo
             <ArrowLeft size={24} />
           </button>
           <h2 className="flex items-center gap-sm mb-0" style={{ color: 'var(--amber-600)' }}>
-            <Star size={24} /> Sticker Book
+            <Star size={24} /> {t.stickerTitle}
           </h2>
         </div>
         <div className="score-display" style={{ fontSize: '0.95rem', padding: '0.4rem 0.75rem' }}>
@@ -59,14 +59,14 @@ export default function StickerBook({ stats, setStats, unlockedStickers, setUnlo
             fontWeight: 800, fontSize: '1rem', marginBottom: '0.85rem',
             display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--amber-600)',
           }}>
-            <Sparkles size={18} /> How to collect stickers
+            <Sparkles size={18} /> {t.stickerHowTo}
           </div>
 
           <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
             {[
-              { Icon: Star, color: 'var(--amber-500)', title: 'Earn stars', text: 'You get stars for every word you read in Phonics Lab & Word Forge.' },
-              { Icon: HelpCircle, color: 'var(--indigo-500)', title: 'Pick a sticker', text: 'The number on each locked sticker is its star price. Choose one you can afford.' },
-              { Icon: CheckCircle2, color: 'var(--green-600)', title: 'Tap to unlock', text: 'Tap it to spend your stars. It joins your collection to keep forever!' },
+              { Icon: Star, color: 'var(--amber-500)', title: t.stickerStepEarn, text: t.stickerStepEarnDesc },
+              { Icon: HelpCircle, color: 'var(--indigo-500)', title: t.stickerStepPick, text: t.stickerStepPickDesc },
+              { Icon: CheckCircle2, color: 'var(--green-600)', title: t.stickerStepUnlock, text: t.stickerStepUnlockDesc },
             ].map((s, i) => (
               <div key={i} style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
                 <div style={{
@@ -87,7 +87,7 @@ export default function StickerBook({ stats, setStats, unlockedStickers, setUnlo
 
         {/* Collection progress — reinforces the goal */}
         <p className="text-center text-sm" style={{ marginBottom: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
-          {unlockedStickers.length} of {STICKERS.length} stickers collected
+          {unlockedStickers.length} of {STICKERS.length} {t.stickerCollected}
         </p>
 
         <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(150px, 1fr))', gap: '0.75rem' }}>
@@ -143,7 +143,7 @@ export default function StickerBook({ stats, setStats, unlockedStickers, setUnlo
                     style={{ marginTop: '0.5rem', padding: '0.3rem 0.85rem', fontSize: '0.75rem' }}
                     onClick={(e) => { e.stopPropagation(); handleUnlock(sticker); }}
                   >
-                    <Star size={12} /> Unlock · {sticker.cost}
+                    <Star size={12} /> {t.stickerUnlock} · {sticker.cost}
                   </button>
                 ) : (
                   <div style={{ marginTop: '0.5rem', display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '0.15rem' }}>
@@ -151,7 +151,7 @@ export default function StickerBook({ stats, setStats, unlockedStickers, setUnlo
                       <Lock size={12} /> {sticker.cost} <Star size={11} style={{ color: 'var(--amber-500)' }} />
                     </div>
                     <div style={{ fontSize: '0.68rem', color: 'var(--text-muted)' }}>
-                      {sticker.cost - stats.stars} more to go
+                      {sticker.cost - stats.stars} {t.stickerMoreToGo}
                     </div>
                   </div>
                 )}

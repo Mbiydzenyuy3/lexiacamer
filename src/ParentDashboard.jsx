@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Lock, ShieldCheck, Activity, AlertTriangle, Star, Lightbulb } from 'lucide-react';
 
-export default function ParentDashboard({ stats, missedPhonemes, onBack }) {
+export default function ParentDashboard({ t, stats, missedPhonemes, onBack }) {
   const [unlocked, setUnlocked] = useState(false);
   const [pinClicks, setPinClicks] = useState(0);
 
@@ -35,15 +35,15 @@ export default function ParentDashboard({ stats, missedPhonemes, onBack }) {
           }}>
             <Lock size={36} style={{ color: 'var(--indigo-600)' }} />
           </div>
-          <h2 style={{ marginBottom: '0.5rem' }}>Parent Area</h2>
+          <h2 style={{ marginBottom: '0.5rem' }}>{t.parentTitle}</h2>
           <p className="text-muted" style={{ marginBottom: '2rem', lineHeight: 1.6 }}>
-            Tap the button below 3 times to unlock the parent dashboard.
+            {t.parentUnlockPrompt}
           </p>
           <button className="btn btn-accent w-full" style={{ padding: '1rem', fontSize: '1.05rem' }} onClick={handleUnlock}>
-            Tap to Unlock ({3 - pinClicks} left)
+            {t.parentTapUnlock} ({3 - pinClicks} {t.parentLeft})
           </button>
           <button className="btn btn-ghost w-full" style={{ marginTop: '0.75rem' }} onClick={onBack}>
-            Cancel
+            {t.parentCancel}
           </button>
         </div>
       </div>
@@ -71,7 +71,7 @@ export default function ParentDashboard({ stats, missedPhonemes, onBack }) {
         {/* Progress Overview */}
         <div className="card">
           <h3 className="flex items-center gap-sm mb-4" style={{ fontSize: '1rem' }}>
-            <Activity size={20} style={{ color: 'var(--color-primary)' }} /> Overview
+            <Activity size={20} style={{ color: 'var(--color-primary)' }} /> {t.parentOverview}
           </h3>
           <div style={{ display: 'flex', gap: '0.75rem' }}>
             <div style={{
@@ -79,7 +79,7 @@ export default function ParentDashboard({ stats, missedPhonemes, onBack }) {
               background: 'var(--green-50)', border: '1px solid var(--green-200)'
             }}>
               <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--green-700)' }}>{stats.words || 0}</div>
-              <div className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--green-800)' }}>Words Built</div>
+              <div className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--green-800)' }}>{t.parentWordsBuilt}</div>
             </div>
             <div style={{
               flex: 1, textAlign: 'center', padding: '1rem', borderRadius: 'var(--radius-lg)',
@@ -88,7 +88,7 @@ export default function ParentDashboard({ stats, missedPhonemes, onBack }) {
               <div style={{ fontSize: '1.75rem', fontWeight: 800, color: 'var(--indigo-700)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
                 <Star size={20} /> {stats.stars || 0}
               </div>
-              <div className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--indigo-800)' }}>Total Stars</div>
+              <div className="text-xs font-bold uppercase tracking-wider" style={{ color: 'var(--indigo-800)' }}>{t.parentTotalStars}</div>
             </div>
           </div>
         </div>
@@ -97,15 +97,15 @@ export default function ParentDashboard({ stats, missedPhonemes, onBack }) {
         <div className="card" style={{ borderColor: hasMissed ? 'var(--amber-200)' : 'var(--border-light)' }}>
           <h3 className="flex items-center gap-sm mb-4" style={{ fontSize: '1rem' }}>
             <AlertTriangle size={20} style={{ color: hasMissed ? 'var(--amber-500)' : 'var(--text-muted)' }} />
-            Practice Areas
+            {t.parentPracticeAreas}
           </h3>
 
           {!hasMissed ? (
-            <p className="text-muted text-sm italic">Not enough data yet. Let your child play more Word Forge!</p>
+            <p className="text-muted text-sm italic">{t.parentNoData}</p>
           ) : (
             <div>
               <p className="text-sm" style={{ color: 'var(--text-secondary)', marginBottom: '1rem', lineHeight: 1.6 }}>
-                These are the letters your child frequently misses when spelling:
+                {t.parentMissedLetters}
               </p>
               <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem', marginBottom: '1rem' }}>
                 {missedEntries.slice(0, 5).map(([letter, count]) => (
@@ -130,7 +130,7 @@ export default function ParentDashboard({ stats, missedPhonemes, onBack }) {
                 display: 'flex', gap: '0.5rem', alignItems: 'flex-start',
               }}>
                 <Lightbulb size={18} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
-                <span><strong>Parent Tip:</strong> Go to the <em>Phonics Lab</em> and practice the sounds for these specific letters together!</span>
+                <span><strong>{t.parentTipLabel}</strong> {t.parentTip}</span>
               </div>
             </div>
           )}
