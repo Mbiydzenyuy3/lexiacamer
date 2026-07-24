@@ -35,7 +35,7 @@ const i18n = {
     ],
 
     // Phonics Lab
-    phonicsTitle: "Phonics Lab",
+    phonicsTitle: "Sounds",
     phonicsSubtitle: "Tap a tile to hear the sound",
     categoryAll: "All",
     categoryVowels: "Vowels",
@@ -44,7 +44,7 @@ const i18n = {
     phonicsTip: "Tap any tile to hear its sound. Learn to blend sounds to read words!",
 
     // Word Forge
-    forgeTitle: "Word Forge",
+    forgeTitle: "Spelling",
     forgeSubtitle: "Spell the word!",
     forgeHint: "Hint",
     forgeSkip: "Skip",
@@ -104,7 +104,7 @@ const i18n = {
     ],
 
     // Phonics Lab
-    phonicsTitle: "Labo Phonique",
+    phonicsTitle: "Sons",
     phonicsSubtitle: "Touche une tuile pour entendre le son",
     categoryAll: "Tous",
     categoryVowels: "Voyelles",
@@ -113,7 +113,7 @@ const i18n = {
     phonicsTip: "Touche une tuile pour entendre le son. Apprends à mélanger les sons !",
 
     // Word Forge
-    forgeTitle: "Forge de Mots",
+    forgeTitle: "Épeler",
     forgeSubtitle: "Épelle le mot !",
     forgeHint: "Indice",
     forgeSkip: "Passer",

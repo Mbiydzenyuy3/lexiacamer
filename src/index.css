@@ -516,10 +516,10 @@ p  { font-size: 1rem; line-height: 1.6; }
   background: var(--indigo-100);
 }
 
-/* Label hidden on small phones (icon only) so it can't crowd the logo;
-   revealed once there's room. */
+/* "Dashboard" label is always visible so the shield reads clearly as a
+   destination rather than a mystery icon. */
 .top-bar-parents-label {
-  display: none;
+  display: inline;
 }
 
 .top-bar-avatar {
@@ -546,11 +546,6 @@ p  { font-size: 1rem; line-height: 1.6; }
   height: 38px;
 }
 
-@media (min-width: 640px) {
-  .top-bar-parents-label {
-    display: inline;
-  }
-}
 
 /* ——— Offline Banner ——— */
 .offline-banner {
@@ -1155,6 +1150,13 @@ p  { font-size: 1rem; line-height: 1.6; }
   .phonics-tile { font-size: 1.25rem; }
   .letter-slot { width: 2.8rem; height: 3.2rem; font-size: 1.5rem; }
   .letter-key { width: 2.4rem; height: 2.6rem; font-size: 1.05rem; }
+
+  /* Tighten the top bar on small phones so the full logo AND the Dashboard
+     label both fit without clipping. */
+  .top-bar { padding: 0.6rem var(--space-sm); }
+  .top-bar-logo-img { width: 34px; height: 34px; }
+  .top-bar-logo-text { font-size: clamp(0.95rem, 4vw, 1.2rem); margin-left: -0.5rem; }
+  .top-bar-parents { padding: 0.35rem 0.5rem; gap: 0.25rem; font-size: 0.85rem; }
 }
 
 @media (min-width: 768px) {

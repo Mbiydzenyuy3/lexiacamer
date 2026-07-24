@@ -185,14 +185,14 @@ export default function App() {
             <span className="top-bar-logo-text">exiaCamer</span>
           </button>
 
-          {/* Center: Parent Dashboard */}
+          {/* Center: Dashboard */}
           <button
             className={`top-bar-parents ${screen === 'parent_dashboard' ? 'active' : ''}`}
             onClick={() => handleNavigate('parent_dashboard')}
-            aria-label="Parents Dashboard"
+            aria-label="Dashboard"
           >
             <ShieldCheck size={18} />
-            <span className="top-bar-parents-label">Parents Dashboard</span>
+            <span className="top-bar-parents-label">Dashboard</span>
           </button>
 
           {/* Right: Avatar */}
