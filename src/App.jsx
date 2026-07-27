@@ -1,7 +1,9 @@
 
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck } from 'lucide-react';
+import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck, VolumeX, X } from 'lucide-react';
 import { getAvatarIcon } from './avatars';
+import speechEngine from './speech';
+import { loadState, saveState, resetProgress } from './store';
 import i18n from './i18n';
 import HomeScreen from './HomeScreen';
 import PhonicsLab from './PhonicsLab';
@@ -14,50 +16,26 @@ import Onboarding from './Onboarding';
 /**
  * App — Root Shell
  * Handles: routing, language toggle, offline detection, global stats.
+ * All persistence lives in ./store so a backend can drop in without a rewrite.
  */
 
-const STORAGE_KEY = 'lexia_state';
-
-function loadState() {
-  const defaultState = {
-    lang: 'en',
-    stats: { words: 0, streak: 0, stars: 0 },
-    settings: { dyslexiaMode: false },
-    user: { name: '', avatar: '' },
-    unlockedStickers: [],
-    missedPhonemes: {}
-  };
-  try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) {
-      const parsed = JSON.parse(raw);
-      return {
-        ...defaultState,
-        ...parsed,
-        stats: { ...defaultState.stats, ...(parsed.stats || {}) },
-        settings: { ...defaultState.settings, ...(parsed.settings || {}) },
-        user: { ...defaultState.user, ...(parsed.user || {}) },
-      };
-    }
-  } catch (e) { /* ignore */ }
-  return defaultState;
-}
-
-function saveState(state) {
-  try {
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch (e) { /* ignore */ }
-}
-
 export default function App() {
-  const [screen, setScreen] = useState('home');
+  // Read persisted state once on mount (not once per field).
+  const initial = useMemo(() => loadState(), []);
+
+  // Start new users straight on onboarding (no brief flash of Home first).
+  const [screen, setScreen] = useState(initial.user?.name ? 'home' : 'onboarding');
   const [lang, setLang] = useState('en');
-  const [stats, setStats] = useState(() => loadState().stats);
-  const [settings, setSettings] = useState(() => loadState().settings);
-  const [user, setUser] = useState(() => loadState().user);
-  const [unlockedStickers, setUnlockedStickers] = useState(() => loadState().unlockedStickers);
-  const [missedPhonemes, setMissedPhonemes] = useState(() => loadState().missedPhonemes);
+  const [stats, setStats] = useState(initial.stats);
+  const [settings, setSettings] = useState(initial.settings);
+  const [user, setUser] = useState(initial.user);
+  const [unlockedStickers, setUnlockedStickers] = useState(initial.unlockedStickers);
+  const [missedPhonemes, setMissedPhonemes] = useState(initial.missedPhonemes);
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  // Warn once if this device has no speech synthesis — the app still works, but
+  // the child won't hear the letter/word sounds. Dismissible so it never nags.
+  const [audioNoticeDismissed, setAudioNoticeDismissed] = useState(false);
+  const audioUnavailable = !speechEngine.isSupported;
 
   const t = useMemo(() => i18n[lang] || i18n.en, [lang]);
 
@@ -136,6 +114,14 @@ export default function App() {
     }));
   }, []);
 
+  // Parent-only: wipe learning progress, keep the child profile and settings.
+  const handleResetProgress = useCallback(() => {
+    const fresh = resetProgress();
+    setStats(fresh.stats);
+    setUnlockedStickers(fresh.unlockedStickers);
+    setMissedPhonemes(fresh.missedPhonemes);
+  }, []);
+
   // Render current screen
   const renderScreen = () => {
     switch (screen) {
@@ -147,7 +133,7 @@ export default function App() {
       case 'settings':
         return <Settings t={t} settings={settings} setSettings={setSettings} onBack={() => setScreen('home')} />;
       case 'parent_dashboard':
-        return <ParentDashboard t={t} stats={stats} missedPhonemes={missedPhonemes} onBack={() => setScreen('home')} />;
+        return <ParentDashboard t={t} stats={stats} missedPhonemes={missedPhonemes} onResetProgress={handleResetProgress} onBack={() => setScreen('home')} />;
       case 'sticker_book':
         return <StickerBook t={t} stats={stats} setStats={setStats} unlockedStickers={unlockedStickers} setUnlockedStickers={setUnlockedStickers} onBack={() => setScreen('home')} />;
       case 'phonics':
@@ -215,6 +201,22 @@ export default function App() {
         <div className="offline-banner" role="alert">
           <WifiOff size={18} />
           <span>{t.offline}</span>
+        </div>
+      )}
+
+      {/* Audio-unavailable notice (rare; dismissible) */}
+      {audioUnavailable && !audioNoticeDismissed && (
+        <div className="offline-banner" role="alert" style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+          <VolumeX size={18} />
+          <span style={{ flex: 1 }}>{t.audioUnavailable}</span>
+          <button
+            type="button"
+            onClick={() => setAudioNoticeDismissed(true)}
+            aria-label="Dismiss"
+            style={{ display: 'inline-flex', padding: '0.25rem', color: 'inherit' }}
+          >
+            <X size={16} />
+          </button>
         </div>
       )}
 

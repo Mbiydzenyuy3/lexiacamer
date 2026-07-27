@@ -1,9 +1,10 @@
 import React, { useState } from 'react';
 import { ArrowLeft, Lock, ShieldCheck, Activity, AlertTriangle, Star, Lightbulb } from 'lucide-react';
 
-export default function ParentDashboard({ t, stats, missedPhonemes, onBack }) {
+export default function ParentDashboard({ t, stats, missedPhonemes, onResetProgress, onBack }) {
   const [unlocked, setUnlocked] = useState(false);
   const [pinClicks, setPinClicks] = useState(0);
+  const [confirmingReset, setConfirmingReset] = useState(false);
 
   const handleUnlock = () => {
     if (pinClicks + 1 >= 3) {
@@ -131,6 +132,39 @@ export default function ParentDashboard({ t, stats, missedPhonemes, onBack }) {
               }}>
                 <Lightbulb size={18} style={{ flexShrink: 0, marginTop: '0.1rem' }} />
                 <span><strong>{t.parentTipLabel}</strong> {t.parentTip}</span>
+              </div>
+            </div>
+          )}
+        </div>
+
+        {/* Reset progress — parent-only (behind the gate), with a confirm step */}
+        <div className="card" style={{ borderColor: 'var(--border-light)' }}>
+          {!confirmingReset ? (
+            <button
+              type="button"
+              className="btn btn-ghost w-full"
+              onClick={() => setConfirmingReset(true)}
+              style={{ color: 'var(--rose-600)' }}
+            >
+              {t.parentReset}
+            </button>
+          ) : (
+            <div>
+              <p className="text-sm" style={{ color: 'var(--text-secondary)', marginBottom: '0.75rem', lineHeight: 1.6 }}>
+                {t.parentResetWarning}
+              </p>
+              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                <button type="button" className="btn btn-ghost" style={{ flex: 1 }} onClick={() => setConfirmingReset(false)}>
+                  {t.parentCancel}
+                </button>
+                <button
+                  type="button"
+                  className="btn"
+                  style={{ flex: 1, background: 'var(--rose-600)', color: '#fff' }}
+                  onClick={() => { onResetProgress?.(); setConfirmingReset(false); }}
+                >
+                  {t.parentResetConfirm}
+                </button>
               </div>
             </div>
           )}

@@ -10,6 +10,7 @@ const i18n = {
     appTagline: "Read. Spell. Shine!",
     appSubtitle: "Helping Cameroon's children master reading,\none sound at a time.",
     offline: "You're offline — no worries, Lexia still works!",
+    audioUnavailable: "Audio isn't available on this device, so you won't hear the sounds. Everything else still works.",
 
     // Navigation
     navHome: "Home",
@@ -109,7 +110,7 @@ const i18n = {
 
     // Parent Dashboard
     parentTitle: "Parent Area",
-    parentUnlockPrompt: "Tap the button below 3 times to unlock the parent dashboard.",
+    parentUnlockPrompt: "This area is for grown-ups. Tap the button below 3 times to unlock it.",
     parentTapUnlock: "Tap to Unlock",
     parentLeft: "left",
     parentCancel: "Cancel",
@@ -120,6 +121,9 @@ const i18n = {
     parentNoData: "Not enough data yet. Let your child play more Word Forge!",
     parentMissedLetters: "These are the letters your child frequently misses when spelling:",
     parentTip: "Go to the Phonics Lab and practice the sounds for these specific letters together!",
+    parentReset: "Reset progress",
+    parentResetWarning: "This clears all stars, streak, words and stickers. It can't be undone.",
+    parentResetConfirm: "Yes, reset",
     parentTipLabel: "Parent Tip:",
 
     // Sticker Book
@@ -145,6 +149,7 @@ const i18n = {
     appTagline: "Lis. Épelle. Brille !",
     appSubtitle: "Aider les enfants du Cameroun à maîtriser la lecture,\nun son à la fois.",
     offline: "Vous êtes hors ligne — pas de souci, Lexia fonctionne toujours !",
+    audioUnavailable: "L'audio n'est pas disponible sur cet appareil, vous n'entendrez donc pas les sons. Tout le reste fonctionne.",
 
     // Navigation
     navHome: "Accueil",
@@ -244,7 +249,7 @@ const i18n = {
 
     // Parent Dashboard
     parentTitle: "Espace Parent",
-    parentUnlockPrompt: "Appuyez 3 fois sur le bouton pour déverrouiller le tableau de bord.",
+    parentUnlockPrompt: "Cet espace est réservé aux adultes. Appuyez 3 fois sur le bouton pour le déverrouiller.",
     parentTapUnlock: "Appuyez pour déverrouiller",
     parentLeft: "restant(s)",
     parentCancel: "Annuler",
@@ -255,6 +260,9 @@ const i18n = {
     parentNoData: "Pas assez de données. Laissez votre enfant jouer plus à Forge de Mots !",
     parentMissedLetters: "Voici les lettres que votre enfant rate souvent en épelant :",
     parentTip: "Allez au Labo Phonique et pratiquez les sons de ces lettres ensemble !",
+    parentReset: "Réinitialiser la progression",
+    parentResetWarning: "Cela efface toutes les étoiles, la série, les mots et les autocollants. C'est irréversible.",
+    parentResetConfirm: "Oui, réinitialiser",
     parentTipLabel: "Conseil parent :",
 
     // Sticker Book
@@ -333,6 +341,14 @@ export const wordData = [
   { word: "RICE", icon: "ConciergeBell", hint: { en: "A staple food enjoyed across Cameroon", fr: "Un aliment de base apprécié au Cameroun" }, category: "food" },
   { word: "CORN", icon: "Wheat", hint: { en: "Grown in fields across the country", fr: "Cultivé dans les champs à travers le pays" }, category: "food" },
   { word: "BEAN", icon: "Carrot", hint: { en: "Used to make koki and many dishes", fr: "Utilisé pour le koki et beaucoup de plats" }, category: "food" },
+  { word: "EGG", icon: "Circle", hint: { en: "A round food we eat at breakfast", fr: "Un aliment rond du petit déjeuner" }, category: "food" },
+  { word: "YAM", icon: "Carrot", hint: { en: "A starchy root we boil or pound", fr: "Un tubercule que l'on bout ou pile" }, category: "food" },
+  { word: "OKRA", icon: "Leaf", hint: { en: "A green vegetable used in soups", fr: "Un légume vert utilisé dans les soupes" }, category: "food" },
+  { word: "MEAT", icon: "Beef", hint: { en: "Grilled or cooked in a stew", fr: "Grillée ou cuite en sauce" }, category: "food" },
+  { word: "MILK", icon: "Droplets", hint: { en: "A white drink that comes from cows", fr: "Une boisson blanche qui vient des vaches" }, category: "food" },
+  { word: "GARI", icon: "Package", hint: { en: "Ground cassava flakes", fr: "Des flocons de manioc moulu" }, category: "food" },
+  { word: "ERU", icon: "Leaf", hint: { en: "A tasty forest-leaf dish", fr: "Un délicieux plat de feuilles de forêt" }, category: "food" },
+  { word: "BREAD", icon: "Wheat", hint: { en: "Baked and eaten at breakfast", fr: "Cuit au four et mangé au petit déjeuner" }, category: "food" },
 
   // Names
   { word: "ABENA", icon: "User", hint: { en: "A beautiful girl's name", fr: "Un beau prénom de fille" }, category: "names" },
@@ -342,6 +358,12 @@ export const wordData = [
   { word: "NJOYA", icon: "Star", hint: { en: "A famous king of the Bamoun people", fr: "Un célèbre roi du peuple Bamoun" }, category: "names" },
   { word: "MAMA", icon: "Heart", hint: { en: "What we call our mothers", fr: "Comment on appelle nos mamans" }, category: "names" },
   { word: "PAPA", icon: "Smile", hint: { en: "What we call our fathers", fr: "Comment on appelle nos papas" }, category: "names" },
+  { word: "ETO", icon: "Star", hint: { en: "Like Eto'o, the famous footballer!", fr: "Comme Eto'o, le célèbre footballeur !" }, category: "names" },
+  { word: "TABI", icon: "User", hint: { en: "A common name in the Southwest", fr: "Un prénom courant au Sud-Ouest" }, category: "names" },
+  { word: "NGWA", icon: "UserSquare", hint: { en: "A common Cameroonian family name", fr: "Un nom de famille camerounais courant" }, category: "names" },
+  { word: "MANGA", icon: "UserCheck", hint: { en: "A family name in Cameroon", fr: "Un nom de famille au Cameroun" }, category: "names" },
+  { word: "SISI", icon: "Smile", hint: { en: "A sweet way to call a sister", fr: "Une façon affectueuse d'appeler une sœur" }, category: "names" },
+  { word: "BABA", icon: "Heart", hint: { en: "A loving word for father", fr: "Un mot affectueux pour le père" }, category: "names" },
 
   // Cities
   { word: "DOUALA", icon: "Building2", hint: { en: "The economic capital by the sea", fr: "La capitale économique au bord de la mer" }, category: "cities" },
@@ -351,6 +373,13 @@ export const wordData = [
   { word: "KRIBI", icon: "Waves", hint: { en: "A beach town on the southern coast", fr: "Une ville balnéaire sur la côte sud" }, category: "cities" },
   { word: "TIKO", icon: "Home", hint: { en: "A town near Douala with plantations", fr: "Une ville près de Douala avec des plantations" }, category: "cities" },
   { word: "BAMENDA", icon: "MapPin", hint: { en: "Capital of the Northwest Region", fr: "Capitale de la Région du Nord-Ouest" }, category: "cities" },
+  { word: "YAOUNDE", icon: "Building2", hint: { en: "The capital city of Cameroon", fr: "La capitale du Cameroun" }, category: "cities" },
+  { word: "GAROUA", icon: "Tent", hint: { en: "A northern city on the Benue River", fr: "Une ville du Nord sur le fleuve Bénoué" }, category: "cities" },
+  { word: "MAROUA", icon: "MapPin", hint: { en: "A city in the Far North", fr: "Une ville de l'Extrême-Nord" }, category: "cities" },
+  { word: "EBOLOWA", icon: "Trees", hint: { en: "A green city in the South", fr: "Une ville verte du Sud" }, category: "cities" },
+  { word: "BERTOUA", icon: "TreePine", hint: { en: "The main city in the East Region", fr: "La ville principale de la Région de l'Est" }, category: "cities" },
+  { word: "EDEA", icon: "Waves", hint: { en: "A town with a big dam on the Sanaga", fr: "Une ville avec un grand barrage sur la Sanaga" }, category: "cities" },
+  { word: "KUMBO", icon: "Home", hint: { en: "A highland town in the Northwest", fr: "Une ville des hauts plateaux du Nord-Ouest" }, category: "cities" },
 
   // Nature
   { word: "RIVER", icon: "Waves", hint: { en: "Water that flows — like the Wouri!", fr: "L'eau qui coule — comme le Wouri !" }, category: "nature" },
@@ -361,6 +390,13 @@ export const wordData = [
   { word: "LION", icon: "Flame", hint: { en: "The Indomitable Lions of Cameroon!", fr: "Les Lions Indomptables du Cameroun !" }, category: "nature" },
   { word: "LAKE", icon: "Droplets", hint: { en: "Like Lake Nyos in the Northwest", fr: "Comme le Lac Nyos au Nord-Ouest" }, category: "nature" },
   { word: "HILL", icon: "Mountain", hint: { en: "Cameroon has many green hills", fr: "Le Cameroun a beaucoup de collines vertes" }, category: "nature" },
+  { word: "MOON", icon: "Circle", hint: { en: "Shines in the night sky", fr: "Brille dans le ciel nocturne" }, category: "nature" },
+  { word: "STAR", icon: "Star", hint: { en: "Twinkles high in the night sky", fr: "Scintille haut dans le ciel nocturne" }, category: "nature" },
+  { word: "LEAF", icon: "Leaf", hint: { en: "Grows green on every tree", fr: "Pousse en vert sur chaque arbre" }, category: "nature" },
+  { word: "PALM", icon: "TreePine", hint: { en: "A tree that gives oil and wine", fr: "Un arbre qui donne huile et vin" }, category: "nature" },
+  { word: "SEA", icon: "Waves", hint: { en: "The Atlantic meets Cameroon's coast", fr: "L'Atlantique borde la côte du Cameroun" }, category: "nature" },
+  { word: "FIRE", icon: "Flame", hint: { en: "Warm and bright — be careful!", fr: "Chaud et lumineux — attention !" }, category: "nature" },
+  { word: "ROCK", icon: "Mountain", hint: { en: "Hard stone found on the hills", fr: "Une pierre dure trouvée sur les collines" }, category: "nature" },
 ];
 
 export default i18n;
