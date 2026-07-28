@@ -59,8 +59,8 @@ class SpeechEngine {
    * that the browser engine will pronounce as a SINGLE unified sound.
    *
    * Design rules used:
-   *  1. Vowels: use natural English interjections ("ah","eh","oh") or
-   *     double-vowel spellings ("ee","oo") that TTS reads as one phoneme.
+   *  1. Vowels: standard-English SHORT vowel strings ("ah","eh","ih","aw","uh")
+   *     that TTS reads as one short vowel sound, not the letter name.
    *  2. Consonants: consonant + schwa CV syllable ("buh","kuh") — browsers
    *     read these as one syllable because they match English syllable patterns.
    *     Sonorants & fricatives use repeated letters ("mmm","sss","zzz").
@@ -77,13 +77,14 @@ class SpeechEngine {
     return {
       en: {
         // ── Vowels ────────────────────────────────────────────────────────
-        // Cameroonian vowels are pure cardinal vowels. We need TTS strings
-        // that produce ONE phoneme, not two letters.
-        A: 'ah',   // interjection   → /aː/  (as in "father")
-        E: 'eh',   // interjection   → /ɛ/   (as in "bed")
-        I: 'ee',   // double-vowel   → /iː/  (Cameroonian I = "machine", not "bit")
-        O: 'oh',   // interjection   → /oː/  (as in "go")
-        U: 'oo',   // double-vowel   → /uː/  (Cameroonian U = "boot")
+        // Standard-English SHORT vowel sounds — the ones mainstream phonics
+        // (Jolly Phonics etc.) teaches first, understood by any English speaker.
+        // We need TTS strings that produce ONE short vowel, not the letter name.
+        A: 'ah',   // short a → /æ/  (as in "cat", "apple")
+        E: 'eh',   // short e → /ɛ/  (as in "bed", "egg")
+        I: 'ih',   // short i → /ɪ/  (as in "sit", "igloo")   — not the long "ee"
+        O: 'aw',   // short o → /ɒ/  (as in "hot", "octopus") — not the long "oh"
+        U: 'uh',   // short u → /ʌ/  (as in "cup", "umbrella") — not the long "oo"
 
         // ── Single consonants ─────────────────────────────────────────────
         // CV syllable (consonant + schwa). No hyphens. TTS reads as one unit.
