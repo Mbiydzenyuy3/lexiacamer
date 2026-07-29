@@ -136,6 +136,8 @@ const i18n = {
     stickerStepUnlock: "Tap to unlock",
     stickerStepUnlockDesc: "Tap it to spend your stars. It joins your collection to keep forever!",
     stickerCollected: "stickers collected",
+    stickerAllDone: "You collected them all!",
+    stickerAllDoneDesc: "Amazing work — you've unlocked every Cameroonian friend and place.",
     stickerUnlock: "Unlock",
     stickerMoreToGo: "more to go",
 
@@ -275,6 +277,8 @@ const i18n = {
     stickerStepUnlock: "Touche pour débloquer",
     stickerStepUnlockDesc: "Touche-le pour dépenser tes étoiles. Il rejoint ta collection pour toujours !",
     stickerCollected: "autocollants collectionnés",
+    stickerAllDone: "Tu les as tous collectionnés !",
+    stickerAllDoneDesc: "Bravo — tu as débloqué tous les amis et lieux camerounais.",
     stickerUnlock: "Débloquer",
     stickerMoreToGo: "encore",
 

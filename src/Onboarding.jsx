@@ -36,13 +36,13 @@ export default function Onboarding({ t, onComplete }) {
   return (
     <div className="screen" style={{
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-      padding: '2rem', minHeight: 'calc(100vh - 8rem)',
+      padding: '2rem', minHeight: '100vh',
       background: 'linear-gradient(180deg, var(--green-50) 0%, var(--bg-body) 50%, var(--amber-50) 100%)'
     }}>
       {step === 3 && <Confetti active={true} />}
 
       <div className="animate-fade-in" style={{
-        maxWidth: '440px', width: '100%', margin: 'auto', marginTop: '-4rem', textAlign: 'center',
+        maxWidth: '440px', width: '100%', textAlign: 'center',
         background: 'var(--bg-card)',
         borderRadius: 'var(--radius-2xl)',
         padding: '2.5rem 2rem',

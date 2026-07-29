@@ -158,7 +158,8 @@ export default function App() {
 
   return (
     <>
-      {/* Top Bar */}
+      {/* Top Bar — hidden during onboarding for a clean full-screen first run */}
+      {screen !== 'onboarding' && (
       <header className="top-bar">
         <div className="top-bar-inner">
           {/* Left: Logo */}
@@ -195,6 +196,7 @@ export default function App() {
           )}
         </div>
       </header>
+      )}
 
       {/* Offline Banner */}
       {isOffline && (
@@ -225,7 +227,8 @@ export default function App() {
         {renderScreen()}
       </main>
 
-      {/* Bottom Navigation */}
+      {/* Bottom Navigation — hidden during onboarding */}
+      {screen !== 'onboarding' && (
       <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
         <button
           className={`bottom-nav-item ${screen === 'home' ? 'active' : ''}`}
@@ -253,6 +256,7 @@ export default function App() {
           <span>{t.navSpelling}</span>
         </button>
       </nav>
+      )}
     </>
   );
 }

@@ -49,41 +49,56 @@ export default function StickerBook({ t, stats, setStats, unlockedStickers, setU
       </div>
 
       <div className="screen-body">
-        {/* How it works — so anyone understands the feature without being told */}
-        <div className="card" style={{
-          marginBottom: '1.25rem',
-          background: 'linear-gradient(145deg, var(--amber-50), #ffffff)',
-          borderColor: 'var(--amber-200)',
-        }}>
-          <div style={{
-            fontWeight: 800, fontSize: '1rem', marginBottom: '0.85rem',
-            display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--amber-600)',
+        {unlockedStickers.length === STICKERS.length ? (
+          /* Every sticker unlocked — swap the how-to for a celebration payoff. */
+          <div className="card" style={{
+            marginBottom: '1.25rem', textAlign: 'center',
+            background: 'linear-gradient(145deg, var(--green-50), #ffffff)',
+            borderColor: 'var(--green-200)',
           }}>
-            <Sparkles size={18} /> {t.stickerHowTo}
+            <div style={{ fontSize: '2rem', marginBottom: '0.25rem' }} aria-hidden="true">🎉</div>
+            <div style={{ fontWeight: 800, fontSize: '1.05rem', color: 'var(--green-700)', marginBottom: '0.25rem' }}>
+              {t.stickerAllDone}
+            </div>
+            <div className="text-sm text-muted" style={{ lineHeight: 1.5 }}>{t.stickerAllDoneDesc}</div>
           </div>
+        ) : (
+          /* How it works — so anyone understands the feature without being told */
+          <div className="card" style={{
+            marginBottom: '1.25rem',
+            background: 'linear-gradient(145deg, var(--amber-50), #ffffff)',
+            borderColor: 'var(--amber-200)',
+          }}>
+            <div style={{
+              fontWeight: 800, fontSize: '1rem', marginBottom: '0.85rem',
+              display: 'flex', alignItems: 'center', gap: '0.4rem', color: 'var(--amber-600)',
+            }}>
+              <Sparkles size={18} /> {t.stickerHowTo}
+            </div>
 
-          <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
-            {[
-              { Icon: Star, color: 'var(--amber-500)', title: t.stickerStepEarn, text: t.stickerStepEarnDesc },
-              { Icon: HelpCircle, color: 'var(--indigo-500)', title: t.stickerStepPick, text: t.stickerStepPickDesc },
-              { Icon: CheckCircle2, color: 'var(--green-600)', title: t.stickerStepUnlock, text: t.stickerStepUnlockDesc },
-            ].map((s, i) => (
-              <div key={i} style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
-                <div style={{
-                  width: '1.85rem', height: '1.85rem', borderRadius: '50%',
-                  background: 'var(--bg-body)', color: s.color,
-                  display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
-                }}>
-                  <s.Icon size={16} />
+            <div style={{ display: 'flex', flexDirection: 'column', gap: '0.7rem' }}>
+              {[
+                { Icon: Star, color: 'var(--amber-500)', title: t.stickerStepEarn, text: t.stickerStepEarnDesc },
+                { Icon: HelpCircle, color: 'var(--indigo-500)', title: t.stickerStepPick, text: t.stickerStepPickDesc },
+                { Icon: CheckCircle2, color: 'var(--green-600)', title: t.stickerStepUnlock, text: t.stickerStepUnlockDesc },
+              ].map((s, i) => (
+                <div key={i} style={{ display: 'flex', gap: '0.6rem', alignItems: 'flex-start' }}>
+                  <div style={{
+                    width: '1.85rem', height: '1.85rem', borderRadius: '50%',
+                    background: 'var(--bg-body)', color: s.color,
+                    display: 'flex', alignItems: 'center', justifyContent: 'center', flexShrink: 0,
+                  }}>
+                    <s.Icon size={16} />
+                  </div>
+                  <div style={{ textAlign: 'left' }}>
+                    <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{i + 1}. {s.title}</div>
+                    <div className="text-xs text-muted" style={{ lineHeight: 1.4 }}>{s.text}</div>
+                  </div>
                 </div>
-                <div style={{ textAlign: 'left' }}>
-                  <div style={{ fontWeight: 700, fontSize: '0.85rem' }}>{i + 1}. {s.title}</div>
-                  <div className="text-xs text-muted" style={{ lineHeight: 1.4 }}>{s.text}</div>
-                </div>
-              </div>
-            ))}
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Collection progress — reinforces the goal */}
         <p className="text-center text-sm" style={{ marginBottom: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
