@@ -9,6 +9,10 @@ export default defineConfig({
       registerType: 'autoUpdate',
       useCredentials: true,
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      // Precache the recorded phonics clips so Phonics Lab has audio offline.
+      workbox: {
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,mp3}'],
+      },
       manifest: {
         name: 'Lexia Cameroon',
         short_name: 'Lexia',

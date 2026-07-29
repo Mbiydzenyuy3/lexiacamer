@@ -31,7 +31,7 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
     setScore(0);
     const randomItem = filtered[Math.floor(Math.random() * filtered.length)];
     setTargetItem(randomItem);
-    speechEngine.speakLetter(randomItem.sound, lang);
+    speechEngine.speakLetter(randomItem.letter, lang);
   }, [filtered, lang]);
 
   const stopChallenge = useCallback(() => {
@@ -61,18 +61,18 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
         setTimeout(() => {
           const nextItem = filtered[Math.floor(Math.random() * filtered.length)];
           setTargetItem(nextItem);
-          speechEngine.speakLetter(nextItem.sound, lang);
+          speechEngine.speakLetter(nextItem.letter, lang);
         }, 2000);
       } else {
         // Wrong — repeat the target sound and break the streak.
         if (setStats) {
           setStats(prev => ({ ...prev, streak: 0 }));
         }
-        speechEngine.speakLetter(targetItem.sound, lang);
+        speechEngine.speakLetter(targetItem.letter, lang);
       }
     } else {
       // Normal mode
-      speechEngine.speakLetter(item.sound, lang);
+      speechEngine.speakLetter(item.letter, lang);
     }
 
     setTimeout(() => setPlayingTile(null), 600);
@@ -80,7 +80,7 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
 
   const repeatSound = useCallback(() => {
     if (targetItem) {
-      speechEngine.speakLetter(targetItem.sound, lang);
+      speechEngine.speakLetter(targetItem.letter, lang);
     }
   }, [targetItem, lang]);
 
