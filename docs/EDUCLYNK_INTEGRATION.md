@@ -1,54 +1,82 @@
-# LexiaCamer × Educlynk — Integration Brief
+# LexiaCamer × Educlynk — Partnership Brief
 
-**What LexiaCamer is:** a simple, offline-capable reading/phonics app for young children (ages ~4–7). It teaches letter sounds (Phonics Lab) and spelling (Word Forge), rewards progress with stars/stickers, and gives adults a progress dashboard. It's built as a React PWA and is meant to ship **as a feature inside the Educlynk Learning Hub**.
+**What LexiaCamer is:** a simple, offline-capable reading/phonics app for young
+children (ages ~4–7). It teaches letter sounds (Phonics Lab) and spelling
+(Word Forge), rewards progress with stars/stickers, and gives adults a progress
+dashboard. It is its **own standalone platform** (a React PWA on its own domain).
 
-This brief proposes how it plugs into Educlynk and lists exactly what we need from your team.
+**The model:** LexiaCamer is a **partner**, not a merged feature. Educlynk places
+a **link/button** in its platform that sends users to LexiaCamer's own site.
+LexiaCamer owns its users, accounts, data, and backend; Educlynk drives
+traffic/discovery. This keeps both products independent and lets each move at its
+own pace.
 
 ---
 
-## What we understand about the Educlynk stack (from public surface — please correct us)
-- **Auth:** custom React/Vite SPA at `auth.educlynk.com` (not an OIDC/OAuth provider).
-- **Backend/API:** `api.educlynk.com`, **JWT access tokens (Bearer)**, tokens kept in `localStorage`.
-- **Social login:** Google Identity Services. **OTP** flows already exist in the auth app.
-- **Roles:** `Parent`, `Tutor`, `Student`.
-- **Home for us:** `learning.educlynk.com` — "Educlynk Learning Hub" (its own React/Vite app).
+## How it works
 
-## Proposed integration model
-1. **Delivery:** LexiaCamer ships as a **module/route inside the Learning Hub app** (same origin as `learning.educlynk.com`). Same origin means we can read the existing session token and share the backend — matching "shipped together, same DB/backend."
-2. **Auth:** **no separate login.** The user is already authenticated in Educlynk. LexiaCamer reads the current **JWT** and calls `api.educlynk.com`. If we end up on a different origin, you hand us the token at load (e.g. `postMessage` or a short-lived token param).
-3. **Roles → access** (maps cleanly to what you already have):
-   - **Student** = the child using the app (kid mode, offline-capable).
-   - **Parent** = sees their own child's progress.
-   - **Tutor** = the "teacher"; sees the progress of students they're linked to — **using your existing tutor↔student relationship** (no separate mechanism, no parent-email sharing).
-4. **Data:** child reading-progress is **stored in your backend** via `api.educlynk.com`, keyed by the Educlynk user/student id. The kid app writes locally first and **syncs when online** (offline-first); dashboards read the server record as source of truth.
-5. **Keeping kids out of the dashboard on a shared device:** a lightweight adult check (a simple math question) on the child's device. The authoritative data is server-side and only fetched by an authenticated adult, so a child can't tamper with what adults see.
-
-## What we need to store per child (so you can model the table[s])
-```json
-{
-  "childId": "<educlynk student/user id>",
-  "profile":  { "name": "string", "avatar": "lion | parrot | tortoise | dog" },
-  "stats":    { "words": 0, "streak": 0, "stars": 0 },
-  "missedPhonemes":   { "A": 3, "TH": 1 },     // letters the child struggles with
-  "unlockedStickers": ["lion_cub", "baobab"],
-  "updatedAt": "ISO-8601"
-}
 ```
-Small, bounded, one row per child. Writes are simple upserts; a monotonic `updatedAt` (or version) lets us resolve offline-sync conflicts (last-write-wins is fine for v1).
+Educlynk (Learning Hub / partners area)
+      │  "Reading for young kids →"  (link/button)
+      ▼
+LexiaCamer  (yourdomain.com)  — own login, own backend, own data
+```
 
-## What we need from your engineers (Friday)
-1. **Delivery:** module/route inside the Learning Hub app (same origin), or a separately-hosted embedded app? *(Decides how we get the token.)*
-2. **Auth handoff:** how do we obtain the current user + JWT — read the shared `localStorage` token (same origin), or do you pass it to us?
-3. **Relationships:** which `api.educlynk.com` endpoints expose **parent↔child** and **tutor↔student** links (so the dashboards show the right children)?
-4. **Child model:** how is a **young child (4–7)** represented — a full `Student` account, or a **child-profile under a Parent/Tutor** account? *(Young kids can't do email/password login; this drives onboarding.)*
-5. **Progress storage:** can we add LexiaCamer tables to your DB (shape above), or is there a preferred service/endpoint pattern? Read + upsert endpoints keyed by child id.
-6. **OTP:** can we reuse your existing OTP for an optional dashboard gate, or is platform login sufficient?
-7. **Offline sync:** confirm write endpoints are **idempotent** (safe to retry) so the offline outbox can re-send without double-counting.
+Nothing about Educlynk's internal stack has to change. They add a link; we handle
+everything on the other side.
 
-## What LexiaCamer already handles on its side
-- Offline-first PWA; **all persistence funnels through one module (`store.js`)** — swapping localStorage for your API is a one-file change, not a rewrite.
-- Error boundary, audio fallback, keyboard/screen-reader accessibility, responsive on phone/tablet/desktop.
-- Standard-English pronunciation via TTS (no heavy audio files; scales beyond Cameroon).
+## The handoff — two options
+
+**Option A — Plain link (start here, ships in days):**
+- The button points to `yourdomain.com?ref=educlynk`.
+- Users sign up / log in **on LexiaCamer** (parent/teacher email + OTP; child set
+  up after).
+- The `?ref=educlynk` parameter lets both sides see the traffic came from Educlynk.
+- **Educlynk effort: place one link.** No engineering integration needed.
+
+**Option B — Single sign-on handoff (nicer, add later):**
+- Educlynk passes the signed-in user (a short-lived signed token or verified
+  email) in the link, so users skip re-registering on our side.
+- Requires a small amount of Educlynk engineering; do it once the partnership is
+  proven.
+
+**Recommendation:** launch with **Option A**, upgrade to **Option B** later.
+
+## What each side owns
+
+| | Educlynk | LexiaCamer |
+|---|---|---|
+| Placement / traffic | ✅ link + presentation | — |
+| Accounts & login | — | ✅ own (email + OTP, Google optional) |
+| Child progress data | — | ✅ own backend/DB |
+| Kids' data & privacy | — | ✅ our responsibility |
+| Hosting & uptime | — | ✅ ours |
+| Attribution / analytics | shared via `?ref=` | shared via `?ref=` |
+
+## What we need from Educlynk (Friday)
+
+1. **Placement:** where does the button/link live (Learning Hub? a partners
+   section?) and how is it presented (title, icon, blurb)?
+2. **Handoff:** confirm we start with a **plain outbound link + `?ref=educlynk`**,
+   SSO later.
+3. **Attribution:** do you want click analytics / referral tracking? Any UTM
+   convention you prefer?
+4. **Branding:** any rules for being a listed partner (logo, naming, quality bar)?
+5. **Commercial terms:** referral deal, revenue share, or mutual promotion?
+
+## What LexiaCamer handles on its own side
+
+- **Own auth:** parent/teacher email + OTP; a simple math-gate keeps children out
+  of the adult dashboard on shared devices.
+- **Own backend + data:** child progress (stars, streak, words, struggle areas,
+  stickers) stored server-side so parents/teachers always see the true record and
+  kids can't tamper with it. All persistence already funnels through one module
+  (`store.js`), so wiring our own API is a contained change.
+- **Roles:** parent, tutor/teacher, guardian — each linked to a child so any of
+  them can view that child's progress (a child can have several linked adults).
+- **Standalone PWA:** offline-capable, error-safe, accessible, responsive on
+  phone/tablet/desktop; standard-English phonics (moving to recorded sounds).
 
 ---
-*Prepared for the weekly progress check-in. Findings about Educlynk are from public inspection only; please confirm/correct.*
+*Prepared for the weekly progress check-in. Partner-link model: Educlynk links out
+to LexiaCamer's own platform; LexiaCamer owns accounts, data, and backend.*
