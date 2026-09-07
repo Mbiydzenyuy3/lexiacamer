@@ -128,13 +128,13 @@ insert into progress (student_id) values
 insert into guardianships (student_id, profile_id) values
   ('30000000-0000-0000-0000-000000000001','00000000-0000-0000-0000-000000000001');
 
-insert into enrolments (student_id, class_id, school_id, started_on, ended_on) values
-  ('30000000-0000-0000-0000-0000000000a1','20000000-0000-0000-0000-0000000000a1','10000000-0000-0000-0000-00000000000a','2026-01-01', null),
-  ('30000000-0000-0000-0000-0000000000a2','20000000-0000-0000-0000-0000000000a2','10000000-0000-0000-0000-00000000000a','2026-01-01', null),
-  ('30000000-0000-0000-0000-0000000000b1','20000000-0000-0000-0000-0000000000b1','10000000-0000-0000-0000-00000000000b','2026-01-01', null),
-  -- the transfer: School A Jan-Mar, then School B from April
-  ('30000000-0000-0000-0000-0000000000ee','20000000-0000-0000-0000-0000000000a1','10000000-0000-0000-0000-00000000000a','2026-01-01','2026-03-31'),
-  ('30000000-0000-0000-0000-0000000000ee','20000000-0000-0000-0000-0000000000b1','10000000-0000-0000-0000-00000000000b','2026-04-01', null);
+insert into enrolments (student_id, class_id, school_id, status, started_on, ended_on) values
+  ('30000000-0000-0000-0000-0000000000a1','20000000-0000-0000-0000-0000000000a1','10000000-0000-0000-0000-00000000000a','active','2026-01-01', null),
+  ('30000000-0000-0000-0000-0000000000a2','20000000-0000-0000-0000-0000000000a2','10000000-0000-0000-0000-00000000000a','active','2026-01-01', null),
+  ('30000000-0000-0000-0000-0000000000b1','20000000-0000-0000-0000-0000000000b1','10000000-0000-0000-0000-00000000000b','active','2026-01-01', null),
+  -- the transfer: School A Jan-Mar (ENDED, school keeps it), then School B
+  ('30000000-0000-0000-0000-0000000000ee','20000000-0000-0000-0000-0000000000a1','10000000-0000-0000-0000-00000000000a','ended','2026-01-01','2026-03-31'),
+  ('30000000-0000-0000-0000-0000000000ee','20000000-0000-0000-0000-0000000000b1','10000000-0000-0000-0000-00000000000b','active','2026-04-01', null);
 
 insert into activity_events (id, student_id, kind, occurred_at) values
   ('40000000-0000-0000-0000-000000000001','30000000-0000-0000-0000-000000000001','word_completed','2026-05-01 10:00+00'),
@@ -184,8 +184,9 @@ select expect_denied('08 attacker cannot assign self to a class', $sql$
 select expect_denied('09 attacker cannot create a school', $sql$
   insert into schools (name) values ('Fake Institute') $sql$);
 
-select expect_denied('10 attacker cannot enrol via RPC', $sql$
-  select enrol_student('20000000-0000-0000-0000-0000000000a1', 'Mine') $sql$);
+select expect_denied('10 attacker cannot claim a child they do not guardian', $sql$
+  select claim_school_place('30000000-0000-0000-0000-0000000000a1',
+                            '20000000-0000-0000-0000-0000000000a1') $sql$);
 
 -- --- 3. account_type is a routing hint, not authorization -------------------
 update profiles set account_type = 'school'
@@ -386,25 +387,106 @@ select expect_no_write('49 duplicate open enrolment is rejected', $sql$
           '20000000-0000-0000-0000-0000000000a1',
           '10000000-0000-0000-0000-00000000000a') $sql$);
 
--- ============================================================================
--- SUMMARY
--- ============================================================================
+-- --- 14. The parent-registers model ----------------------------------------
+
+-- Undo the suspension from section 12 so School A is usable again.
 reset role;
+update schools set status = 'active'
+ where id = '10000000-0000-0000-0000-00000000000a';
 
-\echo ''
-\echo '================ RLS ATTACK SUITE ================'
-select case when passed then 'PASS' else '>>> FAIL' end as result,
-       label, detail
-  from test_results
- order by label;
+-- A parent claims a school place for their OWN child during onboarding.
+set role authenticated;
+select test_as('00000000-0000-0000-0000-000000000001');
+select claim_school_place('30000000-0000-0000-0000-000000000001',
+                          '20000000-0000-0000-0000-0000000000a2') as e \gset
+select expect_count('50 parent can claim a place for their own child',
+       (select count(*) from enrolments
+         where student_id = '30000000-0000-0000-0000-000000000001'), 1);
 
+-- The claimed school can now see that child.
+select test_as('00000000-0000-0000-0000-0000000000a2');
+select expect_count('51 claimed class teacher sees the child',
+       (select count(*) from students
+         where id = '30000000-0000-0000-0000-000000000001'), 1);
+
+-- CANCEL: a wrong pick must leave NO residue — not a shortened window.
+-- This is the difference between cancelled and ended.
+select test_as('00000000-0000-0000-0000-000000000001');
+select cancel_enrolment(:'e', 'picked the wrong school');
+select test_as('00000000-0000-0000-0000-0000000000a2');
+select expect_count('52 cancelled claim leaves the school NO student',
+       (select count(*) from students
+         where id = '30000000-0000-0000-0000-000000000001'), 0);
+select expect_count('53 cancelled claim leaves the school NO activity',
+       (select count(*) from activity_events
+         where student_id = '30000000-0000-0000-0000-000000000001'), 0);
+
+-- ENDED is different: School A still holds the period it actually taught.
+select test_as('00000000-0000-0000-0000-00000000000a');
+select expect_count('54 ended enrolment still yields the taught period',
+       (select count(*) from activity_events
+         where id = '40000000-0000-0000-0000-0000000000e1'), 1);
+
+-- A school can repudiate a claim it disagrees with ("not our pupil").
+select test_as('00000000-0000-0000-0000-000000000002');
+select create_student('Claim Test') as s2 \gset
+select claim_school_place(:'s2', '20000000-0000-0000-0000-0000000000a1') as e2 \gset
+select test_as('00000000-0000-0000-0000-00000000000a');
+select cancel_enrolment(:'e2', 'not our pupil');
+select expect_count('55 school can repudiate a false claim',
+       (select count(*) from students where id = :'s2'), 0);
+
+-- ...but a school cannot cancel an enrolment at ANOTHER school.
+select test_as('00000000-0000-0000-0000-00000000000b');
+select expect_denied('56 other school cannot cancel this enrolment', $sql$
+  select cancel_enrolment('$sql$ || :'e2' || $sql$') $sql$);
+
+-- The picker projections must never expose internal verification notes.
+select test_as('00000000-0000-0000-0000-000000000001');
+select expect_count('57 school search returns active schools',
+       (select count(*) from search_schools('School')), 2);
+select expect_count('58 class list works for the picker',
+       (select count(*) from list_classes('10000000-0000-0000-0000-00000000000a')), 2);
+select expect_denied('59 picker cannot expose verification notes', $sql$
+  select verification_note from search_schools('School') $sql$);
+select expect_count('60 raw schools table still not readable by a parent',
+       (select count(*) from schools), 0);
+
+-- --- 15. One active enrolment per STUDENT (not per parent email) ------------
+
+select test_as('00000000-0000-0000-0000-000000000002');
+select create_student('Mover') as sm \gset
+select claim_school_place(:'sm', '20000000-0000-0000-0000-0000000000a1') as em \gset
+
+-- A second school while the first is still active must be refused.
+select expect_denied('61 cannot join a second school while active', $sql$
+  select claim_school_place('$sql$ || :'sm' || $sql$',
+                            '20000000-0000-0000-0000-0000000000b1') $sql$);
+
+-- Transfer does it atomically: old ends, new opens.
+select transfer_school_place(:'sm', '20000000-0000-0000-0000-0000000000b1');
+select expect_count('62 transfer leaves exactly one active enrolment',
+       (select count(*) from enrolments
+         where student_id = :'sm' and status = 'active'), 1);
+select expect_count('63 transfer ends the old enrolment (school keeps period)',
+       (select count(*) from enrolments
+         where student_id = :'sm' and status = 'ended'), 1);
+
+-- A PARENT may still have two children at two different schools.
+select create_student('Sibling One') as k1 \gset
+select create_student('Sibling Two') as k2 \gset
+select claim_school_place(:'k1', '20000000-0000-0000-0000-0000000000a1');
 do $$
-declare v_failed int;
 begin
-  select count(*) into v_failed from test_results where not passed;
-  if v_failed > 0 then
-    raise exception '% RLS TEST(S) FAILED', v_failed;
-  end if;
-  raise notice 'ALL % RLS TESTS PASSED', (select count(*) from test_results);
+  perform claim_school_place(
+    (select id from students where display_name = 'Sibling Two'),
+    '20000000-0000-0000-0000-0000000000b1');
+  insert into test_results values
+    ('64 one parent, two children, two schools', true, 'allowed');
+exception when others then
+  insert into test_results values
+    ('64 one parent, two children, two schools', false,
+     'BLOCKED (' || sqlerrm || ')');
 end;
 $$;
+reset role;

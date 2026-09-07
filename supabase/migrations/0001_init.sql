@@ -115,16 +115,31 @@ create table guardianships (
 create index guardianships_profile_idx on guardianships (profile_id);
 
 -- GRANT: student -> class (and therefore school), for a dated period.
+-- Created by the PARENT during onboarding — schools never register students.
+--
+-- `status` distinguishes two things that must not share a code path:
+--   'active'    the child really does attend; window applies
+--   'ended'     the child attended, then left; the school KEEPS that period
+--   'cancelled' the relationship never existed (wrong school picked, or the
+--               school flagged "not our pupil"). Produces NO WINDOW AT ALL,
+--               retroactively — otherwise every correction would leave a
+--               permanent residue of a child's data in a stranger's dashboard.
 create table enrolments (
-  id         uuid primary key default gen_random_uuid(),
-  student_id uuid not null references students(id) on delete cascade,
-  class_id   uuid not null,
-  school_id  uuid not null,
-  started_on date not null default current_date,
-  ended_on   date,                          -- null = currently enrolled
+  id           uuid primary key default gen_random_uuid(),
+  student_id   uuid not null references students(id) on delete cascade,
+  class_id     uuid not null,
+  school_id    uuid not null,
+  status       text not null default 'active'
+               check (status in ('active', 'ended', 'cancelled')),
+  started_on   date not null default current_date,
+  ended_on     date,                        -- set when status <> 'active'
+  cancelled_by uuid references profiles(id) on delete set null,
+  cancel_note  text check (char_length(cancel_note) <= 500),
+  created_at   timestamptz not null default now(),
   foreign key (class_id, school_id)
     references classes(id, school_id) on delete cascade,
-  check (ended_on is null or ended_on >= started_on)
+  check (ended_on is null or ended_on >= started_on),
+  check ((status = 'active') = (ended_on is null))
 );
 create index enrolments_school_idx  on enrolments (school_id);
 create index enrolments_class_idx   on enrolments (class_id);
@@ -134,8 +149,13 @@ create index enrolments_student_idx on enrolments (student_id);
 -- open enrolments in DIFFERENT schools are deliberately still allowed: a real
 -- transfer often overlaps by a few weeks. Both schools then see the overlap
 -- period, which is correct — each is legitimately teaching the child.)
-create unique index enrolments_one_open_per_class
-  on enrolments (student_id, class_id) where ended_on is null;
+-- ONE active enrolment per student, enforced by the database. A student is at
+-- one school at a time — and with revenue share, two active schools for one
+-- student would mean paying share twice on a single subscription.
+-- Note this is per STUDENT, not per parent email: a parent may legitimately
+-- have children at different schools.
+create unique index enrolments_one_active_per_student
+  on enrolments (student_id) where status = 'active';
 
 -- ============================================================================
 -- ACTIVITY  (append-only; the source of truth)
@@ -307,6 +327,8 @@ as $$
 
   -- Director: every enrolment window in a school they ACTIVELY direct.
   -- Requires a live membership, so a departure revokes access immediately.
+  -- 'cancelled' enrolments are excluded entirely: a mistaken or repudiated
+  -- claim must leave NO residue, not a shortened window.
   select e.student_id,
          e.started_on::timestamptz,
          coalesce((e.ended_on + 1)::timestamptz, 'infinity'::timestamptz)
@@ -317,6 +339,7 @@ as $$
      and m.role = 'director'
      and m.ended_on is null
      and s.status = 'active'
+     and e.status in ('active', 'ended')
 
   union all
 
@@ -335,7 +358,8 @@ as $$
    where ct.profile_id = (select auth.uid())
      and ct.ended_on is null
      and m.ended_on is null
-     and s.status = 'active';
+     and s.status = 'active'
+     and e.status in ('active', 'ended');
 $$;
 
 -- ============================================================================
@@ -459,11 +483,12 @@ begin
 end;
 $$;
 
--- Directors only. Creates a NEW student and enrols them; there is deliberately
--- no parameter by which a caller could name a student that already exists.
-create or replace function enrol_student(p_class_id uuid,
-                                         p_name     text,
-                                         p_avatar   text default 'lion')
+-- The PARENT associates their own child with a school + class, once, during
+-- onboarding. Schools never register students. The caller must already be a
+-- live guardian of the student, so this cannot be used to reach anyone else's
+-- child even with a known uuid.
+create or replace function claim_school_place(p_student_id uuid,
+                                              p_class_id   uuid)
 returns uuid
 language plpgsql
 security definer
@@ -478,32 +503,211 @@ begin
     raise exception 'not authenticated' using errcode = '42501';
   end if;
 
+  if not exists (select 1 from guardianships g
+                  where g.student_id = p_student_id
+                    and g.profile_id = v_uid
+                    and g.ended_at is null) then
+    raise exception 'not a guardian of this student' using errcode = '42501';
+  end if;
+
   select c.school_id into v_school_id
     from classes c
-    join school_members m on m.school_id = c.school_id
-    join schools s        on s.id = c.school_id
+    join schools s on s.id = c.school_id
    where c.id = p_class_id
-     and m.profile_id = v_uid
-     and m.role = 'director'
-     and m.ended_on is null
      and s.status = 'active';
 
   if v_school_id is null then
-    raise exception 'not a director of this class''s school'
-      using errcode = '42501';
+    raise exception 'unknown or inactive school' using errcode = '42501';
   end if;
 
-  insert into students (display_name, avatar)
-       values (p_name, coalesce(p_avatar, 'lion'))
-    returning id into v_id;
+  -- A distinct error code the UI can turn into "Ada is currently registered
+  -- at X — move her to Y?" rather than a dead-end denial.
+  if exists (select 1 from enrolments e
+              where e.student_id = p_student_id and e.status = 'active') then
+    raise exception 'student already has an active enrolment'
+      using errcode = 'P0001';
+  end if;
 
   insert into enrolments (student_id, class_id, school_id)
-       values (v_id, p_class_id, v_school_id);
-
-  insert into progress (student_id) values (v_id);
+       values (p_student_id, p_class_id, v_school_id)
+    returning id into v_id;
 
   return v_id;
 end;
+$$;
+
+-- Move a child from one school to another in ONE transaction: the old
+-- enrolment ends (that school keeps the period it taught) and the new one
+-- opens. Doing this as two separate calls leaves the parent stranded between
+-- states if the second fails.
+create or replace function transfer_school_place(p_student_id uuid,
+                                                 p_class_id   uuid)
+returns uuid
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_uid       uuid := (select auth.uid());
+  v_school_id uuid;
+  v_id        uuid;
+begin
+  if v_uid is null then
+    raise exception 'not authenticated' using errcode = '42501';
+  end if;
+
+  if not exists (select 1 from guardianships g
+                  where g.student_id = p_student_id
+                    and g.profile_id = v_uid
+                    and g.ended_at is null) then
+    raise exception 'not a guardian of this student' using errcode = '42501';
+  end if;
+
+  select c.school_id into v_school_id
+    from classes c
+    join schools s on s.id = c.school_id
+   where c.id = p_class_id
+     and s.status = 'active';
+
+  if v_school_id is null then
+    raise exception 'unknown or inactive school' using errcode = '42501';
+  end if;
+
+  update enrolments
+     set status = 'ended', ended_on = current_date
+   where student_id = p_student_id and status = 'active';
+
+  insert into enrolments (student_id, class_id, school_id)
+       values (p_student_id, p_class_id, v_school_id)
+    returning id into v_id;
+
+  return v_id;
+end;
+$$;
+
+-- Repudiate an association that never should have existed — a wrong school
+-- picked at onboarding, or a school flagging "not our pupil". Leaves NO
+-- window: the school loses the data retroactively, which is the difference
+-- between this and end_enrolment below.
+-- Callable by a guardian of the student, or by a live member of that school.
+create or replace function cancel_enrolment(p_enrolment_id uuid,
+                                            p_note         text default null)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+  v_e   enrolments%rowtype;
+begin
+  if v_uid is null then
+    raise exception 'not authenticated' using errcode = '42501';
+  end if;
+
+  select * into v_e from enrolments where id = p_enrolment_id;
+  if not found then
+    raise exception 'no such enrolment' using errcode = '42501';
+  end if;
+
+  if not (exists (select 1 from guardianships g
+                   where g.student_id = v_e.student_id
+                     and g.profile_id = v_uid
+                     and g.ended_at is null)
+          or exists (select 1 from school_members m
+                      where m.school_id = v_e.school_id
+                        and m.profile_id = v_uid
+                        and m.ended_on is null)) then
+    raise exception 'not permitted to cancel this enrolment'
+      using errcode = '42501';
+  end if;
+
+  update enrolments
+     set status       = 'cancelled',
+         ended_on     = current_date,
+         cancelled_by = v_uid,
+         cancel_note  = p_note
+   where id = p_enrolment_id;
+end;
+$$;
+
+-- The child really did attend and has now left. The school KEEPS the period
+-- it taught them, and sees nothing after it.
+create or replace function end_enrolment(p_enrolment_id uuid)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+  v_e   enrolments%rowtype;
+begin
+  if v_uid is null then
+    raise exception 'not authenticated' using errcode = '42501';
+  end if;
+
+  select * into v_e from enrolments where id = p_enrolment_id;
+  if not found then
+    raise exception 'no such enrolment' using errcode = '42501';
+  end if;
+
+  if not (exists (select 1 from guardianships g
+                   where g.student_id = v_e.student_id
+                     and g.profile_id = v_uid
+                     and g.ended_at is null)
+          or exists (select 1 from school_members m
+                      where m.school_id = v_e.school_id
+                        and m.profile_id = v_uid
+                        and m.ended_on is null)) then
+    raise exception 'not permitted to end this enrolment'
+      using errcode = '42501';
+  end if;
+
+  update enrolments
+     set status = 'ended', ended_on = current_date
+   where id = p_enrolment_id and status = 'active';
+end;
+$$;
+
+-- ============================================================================
+-- SCHOOL PICKER
+--
+-- The onboarding search needs schools and classes readable by any signed-in
+-- parent. Opening the tables would expose verified_by / verification_note —
+-- internal notes on how you vetted the institution. These projections return
+-- only what the picker needs. Name AND town, because Cameroonian school names
+-- repeat heavily and a name alone is not enough to choose correctly.
+-- ============================================================================
+
+create or replace function search_schools(p_query text)
+returns table (id uuid, name text, town text)
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select s.id, s.name, s.town
+    from schools s
+   where s.status = 'active'
+     and (coalesce(p_query, '') = '' or s.name ilike '%' || p_query || '%')
+   order by s.name
+   limit 20;
+$$;
+
+create or replace function list_classes(p_school_id uuid)
+returns table (id uuid, name text, academic_year text)
+language sql
+stable
+security definer
+set search_path = public, pg_temp
+as $$
+  select c.id, c.name, c.academic_year
+    from classes c
+    join schools s on s.id = c.school_id
+   where c.school_id = p_school_id
+     and s.status = 'active'
+   order by c.name;
 $$;
 
 -- ============================================================================
