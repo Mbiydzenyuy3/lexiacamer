@@ -27,7 +27,9 @@ $PSQL -q -c 'drop schema if exists public cascade; drop schema if exists auth ca
 $PSQL -q -f supabase/tests/00_local_shim.sql
 $PSQL -q -f supabase/migrations/0001_init.sql
 $PSQL -q -f supabase/migrations/0002_device_sync.sql
+$PSQL -q -f supabase/migrations/0003_invites.sql
 $PSQL -q -f supabase/tests/01_grants.sql
 $PSQL -q -f supabase/tests/02_rls_test.sql
 $PSQL -q -f supabase/tests/03_sync_test.sql
+$PSQL -q -f supabase/tests/04_invite_test.sql
 $PSQL -f supabase/tests/99_summary.sql
