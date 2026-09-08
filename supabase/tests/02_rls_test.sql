@@ -296,9 +296,12 @@ select expect_no_write('35 parent cannot delete their child''s history', $sql$
 -- Belt and braces: after every tampering attempt above, check as superuser
 -- that the child's record is byte-for-byte what the child actually did.
 reset role;
-select expect_count('38 stars untouched after all tampering',
+-- 5 = the child's one real word_completed event, scored by the database.
+-- The point is that it reflects what the CHILD did and nothing the adults
+-- above tried to write.
+select expect_count('38 stars reflect only the child''s own activity',
        (select stars from progress
-         where student_id = '30000000-0000-0000-0000-000000000001'), 0);
+         where student_id = '30000000-0000-0000-0000-000000000001'), 5);
 select expect_count('39 no history was deleted',
        (select count(*) from activity_events), 4);
 set role authenticated;
