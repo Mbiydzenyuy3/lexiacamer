@@ -18,45 +18,13 @@
  * anything: verification is the human step you did before running it, and the
  * note you type is the record of what you checked.
  */
+import { adminClient, env } from './lib/admin-client.mjs';
 
-import { createClient } from '@supabase/supabase-js';
 import { createInterface } from 'node:readline/promises';
 import { stdin, stdout } from 'node:process';
-import { readFileSync, existsSync } from 'node:fs';
 import { randomBytes, createHash } from 'node:crypto';
 
-function loadEnv(file) {
-  if (!existsSync(file)) return {};
-  return Object.fromEntries(
-    readFileSync(file, 'utf8')
-      .split('\n')
-      .filter((l) => l.trim() && !l.trim().startsWith('#'))
-      .map((l) => {
-        const i = l.indexOf('=');
-        return [l.slice(0, i).trim(), l.slice(i + 1).trim()];
-      })
-  );
-}
-
-const env = { ...loadEnv('.env'), ...loadEnv('.env.admin'), ...process.env };
-const url = env.VITE_SUPABASE_URL || env.SUPABASE_URL;
-const serviceKey = env.SUPABASE_SERVICE_ROLE_KEY;
-
-if (!url || !serviceKey) {
-  console.error(`
-Missing credentials.
-
-Create .env.admin (gitignored, never committed) containing:
-
-  SUPABASE_SERVICE_ROLE_KEY=<the secret key from Settings -> API>
-
-The project URL is read from .env. The service-role key must NEVER go in .env,
-because everything in .env is compiled into the browser bundle.
-`);
-  process.exit(1);
-}
-
-const db = createClient(url, serviceKey, { auth: { persistSession: false } });
+const db = adminClient();
 const rl = createInterface({ input: stdin, output: stdout });
 
 const ask = async (q, { required = true } = {}) => {

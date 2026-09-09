@@ -8,18 +8,9 @@
  * looked for their school and did not find it. Service-role only, from your
  * machine.
  */
-import { createClient } from '@supabase/supabase-js';
-import { readFileSync, existsSync } from 'node:fs';
+import { adminClient, env } from './lib/admin-client.mjs';
 
-const loadEnv = (f) => existsSync(f)
-  ? Object.fromEntries(readFileSync(f, 'utf8').split('\n')
-      .filter((l) => l.trim() && !l.trim().startsWith('#'))
-      .map((l) => { const i = l.indexOf('='); return [l.slice(0, i).trim(), l.slice(i + 1).trim()]; }))
-  : {};
-
-const env = { ...loadEnv('.env'), ...loadEnv('.env.admin'), ...process.env };
-const db = createClient(env.VITE_SUPABASE_URL, env.SUPABASE_SERVICE_ROLE_KEY,
-  { auth: { persistSession: false } });
+const db = adminClient();
 
 const { data, error } = await db.rpc('school_demand');
 if (error) { console.error('Failed:', error.message); process.exit(1); }
