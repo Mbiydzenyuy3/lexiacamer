@@ -16,13 +16,17 @@ import { useAuth } from './AuthProvider';
  */
 
 /**
- * How many digits the code has. Supabase's Email OTP Length is configurable
- * (Authentication -> Sign In / Providers -> Email), so this is not something
- * to hard-code: if the two disagree, the box row never fills and verification
- * never fires. Set VITE_OTP_LENGTH to match the project if it is not 6.
+ * How many digits the code has. This MUST match Supabase's Email OTP Length
+ * (Authentication -> Sign In / Providers -> Email). If the two disagree the row
+ * fills, auto-submit fires with a truncated code, and every sign-in fails.
+ *
+ * The project is set to 8, so that is the default here. Override with
+ * VITE_OTP_LENGTH if it ever changes.
  */
-const LENGTH = Math.min(Math.max(Number(import.meta.env?.VITE_OTP_LENGTH) || 6, 4), 10);
+const LENGTH = Math.min(Math.max(Number(import.meta.env?.VITE_OTP_LENGTH) || 8, 4), 10);
 const EMPTY = Array(LENGTH).fill('');
+// "an 8-digit code", but "a 6-digit code".
+const ARTICLE = LENGTH === 8 ? 'an' : 'a';
 
 export default function SignIn({ t, onBack }) {
   const { signInWithOtp, verifyOtp } = useAuth();
@@ -69,7 +73,7 @@ export default function SignIn({ t, onBack }) {
     attempted.current = '';
     setStage('code');
     setCooldown(RESEND_COOLDOWN);
-    setNotice(`We sent a ${LENGTH}-digit code to ${email.trim()}.`);
+    setNotice(`We sent ${ARTICLE} ${LENGTH}-digit code to ${email.trim()}.`);
     setTimeout(() => focusBox(0), 50);
   };
 
@@ -152,7 +156,7 @@ export default function SignIn({ t, onBack }) {
         <button className="btn btn-ghost p-2" onClick={onBack} aria-label="Go back">
           <ArrowLeft size={24} />
         </button>
-        <h2 style={{ margin: 0 }}>{t?.parentAreaTitle || 'For grown-ups'}</h2>
+        <h2 style={{ margin: 0 }}>{t?.parentAreaTitle || 'For Parents and Guardians'}</h2>
       </div>
 
       <div className="auth-card">
