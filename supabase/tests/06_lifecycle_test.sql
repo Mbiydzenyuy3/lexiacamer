@@ -1,5 +1,5 @@
 -- ============================================================================
--- DATA LIFECYCLE SUITE — export and deletion.
+-- DATA LIFECYCLE SUITE: export and deletion.
 --
 -- Policy under test: the parent wins. Deletion erases everything, including
 -- the school's historical window. What survives is an anonymous count.

@@ -1,5 +1,5 @@
 -- ============================================================================
--- SUMMARY — runs after every suite. Fails the build if anything regressed.
+-- SUMMARY: runs after every suite. Fails the build if anything regressed.
 -- ============================================================================
 reset role;
 

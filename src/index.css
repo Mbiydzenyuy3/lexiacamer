@@ -1687,13 +1687,16 @@ p {
 /* One box per digit. */
 .otp-row {
   display: flex;
-  gap: 0.5rem;
+  gap: 0.4rem;
   justify-content: center;
 }
 
 .otp-box {
   width: 100%;
+  /* Sized so a longer code (Supabase's OTP length is configurable) still fits
+     a narrow phone without the row wrapping. */
   max-width: 3.25rem;
+  min-width: 0;
   aspect-ratio: 3 / 4;
   padding: 0;
   text-align: center;

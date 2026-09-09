@@ -1,5 +1,5 @@
 -- ============================================================================
--- INVITES — the only route into a school's data.
+-- INVITES: the only route into a school's data.
 --
 -- Schools are created out of band, after a human verifies a real institution;
 -- the first director is invited by the onboarding script (service role). From
@@ -7,7 +7,7 @@
 --
 -- Because this is the sole path to a school's students, an invite is the most
 -- sensitive object in the system. It is therefore: random, hashed at rest,
--- expiring, single-use, and BOUND TO ONE EMAIL — forwarding it must fail.
+-- expiring, single-use, and BOUND TO ONE EMAIL: forwarding it must fail.
 -- ============================================================================
 
 -- Director-only. Returns the raw token exactly once.

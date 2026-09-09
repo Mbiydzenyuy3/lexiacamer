@@ -3,7 +3,7 @@
 --
 -- Deliberate separation: ACCESS is governed by grants, MONEY is governed by
 -- these tables, and the two never touch. A lapsed subscription therefore
--- changes no RLS policy — a child keeps playing offline and their school keeps
+-- changes no RLS policy: a child keeps playing offline and their school keeps
 -- the history it already had; what stops is the student counting toward that
 -- school's share. Gating features on payment is a product decision for the
 -- front end, not a security boundary.
@@ -99,7 +99,7 @@ as $$
 $$;
 
 -- ----------------------------------------------------------------------------
--- REVENUE SHARE — student-months per school.
+-- REVENUE SHARE: student-months per school.
 --
 -- A month counts only when BOTH are true: the student was enrolled at that
 -- school, and someone actually paid for that month. Enrolment alone earns

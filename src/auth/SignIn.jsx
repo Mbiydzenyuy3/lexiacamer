@@ -3,7 +3,7 @@ import { ArrowLeft, Mail, ShieldCheck, RotateCw } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 
 /**
- * SignIn: email plus a 6-digit code, for grown-ups.
+ * SignIn: email plus a short numeric code, for grown-ups.
  *
  * No passwords. One less thing for a parent to lose, and no password database
  * to leak. The trade-off is that email is the single way in, so every failure
@@ -15,7 +15,13 @@ import { useAuth } from './AuthProvider';
  * is also how a teacher signs in on a shared classroom computer.
  */
 
-const LENGTH = 6;
+/**
+ * How many digits the code has. Supabase's Email OTP Length is configurable
+ * (Authentication -> Sign In / Providers -> Email), so this is not something
+ * to hard-code: if the two disagree, the box row never fills and verification
+ * never fires. Set VITE_OTP_LENGTH to match the project if it is not 6.
+ */
+const LENGTH = Math.min(Math.max(Number(import.meta.env?.VITE_OTP_LENGTH) || 6, 4), 10);
 const EMPTY = Array(LENGTH).fill('');
 
 export default function SignIn({ t, onBack }) {
@@ -63,7 +69,7 @@ export default function SignIn({ t, onBack }) {
     attempted.current = '';
     setStage('code');
     setCooldown(RESEND_COOLDOWN);
-    setNotice(`We sent a 6-digit code to ${email.trim()}.`);
+    setNotice(`We sent a ${LENGTH}-digit code to ${email.trim()}.`);
     setTimeout(() => focusBox(0), 50);
   };
 
@@ -188,7 +194,7 @@ export default function SignIn({ t, onBack }) {
           <div>
             <fieldset style={{ border: 0, padding: 0, margin: 0 }}>
               <legend className="auth-label" style={{ padding: 0, marginBottom: '0.75rem' }}>
-                Enter the 6-digit code
+                Enter the {LENGTH}-digit code
               </legend>
 
               <div

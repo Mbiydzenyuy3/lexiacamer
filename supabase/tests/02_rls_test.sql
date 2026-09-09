@@ -32,7 +32,7 @@ returns void language plpgsql as $$
 begin
   begin
     execute p_sql;
-    insert into test_results values (p_label, false, 'SUCCEEDED — LEAK');
+    insert into test_results values (p_label, false, 'SUCCEEDED - LEAK');
   exception when others then
     insert into test_results values (p_label, true, 'rejected (' || sqlstate || ')');
   end;
@@ -40,7 +40,7 @@ end;
 $$;
 
 -- Asserts an UPDATE/DELETE CHANGES NOTHING.
--- Postgres does not raise on an UPDATE or DELETE with no matching policy — RLS
+-- Postgres does not raise on an UPDATE or DELETE with no matching policy - RLS
 -- silently filters the rows out and the statement reports 0 rows. So "no error"
 -- is NOT proof of safety here; the row count is.
 create or replace function expect_no_write(p_label text, p_sql text)
@@ -55,7 +55,7 @@ begin
       values (p_label, true, 'no rows written (RLS filtered)');
     else
       insert into test_results
-      values (p_label, false, format('LEAK — %s row(s) written', v_rows));
+      values (p_label, false, format('LEAK - %s row(s) written', v_rows));
     end if;
   exception when others then
     insert into test_results values (p_label, true, 'rejected (' || sqlstate || ')');
@@ -412,7 +412,7 @@ select expect_count('51 claimed class teacher sees the child',
        (select count(*) from students
          where id = '30000000-0000-0000-0000-000000000001'), 1);
 
--- CANCEL: a wrong pick must leave NO residue — not a shortened window.
+-- CANCEL: a wrong pick must leave NO residue: not a shortened window.
 -- This is the difference between cancelled and ended.
 select test_as('00000000-0000-0000-0000-000000000001');
 select cancel_enrolment(:'e', 'picked the wrong school');

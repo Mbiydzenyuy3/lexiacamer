@@ -8,17 +8,17 @@ Everything is written and tested against a throwaway Postgres. This is the
 <https://supabase.com/dashboard> → **New project**.
 
 - **Region:** pick the one closest to Cameroon (usually `eu-west` / `eu-central`).
-  Note which you chose — a school will eventually ask where children's data
+  Note which you chose: a school will eventually ask where children's data
   physically lives, and it is easier to answer than to move later.
 - **Database password:** generate a strong one and put it in your password
   manager. You cannot read it back out of the dashboard afterwards.
 - Free tier is fine to start. Note that free projects **pause after a stretch of
-  inactivity** — fine while building, not fine the week traffic arrives.
+  inactivity** - fine while building, not fine the week traffic arrives.
 
 ## 2. Apply the schema
 
 Project Settings → Database → Connection string → **URI**. Use the **session**
-pooler (port `5432`), not the transaction pooler (`6543`) — migrations create
+pooler (port `5432`), not the transaction pooler (`6543`) - migrations create
 functions and triggers, which need a session connection.
 
 ```bash
@@ -39,7 +39,7 @@ cp .env.example .env
 ```
 
 `.env` is gitignored. **Only the anon key belongs in it.** The `service_role`
-key on that same page bypasses every RLS policy in the project — it is the
+key on that same page bypasses every RLS policy in the project: it is the
 master key to every child's record. It never goes in `.env`, never in `src/`,
 and never in the browser. It belongs only in the school-onboarding script, run
 from your machine.
@@ -50,7 +50,7 @@ appearing.
 ## 4. Before any real user signs in: bring your own SMTP
 
 Supabase's built-in email sender is rate-limited and documented as being for
-testing only. Email OTP is your **entire front door** — if mail stops, nobody
+testing only. Email OTP is your **entire front door** - if mail stops, nobody
 can sign in and nobody can sign up.
 
 Authentication → Emails → SMTP Settings, and point it at a real provider
@@ -66,7 +66,7 @@ npm test                    # 33 JS tests
 ./supabase/tests/run.sh     # 157 SQL tests, against local Docker
 ```
 
-The SQL suite runs against a throwaway container, not your project — it is a
+The SQL suite runs against a throwaway container, not your project: it is a
 regression gate, not a check on your live data.
 
 To sanity-check the real project, sign in and confirm a fresh account sees
@@ -84,7 +84,7 @@ select count(*) from schools;
 | Key | Lives | Why |
 |---|---|---|
 | anon / public | `.env`, browser bundle | Public by design; RLS protects the data |
-| service_role | your machine only | Bypasses all RLS — the master key |
+| service_role | your machine only | Bypasses all RLS: the master key |
 
 If the service-role key ever reaches the browser, every child's record on the
 platform is readable by anyone who views source.

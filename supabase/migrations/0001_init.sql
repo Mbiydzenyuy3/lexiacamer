@@ -1,5 +1,5 @@
 -- ============================================================================
--- LexiaCamer — initial schema
+-- LexiaCamer: initial schema
 --
 -- Security model, in one sentence:
 --   A student is a container; access is a set of independently revocable,
@@ -8,7 +8,7 @@
 --
 -- Two invariants hold the whole thing up:
 --   1. No client may ever supply an existing student_id to any operation that
---      creates a grant. Grant tables therefore have NO insert policy at all —
+--      creates a grant. Grant tables therefore have NO insert policy at all -
 --      RLS denies by default and every grant is minted by a SECURITY DEFINER
 --      RPC that creates the student and the grant together, atomically.
 --   2. The derived `progress` cache is un-windowed by definition (lifetime
@@ -24,7 +24,7 @@ create extension if not exists pgcrypto;
 
 -- One row per authenticated adult. Deliberately has NO role column: role is a
 -- property of a relationship, not of a person. `account_type` is a UI routing
--- hint only — nothing in this file reads it for authorization, and a user may
+-- hint only: nothing in this file reads it for authorization, and a user may
 -- edit it freely without gaining anything.
 create table profiles (
   id           uuid primary key references auth.users(id) on delete cascade,
@@ -115,14 +115,14 @@ create table guardianships (
 create index guardianships_profile_idx on guardianships (profile_id);
 
 -- GRANT: student -> class (and therefore school), for a dated period.
--- Created by the PARENT during onboarding — schools never register students.
+-- Created by the PARENT during onboarding: schools never register students.
 --
 -- `status` distinguishes two things that must not share a code path:
 --   'active'    the child really does attend; window applies
 --   'ended'     the child attended, then left; the school KEEPS that period
 --   'cancelled' the relationship never existed (wrong school picked, or the
 --               school flagged "not our pupil"). Produces NO WINDOW AT ALL,
---               retroactively — otherwise every correction would leave a
+--               retroactively: otherwise every correction would leave a
 --               permanent residue of a child's data in a stranger's dashboard.
 create table enrolments (
   id           uuid primary key default gen_random_uuid(),
@@ -148,9 +148,9 @@ create index enrolments_student_idx on enrolments (student_id);
 -- A student cannot hold two open enrolments in the same class. (Overlapping
 -- open enrolments in DIFFERENT schools are deliberately still allowed: a real
 -- transfer often overlaps by a few weeks. Both schools then see the overlap
--- period, which is correct — each is legitimately teaching the child.)
+-- period, which is correct: each is legitimately teaching the child.)
 -- ONE active enrolment per student, enforced by the database. A student is at
--- one school at a time — and with revenue share, two active schools for one
+-- one school at a time: and with revenue share, two active schools for one
 -- student would mean paying share twice on a single subscription.
 -- Note this is per STUDENT, not per parent email: a parent may legitimately
 -- have children at different schools.
@@ -313,7 +313,7 @@ stable
 security definer
 set search_path = public, pg_temp
 as $$
-  -- Guardian: the whole history, always — including activity from before the
+  -- Guardian: the whole history, always: including activity from before the
   -- link was made. A co-parent added later, or a guardian linked through a
   -- future consent flow, must still see the child's complete record. Only the
   -- END of the window is meaningful for a guardian.
@@ -397,7 +397,7 @@ create policy profiles_update on profiles for update
 -- --- the school request form: write-only public mailbox ---------------------
 -- The "I'm a school" signup branch must be submittable by someone with no
 -- account at all. It grants nothing and holds no student data. There is no
--- select policy, so nobody can read the queue back out — including the person
+-- select policy, so nobody can read the queue back out: including the person
 -- who submitted. Rate limiting belongs at the edge, not here.
 create policy school_requests_insert on school_access_requests
   for insert to anon, authenticated with check (true);
@@ -451,7 +451,7 @@ create policy guardianships_select on guardianships for select
 -- they are service-role / RPC territory. Clients can neither read nor write.
 
 -- ============================================================================
--- RPCs — the only client-facing way a grant is ever created.
+-- RPCs: the only client-facing way a grant is ever created.
 -- Each one CREATES the student it links to. None accepts an existing
 -- student_id, so knowing a UUID buys an attacker nothing.
 -- ============================================================================
@@ -521,7 +521,7 @@ begin
   end if;
 
   -- A distinct error code the UI can turn into "Ada is currently registered
-  -- at X — move her to Y?" rather than a dead-end denial.
+  -- at X: move her to Y?" rather than a dead-end denial.
   if exists (select 1 from enrolments e
               where e.student_id = p_student_id and e.status = 'active') then
     raise exception 'student already has an active enrolment'
@@ -585,7 +585,7 @@ begin
 end;
 $$;
 
--- Repudiate an association that never should have existed — a wrong school
+-- Repudiate an association that never should have existed: a wrong school
 -- picked at onboarding, or a school flagging "not our pupil". Leaves NO
 -- window: the school loses the data retroactively, which is the difference
 -- between this and end_enrolment below.
@@ -674,7 +674,7 @@ $$;
 -- SCHOOL PICKER
 --
 -- The onboarding search needs schools and classes readable by any signed-in
--- parent. Opening the tables would expose verified_by / verification_note —
+-- parent. Opening the tables would expose verified_by / verification_note -
 -- internal notes on how you vetted the institution. These projections return
 -- only what the picker needs. Name AND town, because Cameroonian school names
 -- repeat heavily and a name alone is not enough to choose correctly.
@@ -714,7 +714,7 @@ $$;
 -- PROFILE BOOTSTRAP
 --
 -- Without this, a brand-new user signs in, has no profiles row, and cannot
--- create one (there is no insert policy) — every foreign key to profiles then
+-- create one (there is no insert policy) - every foreign key to profiles then
 -- fails and the app is unusable on first sign-in.
 -- ============================================================================
 

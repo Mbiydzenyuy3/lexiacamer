@@ -1,5 +1,5 @@
 -- ============================================================================
--- DATA LIFECYCLE — export and deletion.
+-- DATA LIFECYCLE: export and deletion.
 --
 -- Deletion is the ONE operation allowed to break the append-only guarantee, so
 -- it is a single narrow audited path rather than a delete policy. A general
@@ -7,8 +7,8 @@
 --
 -- Policy (chosen deliberately): the PARENT WINS. Deleting a child erases
 -- everything, including the historical window a school was told it could keep.
--- What survives is an anonymous COUNT — "one student-month at School A in
--- March" — with no name, no events, and no link to any person. That is enough
+-- What survives is an anonymous COUNT - "one student-month at School A in
+-- March" - with no name, no events, and no link to any person. That is enough
 -- to defend a revenue-share figure if a school disputes it, and not enough to
 -- identify anyone.
 -- ============================================================================
@@ -27,7 +27,7 @@ alter table billing_ledger enable row level security;
 -- No policies: this is yours, read via the service role when you settle up.
 
 -- ----------------------------------------------------------------------------
--- EXPORT — everything held about one child, for their guardian.
+-- EXPORT: everything held about one child, for their guardian.
 -- ----------------------------------------------------------------------------
 create or replace function export_student(p_student_id uuid)
 returns jsonb
@@ -102,7 +102,7 @@ end;
 $$;
 
 -- ----------------------------------------------------------------------------
--- DELETE — guardian-initiated, irreversible.
+-- DELETE: guardian-initiated, irreversible.
 -- ----------------------------------------------------------------------------
 create or replace function delete_student(p_student_id uuid)
 returns void

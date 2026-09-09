@@ -1,5 +1,5 @@
 -- ============================================================================
--- LOCAL TEST SHIM — not part of the Supabase migration.
+-- LOCAL TEST SHIM: not part of the Supabase migration.
 --
 -- Supabase provides `auth.users` and `auth.uid()`. This recreates just enough
 -- of them to run 0001_init.sql and the RLS suite against a throwaway Postgres,

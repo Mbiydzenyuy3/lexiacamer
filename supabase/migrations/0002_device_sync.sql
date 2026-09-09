@@ -1,10 +1,10 @@
 -- ============================================================================
--- DEVICE GRANTS + SYNC — the only write path into a child's record.
+-- DEVICE GRANTS + SYNC: the only write path into a child's record.
 --
 -- Kid mode has no user session: the child never signs in. The device instead
 -- holds a random token scoped to ONE student that can only APPEND activity and
 -- can read nothing at all. That is why it may safely live for months on an
--- unattended classroom machine — stealing it buys you the ability to add stars
+-- unattended classroom machine: stealing it buys you the ability to add stars
 -- to one child.
 --
 -- Implemented as SECURITY DEFINER RPCs rather than an Edge Function so the
@@ -101,7 +101,7 @@ end;
 $$;
 
 -- ============================================================================
--- SYNC — append activity from an offline device.
+-- SYNC: append activity from an offline device.
 --
 -- Callable by `anon`: kid mode has no session. The token IS the credential.
 -- ============================================================================
@@ -167,7 +167,7 @@ $$;
 -- nothing without a valid token, and a token grants append-only access to one
 -- student's activity.
 -- Postgres grants EXECUTE on new functions to PUBLIC by default, and `anon` is
--- a member of PUBLIC — so revoking from `anon` alone would leave it able to
+-- a member of PUBLIC: so revoking from `anon` alone would leave it able to
 -- call these anyway. The grant has to be removed from PUBLIC and re-issued.
 revoke execute on function issue_device_grant(uuid, int) from public;
 revoke execute on function revoke_device_grant(uuid)     from public;

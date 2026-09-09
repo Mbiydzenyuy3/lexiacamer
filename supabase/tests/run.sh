@@ -14,7 +14,7 @@ if ! docker ps --format '{{.Names}}' | grep -qx "$CONTAINER"; then
     postgres:16-alpine >/dev/null
 fi
 
-# pg_isready goes true during init, then the server restarts — so poll with a
+# pg_isready goes true during init, then the server restarts: so poll with a
 # real query instead, or the first psql of the run dies on a closed connection.
 for _ in $(seq 1 60); do
   if psql -h localhost -p $PORT -U postgres -d lexia -c 'select 1' >/dev/null 2>&1; then
