@@ -3,7 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck, VolumeX, X } from 'lucide-react';
 import { getAvatarIcon } from './avatars';
 import speechEngine from './speech';
-import { loadState, saveState, resetProgress } from './store';
+import { loadState, saveState, queueEvent, syncOutbox, defaultState } from './store';
 import i18n from './i18n';
 import HomeScreen from './HomeScreen';
 import PhonicsLab from './PhonicsLab';
@@ -20,17 +20,27 @@ import Onboarding from './Onboarding';
  */
 
 export default function App() {
-  // Read persisted state once on mount (not once per field).
-  const initial = useMemo(() => loadState(), []);
+  // One state object, owned here and persisted through ./store. Progress is
+  // DERIVED from the child's events rather than mutated directly, which is what
+  // lets the device and the server compute the same numbers independently.
+  const [state, setState] = useState(() => loadState());
+  const { progress, settings, user, lang } = state;
+
+  // The screens read {words, streak, stars} — the same shape progress already
+  // has — so nothing below needed changing when the store was rewritten.
+  const stats = progress;
+  const unlockedStickers = progress.unlockedStickers;
+  const missedPhonemes = progress.missedPhonemes;
+
+  const setSettings = useCallback((next) => setState(s => ({
+    ...s, settings: typeof next === 'function' ? next(s.settings) : next,
+  })), []);
+  const setUser = useCallback((next) => setState(s => ({
+    ...s, user: typeof next === 'function' ? next(s.user) : next,
+  })), []);
 
   // Start new users straight on onboarding (no brief flash of Home first).
-  const [screen, setScreen] = useState(initial.user?.name ? 'home' : 'onboarding');
-  const [lang, setLang] = useState('en');
-  const [stats, setStats] = useState(initial.stats);
-  const [settings, setSettings] = useState(initial.settings);
-  const [user, setUser] = useState(initial.user);
-  const [unlockedStickers, setUnlockedStickers] = useState(initial.unlockedStickers);
-  const [missedPhonemes, setMissedPhonemes] = useState(initial.missedPhonemes);
+  const [screen, setScreen] = useState(state.user?.name ? 'home' : 'onboarding');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   // Warn once if this device has no speech synthesis — the app still works, but
   // the child won't hear the letter/word sounds. Dismissible so it never nags.
@@ -56,9 +66,28 @@ export default function App() {
   }, [user.name, screen]);
 
   // Persist state
+  useEffect(() => { saveState(state); }, [state]);
+
+  // Drain the outbox on a timer and whenever the connection returns — NOT on
+  // every state change, which would retry instantly in a tight loop against a
+  // failing server. Events stay queued until accepted, so a bad connection
+  // never costs a child their progress.
   useEffect(() => {
-    saveState({ lang, stats, settings, user, unlockedStickers, missedPhonemes });
-  }, [lang, stats, settings, user, unlockedStickers, missedPhonemes]);
+    if (isOffline) return;
+    let cancelled = false;
+    const flush = () => {
+      setState(current => {
+        if (current.outbox.length === 0) return current;
+        syncOutbox(current).then(next => {
+          if (!cancelled && next !== current) setState(next);
+        });
+        return current;
+      });
+    };
+    flush();
+    const timer = setInterval(flush, 30_000);
+    return () => { cancelled = true; clearInterval(timer); };
+  }, [isOffline]);
 
   // Offline detection
   useEffect(() => {
@@ -80,47 +109,45 @@ export default function App() {
   //   setLang(prev => prev === 'en' ? 'fr' : 'en');
   // }, []);
 
-  const handleWordCorrect = useCallback(() => {
-    setStats(prev => ({
-      ...prev,
-      words: (prev.words || 0) + 1,
-      streak: (prev.streak || 0) + 1,
-      stars: (prev.stars || 0) + 5
-    }));
+  // Every one of these records WHAT THE CHILD DID. Scoring is applied by
+  // ./scoring (and independently by the server), never sent from here — which
+  // is why a tampered device cannot mint stars.
+  const record = useCallback((kind, payload) => {
+    setState(s => queueEvent(s, kind, payload));
   }, []);
+
+  const handleWordCorrect = useCallback(() => {
+    record('word_completed');
+  }, [record]);
 
   const handleWordMissed = useCallback((incorrectLetters = []) => {
-    setStats(prev => ({
-      ...prev,
-      streak: 0
-    }));
-
-    if (incorrectLetters.length > 0) {
-      setMissedPhonemes(prev => {
-        const next = { ...prev };
-        incorrectLetters.forEach(l => {
-          if (!next[l]) next[l] = 0;
-          next[l] += 1;
-        });
-        return next;
-      });
-    }
-  }, []);
+    record('word_missed', { letters: incorrectLetters });
+  }, [record]);
 
   const handleRoundComplete = useCallback(() => {
-    setStats(prev => ({
-      ...prev,
-      stars: (prev.stars || 0) + 20
-    }));
-  }, []);
+    record('round_completed');
+  }, [record]);
 
-  // Parent-only: wipe learning progress, keep the child profile and settings.
-  const handleResetProgress = useCallback(() => {
-    const fresh = resetProgress();
-    setStats(fresh.stats);
-    setUnlockedStickers(fresh.unlockedStickers);
-    setMissedPhonemes(fresh.missedPhonemes);
-  }, []);
+  const handlePhonemeAttempt = useCallback((letter, correct) => {
+    record('phoneme_attempt', { letter, correct });
+  }, [record]);
+
+  const handleUnlockSticker = useCallback((stickerId) => {
+    record('sticker_unlocked', { sticker_id: stickerId });
+  }, [record]);
+
+  /**
+   * Erase this child's record entirely.
+   *
+   * There is no longer a "reset the numbers" operation: progress is derived
+   * from an immutable log of what the child actually did, so the only honest
+   * way to clear it is to delete the record. Locally that is everything we
+   * hold; once accounts exist this becomes delete_student() on the server.
+   */
+  const handleEraseChild = useCallback(() => {
+    setState({ ...defaultState(), lang, settings });
+    setScreen('onboarding');
+  }, [lang, settings]);
 
   // Render current screen
   const renderScreen = () => {
@@ -133,11 +160,11 @@ export default function App() {
       case 'settings':
         return <Settings t={t} settings={settings} setSettings={setSettings} onBack={() => setScreen('home')} />;
       case 'parent_dashboard':
-        return <ParentDashboard t={t} stats={stats} missedPhonemes={missedPhonemes} onResetProgress={handleResetProgress} onBack={() => setScreen('home')} />;
+        return <ParentDashboard t={t} stats={stats} missedPhonemes={missedPhonemes} onResetProgress={handleEraseChild} onBack={() => setScreen('home')} />;
       case 'sticker_book':
-        return <StickerBook t={t} stats={stats} setStats={setStats} unlockedStickers={unlockedStickers} setUnlockedStickers={setUnlockedStickers} onBack={() => setScreen('home')} />;
+        return <StickerBook t={t} stats={stats} unlockedStickers={unlockedStickers} onUnlockSticker={handleUnlockSticker} onBack={() => setScreen('home')} />;
       case 'phonics':
-        return <PhonicsLab t={t} lang={lang} stats={stats} setStats={setStats} />;
+        return <PhonicsLab t={t} lang={lang} stats={stats} onPhonemeAttempt={handlePhonemeAttempt} />;
       case 'forge':
         return (
           <WordForge

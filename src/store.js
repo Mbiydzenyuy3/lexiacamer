@@ -1,27 +1,74 @@
 /**
- * store — the single source of truth for persisting app state.
+ * store — local persistence and the offline outbox.
  *
- * Today this reads/writes localStorage. When the partner backend is defined,
- * swapping to an API happens HERE only (loadState/saveState/resetProgress) —
- * the rest of the app never touches storage directly, so integration doesn't
- * require a rewrite.
+ * The child's device is the origin of every fact about their learning. It
+ * records EVENTS ("completed a word"), keeps a running local view so stars move
+ * instantly with no network, and queues those events until the server accepts
+ * them. The server then recomputes from the same events and is authoritative
+ * for what adults see.
+ *
+ * Nothing here requires a backend: with no Supabase configured the outbox
+ * simply never drains, and the app behaves exactly as it does today.
  */
 
-const STORAGE_KEY = 'lexia_state';
+import {
+  emptyProgress, applyEvent, makeEvent, deriveProgress,
+} from './scoring';
+import { supabase, isBackendConfigured } from './lib/supabase';
 
-/** Fresh default state. Returns a new object each call (safe to mutate). */
+const STORAGE_KEY = 'lexia_state_v2';
+const LEGACY_KEY = 'lexia_state';
+
+/** Events older than this are dropped from the outbox — the server would
+ *  refuse them anyway (they predate the current device grant). */
+const OUTBOX_MAX_AGE_DAYS = 60;
+/** Matches the server's per-call cap in sync_activity(). */
+export const SYNC_BATCH_LIMIT = 500;
+
 export function defaultState() {
   return {
+    version: 2,
     lang: 'en',
-    stats: { words: 0, streak: 0, stars: 0 },
     settings: { dyslexiaMode: false },
     user: { name: '', avatar: '' },
-    unlockedStickers: [],
-    missedPhonemes: {},
+    progress: { ...emptyProgress(), _rounds: 0, _lastMissAt: null },
+    outbox: [],
+    studentId: null,
+    deviceToken: null,
+    lastSyncedAt: null,
   };
 }
 
-/** Load persisted state, merged over defaults so missing keys never break. */
+/**
+ * Carry a v1 (pre-backend) save forward. Existing users have stars and
+ * stickers in the old shape; losing them on upgrade would be a visible
+ * regression for a child.
+ */
+export function migrateLegacy(legacy) {
+  const base = defaultState();
+  if (!legacy || typeof legacy !== 'object') return base;
+  return {
+    ...base,
+    lang: legacy.lang || base.lang,
+    settings: { ...base.settings, ...(legacy.settings || {}) },
+    user: { ...base.user, ...(legacy.user || {}) },
+    progress: {
+      ...emptyProgress(),
+      words: legacy.stats?.words || 0,
+      streak: legacy.stats?.streak || 0,
+      stars: legacy.stats?.stars || 0,
+      unlockedStickers: Array.isArray(legacy.unlockedStickers)
+        ? legacy.unlockedStickers : [],
+      missedPhonemes: legacy.missedPhonemes || {},
+      // The old save has no event history, so the star total is taken as
+      // given and future events accumulate on top of it.
+      _rounds: 0,
+      _lastMissAt: null,
+      _legacyStars: legacy.stats?.stars || 0,
+    },
+  };
+}
+
 export function loadState() {
   const base = defaultState();
   try {
@@ -31,36 +78,106 @@ export function loadState() {
       return {
         ...base,
         ...parsed,
-        stats: { ...base.stats, ...(parsed.stats || {}) },
         settings: { ...base.settings, ...(parsed.settings || {}) },
         user: { ...base.user, ...(parsed.user || {}) },
+        progress: { ...base.progress, ...(parsed.progress || {}) },
+        outbox: Array.isArray(parsed.outbox) ? parsed.outbox : [],
       };
     }
-  } catch (e) {
-    /* corrupt or unavailable storage — fall back to defaults */
+    const legacyRaw = localStorage.getItem(LEGACY_KEY);
+    if (legacyRaw) return migrateLegacy(JSON.parse(legacyRaw));
+  } catch {
+    /* corrupt or unavailable storage — start clean rather than crash */
   }
   return base;
 }
 
-/** Persist the whole app state. */
 export function saveState(state) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-  } catch (e) {
-    /* storage full or unavailable — ignore, app still works in-memory */
+  } catch {
+    /* storage full or blocked — the app still works from memory */
   }
 }
 
 /**
- * Reset a child's learning progress — stars, streak, words, unlocked stickers
- * and missed-letter history — while KEEPING their name/avatar and settings.
- * Returns the fresh progress values for the caller to apply to React state.
+ * Record something the child did: update the local view immediately and queue
+ * the event for the server. Pure — returns the next state, so React owns it.
  */
-export function resetProgress() {
-  const fresh = defaultState();
+export function queueEvent(state, kind, payload = {}) {
+  const event = makeEvent(kind, payload);
   return {
-    stats: fresh.stats,
-    unlockedStickers: fresh.unlockedStickers,
-    missedPhonemes: fresh.missedPhonemes,
+    ...state,
+    progress: applyEvent(state.progress, event),
+    outbox: [...state.outbox, event],
   };
+}
+
+/** Drop events the server would reject anyway, so the queue cannot grow without bound. */
+export function pruneOutbox(outbox, now = Date.now()) {
+  const cutoff = now - OUTBOX_MAX_AGE_DAYS * 86_400_000;
+  const kept = outbox.filter(e => new Date(e.occurred_at).getTime() >= cutoff);
+  // Same reference when nothing was dropped, so callers can cheaply tell that
+  // nothing changed and avoid a pointless state update.
+  return kept.length === outbox.length ? outbox : kept;
+}
+
+/**
+ * Push queued events to the server.
+ *
+ * Returns the next state. Events are only dropped from the outbox once the
+ * server has ACCEPTED them — a failed or offline sync leaves the queue intact
+ * so nothing a child did is ever lost to a bad connection.
+ */
+export async function syncOutbox(state) {
+  if (!isBackendConfigured || !supabase) return state;
+  if (!state.deviceToken || state.outbox.length === 0) return state;
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return state;
+
+  const pending = pruneOutbox(state.outbox);
+  const batch = pending.slice(0, SYNC_BATCH_LIMIT);
+
+  try {
+    const { error } = await supabase.rpc('sync_activity', {
+      p_token: state.deviceToken,
+      p_events: batch,
+    });
+    if (error) return pending === state.outbox ? state : { ...state, outbox: pending };
+
+    const sent = new Set(batch.map(e => e.id));
+    return {
+      ...state,
+      outbox: pending.filter(e => !sent.has(e.id)),
+      lastSyncedAt: new Date().toISOString(),
+    };
+  } catch {
+    // Network died mid-flight. Keep everything queued and try again later.
+    // Returning the SAME state object when nothing changed matters: the caller
+    // re-runs on state change, so a new object here would spin forever.
+    return pending === state.outbox ? state : { ...state, outbox: pending };
+  }
+}
+
+/**
+ * Adopt the server's progress as authoritative, then re-apply anything still
+ * queued so the child does not briefly see their most recent stars vanish.
+ */
+export function reconcile(state, serverProgress) {
+  if (!serverProgress) return state;
+  const base = {
+    ...emptyProgress(),
+    words: serverProgress.words ?? 0,
+    streak: serverProgress.streak ?? 0,
+    stars: serverProgress.stars ?? 0,
+    unlockedStickers: serverProgress.unlocked_stickers ?? [],
+    missedPhonemes: serverProgress.missed_phonemes ?? {},
+    _rounds: 0,
+    _lastMissAt: null,
+  };
+  return { ...state, progress: state.outbox.reduce(applyEvent, base) };
+}
+
+/** Re-derive from a full event list. Used after an export/restore. */
+export function progressFromEvents(events) {
+  return deriveProgress(events);
 }

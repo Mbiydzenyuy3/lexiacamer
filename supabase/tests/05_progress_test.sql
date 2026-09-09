@@ -121,3 +121,31 @@ select expect_count('P13 the cache stays guardian-only',
        (select count(*) from progress where student_id = :'pid'), 0);
 
 reset role;
+
+-- --- Phonics Lab: correct sounds score, and share ONE streak with Word Forge
+-- Mirrors src/PhonicsLab.jsx (+2 a sound) and src/scoring.test.js.
+set role anon;
+select test_as(null);
+select sync_activity(:'ptok', jsonb_build_array(
+  jsonb_build_object('id', gen_random_uuid(), 'kind', 'phoneme_attempt',
+                     'payload', jsonb_build_object('letter','A','correct',true),
+                     'occurred_at', now()::text),
+  jsonb_build_object('id', gen_random_uuid(), 'kind', 'phoneme_attempt',
+                     'payload', jsonb_build_object('letter','B','correct',true),
+                     'occurred_at', now()::text)));
+reset role;
+select expect_count('P14 a correct sound is worth 2 stars',
+       (select stars from progress where student_id = :'pid'), 29);
+select expect_count('P15 correct sounds extend the shared streak',
+       (select streak from progress where student_id = :'pid'), 3);
+
+set role anon;
+select sync_activity(:'ptok', jsonb_build_array(
+  jsonb_build_object('id', gen_random_uuid(), 'kind', 'phoneme_attempt',
+                     'payload', jsonb_build_object('letter','C','correct',false),
+                     'occurred_at', now()::text)));
+reset role;
+select expect_count('P16 a wrong sound breaks the shared streak',
+       (select streak from progress where student_id = :'pid'), 0);
+select expect_count('P17 a wrong sound scores nothing',
+       (select stars from progress where student_id = :'pid'), 29);

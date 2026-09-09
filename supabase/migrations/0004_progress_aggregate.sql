@@ -8,8 +8,9 @@
 -- only what the child DID ("completed a word", "missed these letters"); the
 -- database decides what that is worth. A tampered device can therefore claim
 -- more activity, but cannot mint arbitrary stars, and the rules have one home.
--- Rules mirror src/App.jsx: +5 stars per word, +20 per completed round,
--- streak resets on a miss.
+-- Rules mirror the front end: +5 stars per word (src/App.jsx), +20 per
+-- completed round, +2 per correct sound in Phonics Lab challenge mode
+-- (src/PhonicsLab.jsx). Word Forge and Phonics Lab share ONE streak.
 -- ============================================================================
 
 alter table activity_events drop constraint activity_events_kind_check;
@@ -48,14 +49,20 @@ as $$
 declare
   v_words    int;
   v_rounds   int;
+  v_phonemes int;
   v_spent    int;
   v_streak   int;
   v_stickers text[];
   v_missed   jsonb;
 begin
+  -- Phonics Lab challenge mode awards +2 for a correct sound and breaks the
+  -- streak on a wrong one (src/PhonicsLab.jsx). It shares one "in a row"
+  -- streak with Word Forge.
   select count(*) filter (where kind = 'word_completed'),
-         count(*) filter (where kind = 'round_completed')
-    into v_words, v_rounds
+         count(*) filter (where kind = 'round_completed'),
+         count(*) filter (where kind = 'phoneme_attempt'
+                            and payload->>'correct' = 'true')
+    into v_words, v_rounds, v_phonemes
     from activity_events
    where student_id = p_student_id;
 
@@ -70,14 +77,19 @@ begin
     from stickers s
    where s.id = any(v_stickers);
 
-  -- Consecutive correct words since the most recent miss.
+  -- One shared streak across both games: correct words and correct sounds
+  -- extend it, missed words and wrong sounds break it.
   select count(*) into v_streak
     from activity_events
    where student_id = p_student_id
-     and kind = 'word_completed'
+     and (kind = 'word_completed'
+          or (kind = 'phoneme_attempt' and payload->>'correct' = 'true'))
      and occurred_at > coalesce(
            (select max(occurred_at) from activity_events
-             where student_id = p_student_id and kind = 'word_missed'),
+             where student_id = p_student_id
+               and (kind = 'word_missed'
+                    or (kind = 'phoneme_attempt'
+                        and payload->>'correct' = 'false'))),
            '-infinity'::timestamptz);
 
   -- Which letters this child trips over, counted across every missed word.
@@ -97,7 +109,7 @@ begin
   values (p_student_id,
           v_words,
           v_streak,
-          greatest(v_words * 5 + v_rounds * 20 - v_spent, 0),
+          greatest(v_words * 5 + v_rounds * 20 + v_phonemes * 2 - v_spent, 0),
           v_stickers,
           v_missed,
           now())

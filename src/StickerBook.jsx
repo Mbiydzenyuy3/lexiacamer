@@ -11,7 +11,7 @@ const STICKERS = [
   { id: 'mt_cameroon', name: 'Mount Cameroon', cost: 100, icon: Mountain, color: '#1a2e05', bg: '#f5f5f5', desc: 'Chariot of the gods.' }
 ];
 
-export default function StickerBook({ t, stats, setStats, unlockedStickers, setUnlockedStickers, onBack }) {
+export default function StickerBook({ t, stats, unlockedStickers, onUnlockSticker, onBack }) {
   const [showCelebration, setShowCelebration] = React.useState(false);
   const celebrationTimer = React.useRef(null);
 
@@ -22,8 +22,9 @@ export default function StickerBook({ t, stats, setStats, unlockedStickers, setU
 
   const handleUnlock = (sticker) => {
     if (stats.stars >= sticker.cost && !unlockedStickers.includes(sticker.id)) {
-      setStats(prev => ({ ...prev, stars: prev.stars - sticker.cost }));
-      setUnlockedStickers(prev => [...prev, sticker.id]);
+      // Record the unlock; the cost is deducted by the scoring rules, here and
+      // on the server, rather than being applied by this component.
+      onUnlockSticker(sticker.id);
       setShowCelebration(true);
       clearTimeout(celebrationTimer.current);
       celebrationTimer.current = setTimeout(() => setShowCelebration(false), 3000);

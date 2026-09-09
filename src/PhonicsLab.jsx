@@ -4,7 +4,7 @@ import { phonicsData } from './i18n';
 import speechEngine from './speech';
 import Confetti from './Confetti';
 
-export default function PhonicsLab({ t, lang, stats, setStats }) {
+export default function PhonicsLab({ t, lang, stats, onPhonemeAttempt }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [playingTile, setPlayingTile] = useState(null);
   
@@ -46,13 +46,7 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
       if (item.letter === targetItem.letter) {
         // Correct! Award stars and extend the shared "in a row" streak.
         setScore(s => s + 1);
-        if (setStats) {
-          setStats(prev => ({
-            ...prev,
-            stars: (prev.stars || 0) + 2,
-            streak: (prev.streak || 0) + 1,
-          }));
-        }
+        onPhonemeAttempt?.(item.letter, true);
         speechEngine.speakCelebration(lang);
         setShowCelebration(true);
         setTimeout(() => setShowCelebration(false), 2000);
@@ -65,9 +59,7 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
         }, 2000);
       } else {
         // Wrong — repeat the target sound and break the streak.
-        if (setStats) {
-          setStats(prev => ({ ...prev, streak: 0 }));
-        }
+        onPhonemeAttempt?.(item.letter, false);
         speechEngine.speakLetter(targetItem.letter, lang);
       }
     } else {
@@ -76,7 +68,7 @@ export default function PhonicsLab({ t, lang, stats, setStats }) {
     }
 
     setTimeout(() => setPlayingTile(null), 600);
-  }, [isChallengeMode, targetItem, lang, filtered]);
+  }, [isChallengeMode, targetItem, lang, filtered, onPhonemeAttempt]);
 
   const repeatSound = useCallback(() => {
     if (targetItem) {
