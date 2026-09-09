@@ -1,55 +1,16 @@
 import React, { useState } from 'react';
-import { ArrowLeft, Lock, ShieldCheck, Activity, AlertTriangle, Star, Lightbulb } from 'lucide-react';
+import { ArrowLeft, ShieldCheck, Activity, AlertTriangle, Star, Lightbulb } from 'lucide-react';
 
+/**
+ * ParentDashboard: what an adult sees about their child.
+ *
+ * No tap-to-unlock gate. That was a stand-in from before there was any auth,
+ * and a counter a five-year-old can defeat is not a boundary. Reaching this
+ * screen now requires a real signed-in session, and the data behind it is
+ * protected by row-level security rather than by hiding the view.
+ */
 export default function ParentDashboard({ t, stats, missedPhonemes, onResetProgress, onBack }) {
-  const [unlocked, setUnlocked] = useState(false);
-  const [pinClicks, setPinClicks] = useState(0);
   const [confirmingReset, setConfirmingReset] = useState(false);
-
-  const handleUnlock = () => {
-    if (pinClicks + 1 >= 3) {
-      setUnlocked(true);
-    } else {
-      setPinClicks(prev => prev + 1);
-    }
-  };
-
-  if (!unlocked) {
-    return (
-      <div className="screen" style={{
-        display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-        padding: '2rem', minHeight: 'calc(100vh - 8rem)',
-      }}>
-        <div className="animate-fade-in" style={{
-          maxWidth: '380px', width: '100%', textAlign: 'center',
-          background: 'var(--bg-card)',
-          borderRadius: 'var(--radius-2xl)',
-          padding: '2.5rem 2rem',
-          boxShadow: '0 20px 60px rgba(0,0,0,0.08)',
-          border: '1px solid var(--border-light)',
-        }}>
-          <div style={{
-            width: '72px', height: '72px', borderRadius: '50%', margin: '0 auto 1.5rem',
-            background: 'linear-gradient(135deg, var(--indigo-100), var(--indigo-50))',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            border: '3px solid var(--indigo-200)',
-          }}>
-            <Lock size={36} style={{ color: 'var(--indigo-600)' }} />
-          </div>
-          <h2 style={{ marginBottom: '0.5rem' }}>{t.parentTitle}</h2>
-          <p className="text-muted" style={{ marginBottom: '2rem', lineHeight: 1.6 }}>
-            {t.parentUnlockPrompt}
-          </p>
-          <button className="btn btn-accent w-full" style={{ padding: '1rem', fontSize: '1.05rem' }} onClick={handleUnlock}>
-            {t.parentTapUnlock} ({3 - pinClicks} {t.parentLeft})
-          </button>
-          <button className="btn btn-ghost w-full" style={{ marginTop: '0.75rem' }} onClick={onBack}>
-            {t.parentCancel}
-          </button>
-        </div>
-      </div>
-    );
-  }
 
   // Calculate most missed
   const missedEntries = Object.entries(missedPhonemes || {}).sort((a, b) => b[1] - a[1]);

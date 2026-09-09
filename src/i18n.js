@@ -110,10 +110,6 @@ const i18n = {
 
     // Parent Dashboard
     parentTitle: "Parent Area",
-    parentUnlockPrompt: "This area is for grown-ups. Tap the button below 3 times to unlock it.",
-    parentTapUnlock: "Tap to Unlock",
-    parentLeft: "left",
-    parentCancel: "Cancel",
     parentOverview: "Overview",
     parentWordsBuilt: "Words Built",
     parentTotalStars: "Total Stars",
@@ -122,6 +118,7 @@ const i18n = {
     parentMissedLetters: "These are the letters your child frequently misses when spelling:",
     parentTip: "Go to the Phonics Lab and practice the sounds for these specific letters together!",
     parentReset: "Reset progress",
+    parentCancel: "Cancel",
     parentResetWarning: "This clears all stars, streak, words and stickers. It can't be undone.",
     parentResetConfirm: "Yes, reset",
     parentTipLabel: "Parent Tip:",
@@ -251,10 +248,6 @@ const i18n = {
 
     // Parent Dashboard
     parentTitle: "Espace Parent",
-    parentUnlockPrompt: "Cet espace est réservé aux adultes. Appuyez 3 fois sur le bouton pour le déverrouiller.",
-    parentTapUnlock: "Appuyez pour déverrouiller",
-    parentLeft: "restant(s)",
-    parentCancel: "Annuler",
     parentOverview: "Aperçu",
     parentWordsBuilt: "Mots Construits",
     parentTotalStars: "Étoiles Totales",
@@ -263,6 +256,7 @@ const i18n = {
     parentMissedLetters: "Voici les lettres que votre enfant rate souvent en épelant :",
     parentTip: "Allez au Labo Phonique et pratiquez les sons de ces lettres ensemble !",
     parentReset: "Réinitialiser la progression",
+    parentCancel: "Annuler",
     parentResetWarning: "Cela efface toutes les étoiles, la série, les mots et les autocollants. C'est irréversible.",
     parentResetConfirm: "Oui, réinitialiser",
     parentTipLabel: "Conseil parent :",
