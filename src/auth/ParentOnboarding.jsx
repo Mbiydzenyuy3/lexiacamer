@@ -42,6 +42,7 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
   const [searched, setSearched] = useState(false);
   const [suggested, setSuggested] = useState(false);
   const [searchError, setSearchError] = useState('');
+  const [focused, setFocused] = useState(false);
 
   // Step 2
   const [parentName, setParentName] = useState('');
@@ -55,10 +56,14 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
 
   // Type-ahead over schools. Name alone is not enough to choose correctly in
   // Cameroon, where school names repeat heavily, so every result shows its town.
+  // Opens on focus, not just on typing. Showing nothing until two characters
+  // are typed reads as a broken dropdown: there is no way to tell "no results"
+  // from "this control does nothing". With an empty query the server returns
+  // the schools already on the platform, which is a useful starting list.
   useEffect(() => {
     if (!supabase || school) return undefined;
+    if (!focused) return undefined;
     const q = schoolQuery.trim();
-    if (q.length < 2) { setSchools([]); return undefined; }
     let cancelled = false;
     const timer = setTimeout(async () => {
       // Searches BOTH: verified schools on the platform and names from the
@@ -84,7 +89,7 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
       setSearched(true);
     }, 250);
     return () => { cancelled = true; clearTimeout(timer); };
-  }, [schoolQuery, school]);
+  }, [schoolQuery, school, focused]);
 
   const pickSchool = useCallback(async (s) => {
     setSchool(s);
@@ -248,7 +253,12 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
                   <Search size={16} />
                   <input id="onb-school" className="auth-input" value={schoolQuery}
                          onChange={(e) => setSchoolQuery(e.target.value)}
-                         placeholder="Start typing the school name" />
+                         onFocus={() => setFocused(true)}
+                         role="combobox"
+                         aria-expanded={schools.length > 0}
+                         aria-autocomplete="list"
+                         autoComplete="off"
+                         placeholder="Tap to see schools, or type to search" />
                 </div>
                 {schools.length > 0 && (
                   <ul className="onb-results">
@@ -271,7 +281,7 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
                   <p role="alert" className="auth-error">{searchError}</p>
                 )}
                 {!searchError && searched && schools.length === 0
-                  && schoolQuery.trim().length >= 2 && (
+                  && schoolQuery.trim().length >= 1 && (
                   suggested ? (
                     <p className="onb-hint onb-thanks">
                       Thank you. We will reach out to
