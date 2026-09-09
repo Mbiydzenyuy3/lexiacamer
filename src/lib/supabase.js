@@ -14,7 +14,12 @@ import { createClient } from '@supabase/supabase-js';
  */
 
 const url = import.meta.env?.VITE_SUPABASE_URL;
-const anonKey = import.meta.env?.VITE_SUPABASE_ANON_KEY;
+
+// Supabase renamed the browser-safe key from "anon" to "publishable". Accept
+// either, so copying straight from the dashboard works whichever name it shows.
+const anonKey =
+  import.meta.env?.VITE_SUPABASE_ANON_KEY ||
+  import.meta.env?.VITE_SUPABASE_PUBLISHABLE_KEY;
 
 export const isBackendConfigured = Boolean(url && anonKey);
 
