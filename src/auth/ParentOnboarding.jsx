@@ -60,7 +60,9 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
     if (q.length < 2) { setSchools([]); return undefined; }
     let cancelled = false;
     const timer = setTimeout(async () => {
-      const { data } = await supabase.rpc('search_schools', { p_query: q });
+      // Searches BOTH: verified schools on the platform and names from the
+      // directory. on_platform decides what picking one actually does.
+      const { data } = await supabase.rpc('search_schools_all', { p_query: q });
       if (!cancelled) { setSchools(data || []); setSearched(true); }
     }, 250);
     return () => { cancelled = true; clearTimeout(timer); };
@@ -70,9 +72,14 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
     setSchool(s);
     setSchools([]);
     setClassId('');
+    setClasses([]);
     if (!supabase) return;
-    const { data } = await supabase.rpc('list_classes', { p_school_id: s.id });
-    setClasses(data || []);
+    if (s.on_platform) {
+      const { data } = await supabase.rpc('list_classes', { p_school_id: s.id });
+      setClasses(data || []);
+    }
+    // A school that has not joined yet has no classes and no dashboard, so
+    // there is no enrolment to make. Record that this family is waiting.
   }, []);
 
   const saveChild = async () => {
@@ -85,6 +92,12 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
         p_dob: dob || null,
         p_gender: gender,
       });
+      if (school && !school.on_platform && school.directory_id) {
+        await supabase.rpc('note_school_interest', {
+          p_directory_id: school.directory_id,
+          p_student_id: studentId,
+        });
+      }
       if (classId) {
         const { error: err } = await supabase.rpc('claim_school_place', {
           p_student_id: studentId,
@@ -197,7 +210,15 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
             </label>
             {school ? (
               <div className="onb-picked">
-                <span><strong>{school.name}</strong>{school.town ? `, ${school.town}` : ''}</span>
+                <span>
+                  <strong>{school.name}</strong>{school.town ? `, ${school.town}` : ''}
+                  {!school.on_platform && (
+                    <em className="onb-notjoined">
+                      Not using LexiaCamer yet. We will let you know when they
+                      join, and your child can keep playing meanwhile.
+                    </em>
+                  )}
+                </span>
                 <button type="button" className="btn btn-ghost"
                         onClick={() => { setSchool(null); setClasses([]); setClassId(''); }}>
                   Change
@@ -214,9 +235,12 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
                 {schools.length > 0 && (
                   <ul className="onb-results">
                     {schools.map((s) => (
-                      <li key={s.id}>
+                      <li key={s.directory_id || s.id}>
                         <button type="button" onClick={() => pickSchool(s)}>
-                          <strong>{s.name}</strong>
+                          <span className="onb-result-row">
+                            <strong>{s.name}</strong>
+                            {s.on_platform && <span className="onb-badge">On LexiaCamer</span>}
+                          </span>
                           {s.town && <span className="onb-town">{s.town}</span>}
                         </button>
                       </li>
@@ -235,8 +259,8 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
                   ) : (
                     <div className="onb-noresult">
                       <p style={{ margin: '0 0 0.6rem' }}>
-                        <strong>{schoolQuery.trim()}</strong> is not using
-                        LexiaCamer yet.
+                        We could not find <strong>{schoolQuery.trim()}</strong>.
+                        Tell us the name and we will add it.
                       </p>
                       <button type="button" className="btn-resend"
                               onClick={async () => {
