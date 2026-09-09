@@ -58,7 +58,14 @@ export function AuthProvider({ children }) {
       if (!supabase) return { error: new Error('no backend configured') };
       return supabase.auth.signInWithOtp({
         email: email.trim().toLowerCase(),
-        options: { shouldCreateUser: true },
+        options: {
+          shouldCreateUser: true,
+          // Where the magic link comes back to. Supabase's default Site URL is
+          // localhost:3000, which sends the session somewhere the app is not.
+          emailRedirectTo: typeof window !== 'undefined'
+            ? window.location.origin
+            : undefined,
+        },
       });
     },
 

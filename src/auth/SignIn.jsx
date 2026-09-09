@@ -29,7 +29,7 @@ export default function SignIn({ t, onBack }) {
       return;
     }
     setStage('code');
-    setNotice(`We sent a 6-digit code to ${email.trim()}.`);
+    setNotice(`Check ${email.trim()}.`);
   };
 
   const submitCode = async (e) => {
@@ -58,7 +58,7 @@ export default function SignIn({ t, onBack }) {
       <div style={{ maxWidth: '26rem', margin: '0 auto', padding: '1rem' }}>
         <p className="text-muted" style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
           <ShieldCheck size={18} style={{ flexShrink: 0, marginTop: 2 }} />
-          <span>Sign in to see your child's progress. We'll email you a code — no password to remember.</span>
+          <span>Sign in to see your child's progress. We'll email you a sign-in link — no password to remember.</span>
         </p>
 
         {stage === 'email' ? (
@@ -78,13 +78,20 @@ export default function SignIn({ t, onBack }) {
               style={{ width: '100%', marginBottom: '0.75rem' }}
             />
             <button type="submit" className="btn btn-primary" disabled={busy || !email.trim()} style={{ width: '100%' }}>
-              <Mail size={18} /> {busy ? 'Sending…' : 'Send me a code'}
+              <Mail size={18} /> {busy ? 'Sending…' : 'Email me a sign-in link'}
             </button>
           </form>
         ) : (
           <form onSubmit={submitCode}>
+            {/* Supabase sends a LINK by default and only sends a 6-digit code
+                once custom SMTP is configured (template editing is locked
+                behind it). Support both, so this works either way. */}
+            <p style={{ marginBottom: '0.75rem' }}>
+              Open the email and <strong>tap the link</strong> — that signs you
+              in. If the email has a 6-digit code instead, type it here.
+            </p>
             <label htmlFor="signin-code" style={{ display: 'block', marginBottom: '0.25rem' }}>
-              6-digit code
+              6-digit code (if your email has one)
             </label>
             <input
               id="signin-code"
@@ -101,6 +108,15 @@ export default function SignIn({ t, onBack }) {
             />
             <button type="submit" className="btn btn-primary" disabled={busy || code.length < 6} style={{ width: '100%' }}>
               {busy ? 'Checking…' : 'Sign in'}
+            </button>
+            <button
+              type="button"
+              className="btn btn-ghost"
+              style={{ width: '100%', marginTop: '0.5rem' }}
+              disabled={busy}
+              onClick={sendCode}
+            >
+              Send it again
             </button>
             <button
               type="button"
