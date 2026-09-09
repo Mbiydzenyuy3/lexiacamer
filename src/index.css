@@ -1632,3 +1632,171 @@ p {
     transition-duration: 0.01ms !important;
   }
 }
+/* ================================================================
+   AUTH: sign-in and one-time-code entry
+   Adults only. Deliberately calmer than the child-facing screens,
+   with large touch targets for a parent on a phone.
+   ================================================================ */
+
+.auth-card {
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: 1.5rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-sm);
+}
+
+.auth-intro {
+  display: flex;
+  gap: 0.625rem;
+  align-items: flex-start;
+  margin: 0 0 1.25rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+.auth-label {
+  display: block;
+  margin-bottom: 0.4rem;
+  font-weight: 600;
+  color: var(--text-primary);
+}
+
+.auth-input {
+  width: 100%;
+  padding: 0.85rem 1rem;
+  font-size: 1rem;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 2px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+}
+
+.auth-input::placeholder { color: var(--text-muted); }
+
+.auth-input:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+}
+
+/* One box per digit. */
+.otp-row {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+}
+
+.otp-box {
+  width: 100%;
+  max-width: 3.25rem;
+  aspect-ratio: 3 / 4;
+  padding: 0;
+  text-align: center;
+  font-size: 1.6rem;
+  font-weight: 800;
+  font-family: inherit;
+  color: var(--text-primary);
+  background: var(--bg-card);
+  border: 2px solid var(--border-medium);
+  border-radius: var(--radius-sm);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
+}
+
+.otp-box:focus {
+  outline: none;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px var(--color-primary-light);
+  transform: translateY(-1px);
+}
+
+/* A filled box reads as done, so progress through the code is visible. */
+.otp-box:not(:placeholder-shown) {
+  border-color: var(--color-primary);
+  background: var(--green-50);
+}
+
+.otp-box:disabled {
+  background: var(--border-light);
+  color: var(--text-muted);
+}
+
+.otp-row.is-error .otp-box {
+  border-color: var(--color-danger);
+  background: var(--rose-50);
+}
+
+/* Resend, with its cooldown. */
+.auth-resend {
+  margin-top: 1.25rem;
+  padding: 1rem;
+  text-align: center;
+  background: var(--green-50);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.auth-resend-hint {
+  margin: 0 0 0.75rem;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.btn-resend {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  width: 100%;
+  padding: 0.75rem 1rem;
+  font-size: 1rem;
+  font-weight: 700;
+  font-family: inherit;
+  color: var(--color-primary-hover);
+  background: var(--bg-card);
+  border: 2px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  transition: background 0.15s ease, color 0.15s ease;
+}
+
+.btn-resend:hover:not(:disabled) {
+  background: var(--color-primary);
+  color: var(--text-inverse);
+}
+
+.btn-resend:disabled {
+  color: var(--text-muted);
+  border-color: var(--border-medium);
+  background: transparent;
+  cursor: not-allowed;
+}
+
+.auth-status {
+  margin: 0.85rem 0 0;
+  min-height: 1.4rem;
+  text-align: center;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+}
+
+.auth-error {
+  margin-top: 0.85rem;
+  padding: 0.7rem 0.9rem;
+  font-size: 0.9rem;
+  color: var(--rose-600);
+  background: var(--rose-50);
+  border: 1px solid var(--rose-100);
+  border-radius: var(--radius-sm);
+}
+
+.auth-footnote {
+  margin-top: 1.5rem;
+  font-size: 0.85rem;
+  text-align: center;
+  color: var(--text-muted);
+}
