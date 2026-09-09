@@ -9,6 +9,7 @@ import {
 } from './store';
 import { useAuth } from './auth/AuthProvider';
 import SignIn from './auth/SignIn';
+import ParentOnboarding from './auth/ParentOnboarding';
 import i18n from './i18n';
 import HomeScreen from './HomeScreen';
 import PhonicsLab from './PhonicsLab';
@@ -190,6 +191,17 @@ export default function App() {
         // a backend to hold the record.
         if (auth.available && !auth.session) {
           return <SignIn t={t} onBack={() => setScreen('home')} />;
+        }
+        // First time in: collect the child's details, the parent's, and
+        // optionally where they are, before showing a dashboard of zeros.
+        if (auth.session && state.studentId && !state.onboardedAt) {
+          return (
+            <ParentOnboarding
+              studentId={state.studentId}
+              initialChildName={user.name}
+              onDone={() => setState(s2 => ({ ...s2, onboardedAt: new Date().toISOString() }))}
+            />
+          );
         }
         return <ParentDashboard t={t} stats={stats} missedPhonemes={missedPhonemes} onResetProgress={handleEraseChild} onBack={() => setScreen('home')} />;
       case 'sticker_book':

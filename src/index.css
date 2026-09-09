@@ -1804,3 +1804,147 @@ p {
   text-align: center;
   color: var(--text-muted);
 }
+
+/* ================================================================
+   PARENT ONBOARDING: three steps after sign-in
+   ================================================================ */
+
+.onb-steps {
+  display: flex;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-bottom: 1.25rem;
+}
+
+.onb-dot {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 1.9rem;
+  height: 1.9rem;
+  border-radius: var(--radius-full);
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: var(--border-light);
+}
+
+.onb-dot.is-active {
+  color: var(--text-inverse);
+  background: var(--color-primary);
+}
+
+.onb-dot.is-done {
+  color: var(--text-inverse);
+  background: var(--green-400);
+}
+
+.onb-title { margin: 0 0 0.35rem; }
+
+.onb-sub {
+  margin: 0 0 1.25rem;
+  color: var(--text-secondary);
+  line-height: 1.5;
+}
+
+/* Says on the screen where we ask that the school will not see it. */
+.onb-private {
+  display: flex;
+  gap: 0.5rem;
+  align-items: flex-start;
+  padding: 0.75rem;
+  background: var(--green-50);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+}
+
+.onb-fieldset { border: 0; padding: 0; margin: 1rem 0 0; }
+
+.onb-chips { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+
+.onb-chip {
+  padding: 0.5rem 0.9rem;
+  font: inherit;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 2px solid var(--border-medium);
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.onb-chip.is-selected {
+  color: var(--text-inverse);
+  background: var(--color-primary);
+  border-color: var(--color-primary);
+}
+
+.onb-search { position: relative; }
+.onb-search svg {
+  position: absolute;
+  left: 0.85rem;
+  top: 50%;
+  transform: translateY(-50%);
+  color: var(--text-muted);
+  pointer-events: none;
+}
+.onb-search .auth-input { padding-left: 2.4rem; }
+
+.onb-results {
+  list-style: none;
+  margin: 0.5rem 0 0;
+  padding: 0;
+  max-height: 14rem;
+  overflow-y: auto;
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+}
+
+.onb-results li + li { border-top: 1px solid var(--border-light); }
+
+.onb-results button {
+  display: flex;
+  flex-direction: column;
+  gap: 0.15rem;
+  width: 100%;
+  padding: 0.7rem 0.85rem;
+  font: inherit;
+  text-align: left;
+  background: none;
+  border: 0;
+  cursor: pointer;
+}
+
+.onb-results button:hover { background: var(--green-50); }
+
+/* Town alongside the name: Cameroonian school names repeat heavily, and a
+   name on its own is not enough to pick the right one. */
+.onb-town { font-size: 0.85rem; color: var(--text-muted); }
+
+.onb-picked {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.7rem 0.85rem;
+  background: var(--green-50);
+  border: 1px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+}
+
+.onb-hint {
+  margin: 0.5rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.onb-optional { font-weight: 400; color: var(--text-muted); }
+
+.onb-next { width: 100%; margin-top: 1.5rem; }
+
+.onb-actions {
+  display: flex;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+.onb-actions .btn { flex: 1; }

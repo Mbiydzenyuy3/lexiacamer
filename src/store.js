@@ -36,6 +36,9 @@ export function defaultState() {
     studentId: null,
     deviceToken: null,
     lastSyncedAt: null,
+    // When the parent finished the three onboarding steps. Null means they
+    // have not, so the dashboard shows onboarding first.
+    onboardedAt: null,
   };
 }
 
