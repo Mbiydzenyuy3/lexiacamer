@@ -2,7 +2,7 @@ import React from 'react';
 
 /**
  * Catches any runtime render error so a single bug can't white-screen the whole
- * app — important because LexiaCamer runs embedded inside a partner platform.
+ * app: important because LexiaCamer runs embedded inside a partner platform.
  * Shows a calm, child-friendly recovery screen with a reload button. Progress is
  * saved in localStorage, so reloading keeps the child's stars/streak/words.
  */

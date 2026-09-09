@@ -137,7 +137,7 @@ export default function ParentDashboard({ t, stats, missedPhonemes, onResetProgr
           )}
         </div>
 
-        {/* Reset progress — parent-only (behind the gate), with a confirm step */}
+        {/* Reset progress: parent-only (behind the gate), with a confirm step */}
         <div className="card" style={{ borderColor: 'var(--border-light)' }}>
           {!confirmingReset ? (
             <button

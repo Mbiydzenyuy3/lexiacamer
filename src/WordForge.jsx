@@ -7,7 +7,7 @@ import Confetti from './Confetti';
 const iconMap = { Leaf, Soup, Package, ChefHat, Beef, Circle, Fish, ConciergeBell, Wheat, Carrot, User, Crown, UserCheck, UserSquare, Star, Heart, Smile, Building2, Tent, Trees, Mountain, Waves, Home, MapPin, TreePine, CloudRain, Sun, Bird, Flame, Droplets };
 
 /**
- * WordForge — Spelling Builder
+ * WordForge - Spelling Builder
  * Kids see a prompt (emoji + hint) and build the word letter-by-letter.
  * All vocabulary uses Cameroonian context.
  */
@@ -133,7 +133,7 @@ export default function WordForge({ t, lang, stats, onWordCorrect, onWordMissed,
         } else {
           setResult('wrong');
           // Record the letters the child SHOULD have placed (the target's
-          // letters at the wrong positions), not the distractor they picked —
+          // letters at the wrong positions), not the distractor they picked -
           // otherwise the Parent Dashboard blames letters that aren't even in
           // the word.
           const missedLetters = targetWord.split('').filter((letter, i) => attempt[i] !== letter);

@@ -58,7 +58,7 @@ export default function PhonicsLab({ t, lang, stats, onPhonemeAttempt }) {
           speechEngine.speakLetter(nextItem.letter, lang);
         }, 2000);
       } else {
-        // Wrong — repeat the target sound and break the streak.
+        // Wrong: repeat the target sound and break the streak.
         onPhonemeAttempt?.(item.letter, false);
         speechEngine.speakLetter(targetItem.letter, lang);
       }

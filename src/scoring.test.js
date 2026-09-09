@@ -15,7 +15,7 @@ const ev = (kind, payload = {}, minutesAgo = 0) => ({
   occurred_at: new Date(Date.now() - minutesAgo * 60_000).toISOString(),
 });
 
-describe('deriveProgress — matches 0004_progress_aggregate.sql', () => {
+describe('deriveProgress: matches 0004_progress_aggregate.sql', () => {
   it('P01/P02/P03: three correct words = 3 words, 15 stars, streak 3', () => {
     const p = deriveProgress([
       ev('word_completed', {}, 3),
@@ -63,7 +63,7 @@ describe('deriveProgress — matches 0004_progress_aggregate.sql', () => {
     expect(p.unlockedStickers).toEqual(['lion_cub']);
   });
 
-  it('P10: a payload claiming stars is ignored — scoring is ours', () => {
+  it('P10: a payload claiming stars is ignored: scoring is ours', () => {
     const p = deriveProgress([ev('word_completed', { stars: 9999 }, 0)]);
     expect(p.stars).toBe(5);
   });
@@ -148,7 +148,7 @@ describe('makeEvent', () => {
   });
 });
 
-describe('applyEvent — must agree with deriveProgress', () => {
+describe('applyEvent: must agree with deriveProgress', () => {
   // Drop the internal accumulators applyEvent carries; comparing only what a
   // screen actually renders. Written as a filter rather than a fixed list so a
   // new accumulator cannot silently break every case here.

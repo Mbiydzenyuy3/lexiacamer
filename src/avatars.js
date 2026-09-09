@@ -3,7 +3,7 @@ import { Cat, Dog, Bird, Snail } from 'lucide-react';
 /**
  * Single source of truth for learner avatars.
  * Used by Onboarding (the picker) and App (the top-bar icon). Add or change
- * avatars here only — keeping one list prevents the two screens from drifting
+ * avatars here only: keeping one list prevents the two screens from drifting
  * out of sync (which is how an unknown avatar id could crash the header).
  */
 export const AVATARS = [

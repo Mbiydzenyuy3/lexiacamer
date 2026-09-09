@@ -1,13 +1,13 @@
 /* ================================================================
-   LEXIA CAMEROON — Design System
+   LEXIA CAMEROON - Design System
    High-contrast, accessible, optimized for low-end Android devices
    ================================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
-/* ——— Design Tokens ——— */
+/* --- Design Tokens --- */
 :root {
-  /* Primary palette — warm, inviting, high-contrast */
+  /* Primary palette: warm, inviting, high-contrast */
   --green-50: #ecfdf5;
   --green-100: #d1fae5;
   --green-200: #a7f3d0;
@@ -76,7 +76,7 @@
   --radius-2xl: 2rem;
   --radius-full: 9999px;
 
-  /* Shadows — subtle, light */
+  /* Shadows: subtle, light */
   --shadow-xs: 0 1px 2px rgba(16, 48, 0, 0.04);
   --shadow-sm: 0 1px 3px rgba(16, 48, 0, 0.06), 0 1px 2px rgba(16, 48, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(16, 48, 0, 0.08);
@@ -106,13 +106,13 @@
   --z-modal: 1000;
   --z-toast: 1500;
 
-  /* Bottom nav height — reserves scroll space so content clears the fixed nav,
+  /* Bottom nav height: reserves scroll space so content clears the fixed nav,
      and positions the offline banner above it. Grows with the safe-area inset
      on notched phones. */
   --bottom-nav-height: calc(4.75rem + env(safe-area-inset-bottom));
 }
 
-/* ——— Reset ——— */
+/* --- Reset --- */
 *,
 *::before,
 *::after {
@@ -203,7 +203,7 @@ a {
   color: inherit;
 }
 
-/* ——— Typography ——— */
+/* --- Typography --- */
 h1 {
   font-size: 2rem;
   font-weight: 800;
@@ -300,7 +300,7 @@ p {
   font-style: italic;
 }
 
-/* ——— Spacing Utilities ——— */
+/* --- Spacing Utilities --- */
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -376,7 +376,7 @@ p {
   transition: all var(--duration-normal) var(--ease-out);
 }
 
-/* ——— Layout ——— */
+/* --- Layout --- */
 .container {
   max-width: 640px;
   margin: 0 auto;
@@ -436,7 +436,7 @@ p {
   width: 100%;
 }
 
-/* ——— Cards ——— */
+/* --- Cards --- */
 .card {
   background: var(--bg-card);
   border-radius: var(--radius-xl);
@@ -474,7 +474,7 @@ p {
   box-shadow: var(--shadow-md);
 }
 
-/* ——— Buttons ——— */
+/* --- Buttons --- */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -587,7 +587,7 @@ p {
   font-size: 1.25rem;
 }
 
-/* ——— Badges / Chips ——— */
+/* --- Badges / Chips --- */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -618,7 +618,7 @@ p {
   color: var(--rose-600);
 }
 
-/* ——— Progress Bar ——— */
+/* --- Progress Bar --- */
 .progress-bar {
   width: 100%;
   height: 10px;
@@ -634,7 +634,7 @@ p {
   transition: width var(--duration-slow) var(--ease-out);
 }
 
-/* ——— Top Bar ——— */
+/* --- Top Bar --- */
 .top-bar {
   position: sticky;
   top: 0;
@@ -743,7 +743,7 @@ p {
 }
 
 
-/* ——— Offline Banner ——— */
+/* --- Offline Banner --- */
 .offline-banner {
   background: linear-gradient(90deg, var(--amber-400), var(--amber-500));
   color: #1a1a1a;
@@ -763,7 +763,7 @@ p {
   animation: slideUp 0.3s var(--ease-out);
 }
 
-/* ——— Bottom Navigation ——— */
+/* --- Bottom Navigation --- */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -815,7 +815,7 @@ p {
   transition: background var(--duration-fast);
 }
 
-/* ——— Phonics Grid ——— */
+/* --- Phonics Grid --- */
 .phonics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
@@ -886,7 +886,7 @@ p {
   border-color: var(--sky-400);
 }
 
-/* ——— Word Forge ——— */
+/* --- Word Forge --- */
 .letter-slot {
   width: 3.2rem;
   height: 3.8rem;
@@ -961,14 +961,14 @@ p {
   pointer-events: none;
 }
 
-/* ——— Image / Illustration Wrapper ——— */
+/* --- Image / Illustration Wrapper --- */
 .illustration-wrapper {
   width: 100%;
   max-width: 180px;
   margin: 0 auto;
 }
 
-/* ——— Streak / Score Display ——— */
+/* --- Streak / Score Display --- */
 .score-display {
   display: flex;
   align-items: center;
@@ -987,7 +987,7 @@ p {
   animation: flameDance 0.8s ease infinite alternate;
 }
 
-/* ——— Modal / Overlay ——— */
+/* --- Modal / Overlay --- */
 .overlay {
   position: fixed;
   inset: 0;
@@ -1011,7 +1011,7 @@ p {
   box-shadow: var(--shadow-xl);
 }
 
-/* ——— Celebration / Confetti ——— */
+/* --- Celebration / Confetti --- */
 .celebration-container {
   position: fixed;
   inset: 0;
@@ -1028,7 +1028,7 @@ p {
   animation: confettiFall 2.5s ease forwards;
 }
 
-/* ——— Screen Layout ——— */
+/* --- Screen Layout --- */
 .screen {
   flex: 1;
   /* Always clear the fixed bottom nav plus a comfortable gap, so no button or
@@ -1062,7 +1062,7 @@ p {
   }
 }
 
-/* ——— Language Toggle ——— */
+/* --- Language Toggle --- */
 .lang-toggle {
   display: flex;
   border-radius: var(--radius-full);
@@ -1085,7 +1085,7 @@ p {
   color: var(--text-inverse);
 }
 
-/* ——— Module Card (Home Screen) ——— */
+/* --- Module Card (Home Screen) --- */
 .module-card {
   display: flex;
   align-items: center;
@@ -1141,7 +1141,7 @@ p {
   flex-shrink: 0;
 }
 
-/* ——— Category Tabs ——— */
+/* --- Category Tabs --- */
 .category-tabs {
   display: flex;
   gap: 0.5rem;
@@ -1174,7 +1174,7 @@ p {
   box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
 }
 
-/* ——— Word Card (WordForge Prompt) ——— */
+/* --- Word Card (WordForge Prompt) --- */
 .word-prompt-card {
   background: linear-gradient(145deg, var(--green-50), var(--amber-50));
   border-radius: var(--radius-2xl);
@@ -1196,7 +1196,7 @@ p {
   margin-top: 0.5rem;
 }
 
-/* ——— Hero Section ——— */
+/* --- Hero Section --- */
 .hero {
   padding: var(--space-xl) var(--space-lg);
   padding-bottom: var(--space-md);
@@ -1226,7 +1226,7 @@ p {
   max-width: 320px;
 }
 
-/* ——— Stats Row ——— */
+/* --- Stats Row --- */
 .stats-row {
   display: flex;
   gap: var(--space-sm);
@@ -1257,7 +1257,7 @@ p {
   letter-spacing: 0.05em;
 }
 
-/* ——— Hint Box ——— */
+/* --- Hint Box --- */
 .hint-box {
   display: flex;
   align-items: flex-start;
@@ -1275,7 +1275,7 @@ p {
   flex-shrink: 0;
 }
 
-/* ——— Color Utility Classes ——— */
+/* --- Color Utility Classes --- */
 .text-green-600 {
   color: var(--green-600);
 }
@@ -1376,7 +1376,7 @@ p {
   opacity: 0.7;
 }
 
-/* ——— Animations ——— */
+/* --- Animations --- */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1533,7 +1533,7 @@ p {
   animation: fadeIn 0.4s var(--ease-out) 0.3s forwards;
 }
 
-/* ——— Responsive ——— */
+/* --- Responsive --- */
 @media (max-width: 480px) {
   html {
     font-size: 15px;
@@ -1602,8 +1602,8 @@ p {
 
   /* On tablet/desktop the nav is a centered pill so the three items don't
      sprawl across the whole viewport. It's DOCKED to the bottom edge (not
-     floating with a gap) so page content scrolls cleanly under it — the same
-     behaviour as the mobile bar — instead of peeking around a floating pill. */
+     floating with a gap) so page content scrolls cleanly under it - the same
+     behaviour as the mobile bar - instead of peeking around a floating pill. */
   .bottom-nav {
     max-width: 480px;
     margin: 0 auto;

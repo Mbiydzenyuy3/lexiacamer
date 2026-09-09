@@ -31,7 +31,7 @@ export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
             </div>
             <div className="stat-label">{t.statsStreak}</div>
           </div>
-          <button type="button" className="stat-card card-interactive" onClick={() => onNavigate('sticker_book')} aria-label={`${stats.stars} stars — open Sticker Book`} style={{ cursor: 'pointer', width: '100%' }}>
+          <button type="button" className="stat-card card-interactive" onClick={() => onNavigate('sticker_book')} aria-label={`${stats.stars} stars: open Sticker Book`} style={{ cursor: 'pointer', width: '100%' }}>
             <div className="stat-value" style={{ color: 'var(--indigo-600)', display: 'flex', alignItems: 'center', justifyContent: 'center', gap: '0.25rem' }}>
               <Star size={20} /> {stats.stars}
             </div>

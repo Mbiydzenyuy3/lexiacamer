@@ -1,5 +1,5 @@
 /**
- * Lexia Cameroon — Speech Synthesis Utility
+ * Lexia Cameroon - Speech Synthesis Utility
  * Uses the Web Speech API for offline-capable audio feedback.
  * Optimised for low-end devices with graceful fallbacks.
  */
@@ -59,13 +59,13 @@ class SpeechEngine {
   }
 
   /**
-   * Phoneme map — converts a letter / sound key into a TTS-safe string
+   * Phoneme map: converts a letter / sound key into a TTS-safe string
    * that the browser engine will pronounce as a SINGLE unified sound.
    *
    * Design rules used:
    *  1. Vowels: standard-English SHORT vowel strings ("ah","eh","ih","aw","uh")
    *     that TTS reads as one short vowel sound, not the letter name.
-   *  2. Consonants: consonant + schwa CV syllable ("buh","kuh") — browsers
+   *  2. Consonants: consonant + schwa CV syllable ("buh","kuh") - browsers
    *     read these as one syllable because they match English syllable patterns.
    *     Sonorants & fricatives use repeated letters ("mmm","sss","zzz").
    *  3. Common blends: phonetic syllable form ("chuh","shh","thuh").
@@ -73,22 +73,22 @@ class SpeechEngine {
    *     prenasalized /nd/, /mb/, /ŋk/ do NOT exist in English or French,
    *     so no abstract string can produce them reliably. Instead PhonicsLab
    *     passes the example word directly (e.g. "Ngong", "Ndolé") and this
-   *     map's fallback speaks it as a whole word at slow rate — which is
+   *     map's fallback speaks it as a whole word at slow rate: which is
    *     exactly how phonics teachers introduce such sounds in context.
-   *  5. NO HYPHENS — hyphens tell TTS to split into separate sounds.
+   *  5. NO HYPHENS: hyphens tell TTS to split into separate sounds.
    */
   get _phonemeMap() {
     return {
       en: {
         // ── Vowels ────────────────────────────────────────────────────────
-        // Standard-English SHORT vowel sounds — the ones mainstream phonics
+        // Standard-English SHORT vowel sounds: the ones mainstream phonics
         // (Jolly Phonics etc.) teaches first, understood by any English speaker.
         // We need TTS strings that produce ONE short vowel, not the letter name.
         A: 'ah',   // short a → /æ/  (as in "cat", "apple")
         E: 'eh',   // short e → /ɛ/  (as in "bed", "egg")
-        I: 'ih',   // short i → /ɪ/  (as in "sit", "igloo")   — not the long "ee"
-        O: 'aw',   // short o → /ɒ/  (as in "hot", "octopus") — not the long "oh"
-        U: 'uh',   // short u → /ʌ/  (as in "cup", "umbrella") — not the long "oo"
+        I: 'ih',   // short i → /ɪ/  (as in "sit", "igloo")   - not the long "ee"
+        O: 'aw',   // short o → /ɒ/  (as in "hot", "octopus") - not the long "oh"
+        U: 'uh',   // short u → /ʌ/  (as in "cup", "umbrella") - not the long "oo"
 
         // ── Single consonants ─────────────────────────────────────────────
         // CV syllable (consonant + schwa). No hyphens. TTS reads as one unit.
@@ -101,23 +101,23 @@ class SpeechEngine {
         J: 'juh',   // affri /dʒ/
         K: 'kuh',   // stop  /k/
         L: 'luh',   // lat   /l/
-        M: 'mmm',   // nasal /m/  — hum; TTS reads repeated M as nasal hold
-        N: 'nnn',   // nasal /n/  — hum; TTS reads repeated N as nasal hold
+        M: 'mmm',   // nasal /m/  - hum; TTS reads repeated M as nasal hold
+        N: 'nnn',   // nasal /n/  - hum; TTS reads repeated N as nasal hold
         P: 'puh',   // stop  /p/
         Q: 'kwuh',  // /kw/  cluster
-        R: 'rrr',   // rhoti /r/  — pirate sound; TTS holds the rhotic
-        S: 'sss',   // frica /s/  — snake sound; TTS holds the fricative
+        R: 'rrr',   // rhoti /r/  - pirate sound; TTS holds the rhotic
+        S: 'sss',   // frica /s/  - snake sound; TTS holds the fricative
         T: 'tuh',   // stop  /t/
         V: 'vuh',   // frica /v/
         W: 'wuh',   // glide /w/
-        X: 'ksss',  // /ks/  — TTS reads as one hissing cluster
+        X: 'ksss',  // /ks/  - TTS reads as one hissing cluster
         Y: 'yuh',   // glide /j/
-        Z: 'zzz',   // frica /z/  — buzzing sound; TTS holds fricative
+        Z: 'zzz',   // frica /z/  - buzzing sound; TTS holds fricative
 
         // ── Common digraphs & blends ──────────────────────────────────────
         // Each produces ONE syllable/phoneme, no hyphens.
         CH: 'chuh',  // /tʃ/ add schwa so TTS reads as one syllable (Achu, Bamunka)
-        SH: 'shh',   // /ʃ/  the "silence" interjection — TTS knows this as one sound
+        SH: 'shh',   // /ʃ/  the "silence" interjection - TTS knows this as one sound
         TH: 'thuh',  // /θ/  unvoiced dental fricative + schwa (as in "thin")
         PH: 'fuh',   // /f/  PH = F sound
 
@@ -135,7 +135,7 @@ class SpeechEngine {
       fr: {
         // ── Voyelles ──────────────────────────────────────────────────────
         // French TTS pronounces bare single vowel letters as pure cardinal
-        // vowels — exactly what Cameroonian French phonics needs.
+        // vowels: exactly what Cameroonian French phonics needs.
         A: 'a',    // /a/
         E: 'é',    // /e/
         I: 'i',    // /i/
@@ -147,32 +147,32 @@ class SpeechEngine {
         B: 'beu',   // /b/
         C: 'keu',   // /k/  (C dur)
         D: 'deu',   // /d/
-        F: 'feu',   // /f/  — "feu" est un mot français, TTS le prononce /fø/ ✓
-        G: 'gue',   // /ɡ/  — "gue" muet, TTS produit /ɡ/ ✓
-        H: 'ach',   // H est muet en français — son d'aspiration
-        J: 'jeu',   // /ʒ/  — "jeu" est un mot français, TTS produit /ʒø/ ✓
-        K: 'ka',    // /k/  — syllabe simple
-        L: 'el',    // /l/  — nom de la lettre en français ✓
-        M: 'em',    // /m/  — nom de la lettre en français ✓
-        N: 'neu',   // /n/  — "neu" (et NON "en" qui est une voyelle nasale /ɑ̃/)
-        P: 'peu',   // /p/  — "peu" est un mot français
+        F: 'feu',   // /f/  - "feu" est un mot français, TTS le prononce /fø/ ✓
+        G: 'gue',   // /ɡ/  - "gue" muet, TTS produit /ɡ/ ✓
+        H: 'ach',   // H est muet en français: son d'aspiration
+        J: 'jeu',   // /ʒ/  - "jeu" est un mot français, TTS produit /ʒø/ ✓
+        K: 'ka',    // /k/  - syllabe simple
+        L: 'el',    // /l/  - nom de la lettre en français ✓
+        M: 'em',    // /m/  - nom de la lettre en français ✓
+        N: 'neu',   // /n/  - "neu" (et NON "en" qui est une voyelle nasale /ɑ̃/)
+        P: 'peu',   // /p/  - "peu" est un mot français
         Q: 'cu',    // /k/
-        R: 'air',   // /ʁ/  — "air" en français prononce le R uvulaire /ʁ/ ✓
+        R: 'air',   // /ʁ/  - "air" en français prononce le R uvulaire /ʁ/ ✓
         S: 'ess',   // /s/
         T: 'teu',   // /t/
         V: 'veu',   // /v/
-        W: 'oua',   // /w/  — son de W dans "oui", "week" en français
-        X: 'iks',   // /ks/ — nom de la lettre ✓
-        Y: 'igrek', // /i/  — "i grec", nom officiel en français
-        Z: 'zèd',   // /z/  — nom de la lettre ✓
+        W: 'oua',   // /w/  - son de W dans "oui", "week" en français
+        X: 'iks',   // /ks/ - nom de la lettre ✓
+        Y: 'igrek', // /i/  - "i grec", nom officiel en français
+        Z: 'zèd',   // /z/  - nom de la lettre ✓
 
         // ── Combinaisons ─────────────────────────────────────────────────
-        CH: 'cheu',    // /ʃ/ comme "cheval" — une seule syllabe
+        CH: 'cheu',    // /ʃ/ comme "cheval" - une seule syllabe
         SH: 'cheu',    // /ʃ/ même son en contexte camerounais
-        TH: 'teuach',  // /t/ + /ʃ/ — sans tiret pour rester une unité
-        PH: 'feu',     // /f/ — PH fait le son F
+        TH: 'teuach',  // /t/ + /ʃ/ - sans tiret pour rester une unité
+        PH: 'feu',     // /f/ - PH fait le son F
 
-        // Consonnes prénasalisées camerounaises — même logique qu'en anglais
+        // Consonnes prénasalisées camerounaises: même logique qu'en anglais
         NG: 'ngoh',
         ND: 'ndoh',
         MB: 'mboh',

@@ -2,13 +2,13 @@ import React, { createContext, useContext, useEffect, useMemo, useState } from '
 import { supabase, isBackendConfigured } from '../lib/supabase';
 
 /**
- * AuthProvider — the ADULT session only.
+ * AuthProvider: the ADULT session only.
  *
  * Children never sign in. Kid mode runs with no account at all, which is both
  * the right thing for a 5-year-old and what keeps the app usable on a school
  * device with no connection. Everything here gates the parent/teacher side.
  *
- * With no backend configured this provides a null session and nothing breaks —
+ * With no backend configured this provides a null session and nothing breaks -
  * the offline path stays the default rather than becoming a fallback.
  */
 
@@ -53,7 +53,7 @@ export function AuthProvider({ children }) {
     available: isBackendConfigured,
 
     // Sends a 6-digit code. shouldCreateUser is true because a parent's first
-    // sign-in IS their sign-up — there is no separate registration step.
+    // sign-in IS their sign-up: there is no separate registration step.
     signInWithOtp: async (email) => {
       if (!supabase) return { error: new Error('no backend configured') };
       return supabase.auth.signInWithOtp({

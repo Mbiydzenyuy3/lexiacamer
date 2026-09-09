@@ -3,12 +3,16 @@ import { ArrowLeft, Mail, ShieldCheck } from 'lucide-react';
 import { useAuth } from './AuthProvider';
 
 /**
- * SignIn — email + 6-digit code, for grown-ups.
+ * SignIn: email plus a 6-digit code, for grown-ups.
  *
- * No passwords: one less thing for a parent to lose, and no password database
- * to leak. The trade-off is that email delivery is the single path in, so
- * every failure here needs a clear message and a way to retry rather than a
- * dead end.
+ * No passwords. One less thing for a parent to lose, and no password database
+ * to leak. The trade-off is that email is the single way in, so every failure
+ * here needs a clear message and a way to retry rather than a dead end.
+ *
+ * Codes rather than links, deliberately. A parent reads their email on a phone;
+ * a link opens inside the mail app's browser and lands the session somewhere
+ * the app is not. A code can be read on one device and typed on another, which
+ * is also how a teacher signs in on a shared classroom computer.
  */
 export default function SignIn({ t, onBack }) {
   const { signInWithOtp, verifyOtp } = useAuth();
@@ -21,29 +25,39 @@ export default function SignIn({ t, onBack }) {
 
   const sendCode = async (e) => {
     e?.preventDefault();
-    setError(''); setNotice(''); setBusy(true);
+    setError('');
+    setNotice('');
+    setBusy(true);
     const { error: err } = await signInWithOtp(email);
     setBusy(false);
     if (err) {
-      setError(err.message || 'Could not send the code. Check the address and try again.');
+      setError("We couldn't send that code. Check the address and try again.");
       return;
     }
     setStage('code');
-    setNotice(`Check ${email.trim()}.`);
+    setNotice(`We sent a 6-digit code to ${email.trim()}.`);
   };
 
   const submitCode = async (e) => {
     e?.preventDefault();
-    setError(''); setBusy(true);
+    setError('');
+    setBusy(true);
     const { error: err } = await verifyOtp(email, code);
     setBusy(false);
     if (err) {
-      // Deliberately vague about WHY: wrong, expired and already-used codes
-      // should look the same to anyone guessing.
-      setError('That code did not work. It may have expired — send a new one.');
+      // Deliberately vague about which one failed. A wrong code, an expired
+      // code and an already-used code should look identical to anyone guessing.
+      setError('That code did not work. It may have expired, so send a new one.');
       setCode('');
     }
-    // On success the auth listener swaps this screen out; nothing to do here.
+    // On success the auth listener swaps this screen out. Nothing to do here.
+  };
+
+  const startOver = () => {
+    setStage('email');
+    setCode('');
+    setError('');
+    setNotice('');
   };
 
   return (
@@ -58,7 +72,10 @@ export default function SignIn({ t, onBack }) {
       <div style={{ maxWidth: '26rem', margin: '0 auto', padding: '1rem' }}>
         <p className="text-muted" style={{ display: 'flex', gap: '0.5rem', alignItems: 'flex-start' }}>
           <ShieldCheck size={18} style={{ flexShrink: 0, marginTop: 2 }} />
-          <span>Sign in to see your child's progress. We'll email you a sign-in link — no password to remember.</span>
+          <span>
+            Sign in to see your child&apos;s progress. We send you a short code,
+            so there is no password to remember.
+          </span>
         </p>
 
         {stage === 'email' ? (
@@ -77,21 +94,19 @@ export default function SignIn({ t, onBack }) {
               placeholder="you@example.com"
               style={{ width: '100%', marginBottom: '0.75rem' }}
             />
-            <button type="submit" className="btn btn-primary" disabled={busy || !email.trim()} style={{ width: '100%' }}>
-              <Mail size={18} /> {busy ? 'Sending…' : 'Email me a sign-in link'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={busy || !email.trim()}
+              style={{ width: '100%' }}
+            >
+              <Mail size={18} /> {busy ? 'Sending...' : 'Send my code'}
             </button>
           </form>
         ) : (
           <form onSubmit={submitCode}>
-            {/* Supabase sends a LINK by default and only sends a 6-digit code
-                once custom SMTP is configured (template editing is locked
-                behind it). Support both, so this works either way. */}
-            <p style={{ marginBottom: '0.75rem' }}>
-              Open the email and <strong>tap the link</strong> — that signs you
-              in. If the email has a 6-digit code instead, type it here.
-            </p>
             <label htmlFor="signin-code" style={{ display: 'block', marginBottom: '0.25rem' }}>
-              6-digit code (if your email has one)
+              6-digit code
             </label>
             <input
               id="signin-code"
@@ -101,13 +116,25 @@ export default function SignIn({ t, onBack }) {
               pattern="[0-9]*"
               maxLength={6}
               required
+              autoFocus
               value={code}
               onChange={(e) => setCode(e.target.value.replace(/\D/g, ''))}
               placeholder="123456"
-              style={{ width: '100%', marginBottom: '0.75rem', letterSpacing: '0.3em' }}
+              style={{
+                width: '100%',
+                marginBottom: '0.75rem',
+                letterSpacing: '0.3em',
+                fontSize: '1.25rem',
+                textAlign: 'center',
+              }}
             />
-            <button type="submit" className="btn btn-primary" disabled={busy || code.length < 6} style={{ width: '100%' }}>
-              {busy ? 'Checking…' : 'Sign in'}
+            <button
+              type="submit"
+              className="btn btn-primary"
+              disabled={busy || code.length < 6}
+              style={{ width: '100%' }}
+            >
+              {busy ? 'Checking...' : 'Sign in'}
             </button>
             <button
               type="button"
@@ -116,13 +143,13 @@ export default function SignIn({ t, onBack }) {
               disabled={busy}
               onClick={sendCode}
             >
-              Send it again
+              Send a new code
             </button>
             <button
               type="button"
               className="btn btn-ghost"
               style={{ width: '100%', marginTop: '0.5rem' }}
-              onClick={() => { setStage('email'); setCode(''); setError(''); setNotice(''); }}
+              onClick={startOver}
             >
               Use a different email
             </button>

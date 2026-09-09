@@ -51,7 +51,7 @@ export default function StickerBook({ t, stats, unlockedStickers, onUnlockSticke
 
       <div className="screen-body">
         {unlockedStickers.length === STICKERS.length ? (
-          /* Every sticker unlocked — swap the how-to for a celebration payoff. */
+          /* Every sticker unlocked: swap the how-to for a celebration payoff. */
           <div className="card" style={{
             marginBottom: '1.25rem', textAlign: 'center',
             background: 'linear-gradient(145deg, var(--green-50), #ffffff)',
@@ -64,7 +64,7 @@ export default function StickerBook({ t, stats, unlockedStickers, onUnlockSticke
             <div className="text-sm text-muted" style={{ lineHeight: 1.5 }}>{t.stickerAllDoneDesc}</div>
           </div>
         ) : (
-          /* How it works — so anyone understands the feature without being told */
+          /* How it works: so anyone understands the feature without being told */
           <div className="card" style={{
             marginBottom: '1.25rem',
             background: 'linear-gradient(145deg, var(--amber-50), #ffffff)',
@@ -101,7 +101,7 @@ export default function StickerBook({ t, stats, unlockedStickers, onUnlockSticke
           </div>
         )}
 
-        {/* Collection progress — reinforces the goal */}
+        {/* Collection progress: reinforces the goal */}
         <p className="text-center text-sm" style={{ marginBottom: '1rem', fontWeight: 600, color: 'var(--text-secondary)' }}>
           {unlockedStickers.length} of {STICKERS.length} {t.stickerCollected}
         </p>

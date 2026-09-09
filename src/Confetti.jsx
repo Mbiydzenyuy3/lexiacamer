@@ -1,7 +1,7 @@
 import React from 'react';
 
 /**
- * Confetti celebration effect — lightweight, CSS-only particles.
+ * Confetti celebration effect: lightweight, CSS-only particles.
  * No heavy libraries needed.
  */
 const COLORS = ['#34d399', '#fbbf24', '#6366f1', '#fb7185', '#38bdf8', '#f59e0b'];

@@ -4,7 +4,7 @@ import {
 } from './store';
 
 describe('queueEvent', () => {
-  it('updates the local view immediately — a child sees stars with no network', () => {
+  it('updates the local view immediately: a child sees stars with no network', () => {
     const s = queueEvent(defaultState(), 'word_completed');
     expect(s.progress.stars).toBe(5);
     expect(s.progress.words).toBe(1);

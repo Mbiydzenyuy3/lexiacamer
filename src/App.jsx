@@ -19,7 +19,7 @@ import StickerBook from './StickerBook';
 import Onboarding from './Onboarding';
 
 /**
- * App — Root Shell
+ * App - Root Shell
  * Handles: routing, language toggle, offline detection, global stats.
  * All persistence lives in ./store so a backend can drop in without a rewrite.
  */
@@ -31,8 +31,8 @@ export default function App() {
   const [state, setState] = useState(() => loadState());
   const { progress, settings, user, lang } = state;
 
-  // The screens read {words, streak, stars} — the same shape progress already
-  // has — so nothing below needed changing when the store was rewritten.
+  // The screens read {words, streak, stars} - the same shape progress already
+  // has: so nothing below needed changing when the store was rewritten.
   const stats = progress;
   const unlockedStickers = progress.unlockedStickers;
   const missedPhonemes = progress.missedPhonemes;
@@ -48,7 +48,7 @@ export default function App() {
   const [screen, setScreen] = useState(state.user?.name ? 'home' : 'onboarding');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const auth = useAuth();
-  // Warn once if this device has no speech synthesis — the app still works, but
+  // Warn once if this device has no speech synthesis: the app still works, but
   // the child won't hear the letter/word sounds. Dismissible so it never nags.
   const [audioNoticeDismissed, setAudioNoticeDismissed] = useState(false);
   const audioUnavailable = !speechEngine.isSupported;
@@ -74,7 +74,7 @@ export default function App() {
   // Persist state
   useEffect(() => { saveState(state); }, [state]);
 
-  // Drain the outbox on a timer and whenever the connection returns — NOT on
+  // Drain the outbox on a timer and whenever the connection returns - NOT on
   // every state change, which would retry instantly in a tight loop against a
   // failing server. Events stay queued until accepted, so a bad connection
   // never costs a child their progress.
@@ -136,7 +136,7 @@ export default function App() {
   // }, []);
 
   // Every one of these records WHAT THE CHILD DID. Scoring is applied by
-  // ./scoring (and independently by the server), never sent from here — which
+  // ./scoring (and independently by the server), never sent from here: which
   // is why a tampered device cannot mint stars.
   const record = useCallback((kind, payload) => {
     setState(s => queueEvent(s, kind, payload));
@@ -216,7 +216,7 @@ export default function App() {
 
   return (
     <>
-      {/* Top Bar — hidden during onboarding for a clean full-screen first run */}
+      {/* Top Bar: hidden during onboarding for a clean full-screen first run */}
       {screen !== 'onboarding' && (
       <header className="top-bar">
         <div className="top-bar-inner">
@@ -285,7 +285,7 @@ export default function App() {
         {renderScreen()}
       </main>
 
-      {/* Bottom Navigation — hidden during onboarding */}
+      {/* Bottom Navigation: hidden during onboarding */}
       {screen !== 'onboarding' && (
       <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
         <button

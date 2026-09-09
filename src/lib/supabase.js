@@ -3,7 +3,7 @@ import { createClient } from '@supabase/supabase-js';
 /**
  * The Supabase client, or null when no backend is configured.
  *
- * The app has to run with NO backend at all — that is how it works today, and
+ * The app has to run with NO backend at all: that is how it works today, and
  * it is what a child on a school tablet with no account still gets. So every
  * caller must handle `supabase === null`, and the offline path is the default
  * rather than a fallback bolted on later.
@@ -36,6 +36,6 @@ export const supabase = isBackendConfigured
 if (!isBackendConfigured && import.meta.env?.DEV) {
   // eslint-disable-next-line no-console
   console.info(
-    '[lexia] No VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY — running fully offline.'
+    '[lexia] No VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY: running fully offline.'
   );
 }

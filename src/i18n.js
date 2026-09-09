@@ -1,5 +1,5 @@
 /**
- * Lexia Cameroon — Bilingual Content Store (EN/FR)
+ * Lexia Cameroon - Bilingual Content Store (EN/FR)
  * All content uses Cameroonian names, cities, foods, and cultural context.
  */
 
@@ -9,7 +9,7 @@ const i18n = {
     appName: "LexiaCamer",
     appTagline: "Read. Spell. Shine!",
     appSubtitle: "Helping Cameroon's children master reading,\none sound at a time.",
-    offline: "You're offline — no worries, Lexia still works!",
+    offline: "You're offline, but Lexia still works!",
     audioUnavailable: "Audio isn't available on this device, so you won't hear the sounds. Everything else still works.",
 
     // Navigation
@@ -31,7 +31,7 @@ const i18n = {
       "Try sounding out letters slowly: N-D-O-L-É.",
       "Tap each letter tile to hear its sound!",
       "Practice 5 words a day to build your skills.",
-      "Ask a friend to spell a word — make it a game!",
+      "Ask a friend to spell a word. Make it a game!",
       "Read signs around Douala or Yaoundé aloud!",
     ],
 
@@ -52,7 +52,7 @@ const i18n = {
     forgeCheck: "Check",
     forgeNext: "Next Word",
     forgeCorrect: "Amazing! 🎉",
-    forgeWrong: "Try again — you got this!",
+    forgeWrong: "Try again, you got this!",
     forgeComplete: "You finished all the words!",
     forgePlayAgain: "Play Again",
     forgeScore: "Score",
@@ -73,7 +73,7 @@ const i18n = {
     speakBtn: "Listen",
     backBtn: "Back",
 
-    // Home — action grid
+    // Home: action grid
     defaultUserName: "Young Reader",
     homePhonicsTitle: "Phonics Lab",
     homePhonicsDesc: "Learn sounds",
@@ -95,7 +95,7 @@ const i18n = {
     onboardLetsGo: "Let's Go!",
     onboardWelcome: "Welcome, {name}!",
 
-    // Phonics Lab — challenge mode
+    // Phonics Lab: challenge mode
     phonicsPlayChallenge: "Play Challenge Mode",
     phonicsRepeatSound: "Repeat Sound",
     phonicsQuit: "Quit",
@@ -137,7 +137,7 @@ const i18n = {
     stickerStepUnlockDesc: "Tap it to spend your stars. It joins your collection to keep forever!",
     stickerCollected: "stickers collected",
     stickerAllDone: "You collected them all!",
-    stickerAllDoneDesc: "Amazing work — you've unlocked every Cameroonian friend and place.",
+    stickerAllDoneDesc: "Amazing work! You've unlocked every Cameroonian friend and place.",
     stickerUnlock: "Unlock",
     stickerMoreToGo: "more to go",
 
@@ -150,7 +150,7 @@ const i18n = {
     appName: "LexiaCamer",
     appTagline: "Lis. Épelle. Brille !",
     appSubtitle: "Aider les enfants du Cameroun à maîtriser la lecture,\nun son à la fois.",
-    offline: "Vous êtes hors ligne — pas de souci, Lexia fonctionne toujours !",
+    offline: "Vous êtes hors ligne, mais Lexia fonctionne toujours !",
     audioUnavailable: "L'audio n'est pas disponible sur cet appareil, vous n'entendrez donc pas les sons. Tout le reste fonctionne.",
 
     // Navigation
@@ -172,7 +172,7 @@ const i18n = {
       "Essaie d'épeler lentement : N-D-O-L-É.",
       "Touche chaque tuile pour entendre son son !",
       "Pratique 5 mots par jour pour progresser.",
-      "Demande à un ami d'épeler un mot — c'est un jeu !",
+      "Demande à un ami d'épeler un mot. C'est un jeu !",
       "Lis les panneaux à Douala ou Yaoundé à voix haute !",
     ],
 
@@ -193,7 +193,7 @@ const i18n = {
     forgeCheck: "Vérifier",
     forgeNext: "Mot Suivant",
     forgeCorrect: "Bravo ! 🎉",
-    forgeWrong: "Réessaie — tu peux le faire !",
+    forgeWrong: "Réessaie, tu peux le faire !",
     forgeComplete: "Tu as terminé tous les mots !",
     forgePlayAgain: "Rejouer",
     forgeScore: "Score",
@@ -214,7 +214,7 @@ const i18n = {
     speakBtn: "Écouter",
     backBtn: "Retour",
 
-    // Home — action grid
+    // Home: action grid
     defaultUserName: "Jeune Lecteur",
     homePhonicsTitle: "Labo Phonique",
     homePhonicsDesc: "Apprends les sons",
@@ -236,7 +236,7 @@ const i18n = {
     onboardLetsGo: "C'est parti !",
     onboardWelcome: "Bienvenue, {name} !",
 
-    // Phonics Lab — challenge mode
+    // Phonics Lab: challenge mode
     phonicsPlayChallenge: "Mode Défi",
     phonicsRepeatSound: "Répéter le son",
     phonicsQuit: "Quitter",
@@ -278,7 +278,7 @@ const i18n = {
     stickerStepUnlockDesc: "Touche-le pour dépenser tes étoiles. Il rejoint ta collection pour toujours !",
     stickerCollected: "autocollants collectionnés",
     stickerAllDone: "Tu les as tous collectionnés !",
-    stickerAllDoneDesc: "Bravo — tu as débloqué tous les amis et lieux camerounais.",
+    stickerAllDoneDesc: "Bravo ! Tu as débloqué tous les amis et lieux camerounais.",
     stickerUnlock: "Débloquer",
     stickerMoreToGo: "encore",
 
@@ -287,7 +287,7 @@ const i18n = {
   },
 };
 
-/** Phonics data — shared across both languages */
+/** Phonics data: shared across both languages */
 export const phonicsData = [
   // Vowels
   { letter: "A", sound: "ah", example: "Abena", category: "vowels", color: "tile-green" },
@@ -317,7 +317,7 @@ export const phonicsData = [
   { letter: "Y", sound: "y", example: "Yaoundé", category: "consonants", color: "tile-amber" },
   { letter: "Z", sound: "z", example: "Zoa", category: "consonants", color: "tile-amber" },
 
-  // Blends — sound field must match a phoneme map key OR be a word the TTS can speak directly.
+  // Blends: sound field must match a phoneme map key OR be a word the TTS can speak directly.
   // CH/SH/TH/PH: keys exist in the phoneme map → map converts to clean single-syllable phoneme.
   // NG/ND/MB/NK: prenasalised stops don't exist word-initially in English/French TTS;
   //              pass the example word → TTS speaks the whole word slowly at rate 0.65,
@@ -332,7 +332,7 @@ export const phonicsData = [
   { letter: "NK", sound: "Nkam",         example: "Nkongsamba",    category: "blends", color: "tile-rose" },
 ];
 
-/** Word Forge vocabulary — Cameroonian context */
+/** Word Forge vocabulary - Cameroonian context */
 export const wordData = [
   // Food
   { word: "NDOLE", icon: "Leaf", hint: { en: "A famous Cameroonian dish with bitter leaves", fr: "Un plat camerounais célèbre avec des feuilles amères" }, category: "food" },
@@ -340,7 +340,7 @@ export const wordData = [
   { word: "KOKI", icon: "Package", hint: { en: "A steamed bean pudding wrapped in leaves", fr: "Un pouding de haricots cuit à la vapeur" }, category: "food" },
   { word: "FUFU", icon: "ChefHat", hint: { en: "A soft dough made from cassava or corn", fr: "Une pâte molle de manioc ou de maïs" }, category: "food" },
   { word: "SUYA", icon: "Beef", hint: { en: "Spicy grilled meat on a stick", fr: "Viande grillée épicée sur un bâton" }, category: "food" },
-  { word: "PUFF", icon: "Circle", hint: { en: "A fried dough ball — puff puff!", fr: "Un beignet frit — puff puff !" }, category: "food" },
+  { word: "PUFF", icon: "Circle", hint: { en: "A fried dough ball, puff puff!", fr: "Un beignet frit, puff puff !" }, category: "food" },
   { word: "FISH", icon: "Fish", hint: { en: "Caught in rivers and the Atlantic coast", fr: "Pêché dans les rivières et la côte Atlantique" }, category: "food" },
   { word: "RICE", icon: "ConciergeBell", hint: { en: "A staple food enjoyed across Cameroon", fr: "Un aliment de base apprécié au Cameroun" }, category: "food" },
   { word: "CORN", icon: "Wheat", hint: { en: "Grown in fields across the country", fr: "Cultivé dans les champs à travers le pays" }, category: "food" },
@@ -386,11 +386,11 @@ export const wordData = [
   { word: "KUMBO", icon: "Home", hint: { en: "A highland town in the Northwest", fr: "Une ville des hauts plateaux du Nord-Ouest" }, category: "cities" },
 
   // Nature
-  { word: "RIVER", icon: "Waves", hint: { en: "Water that flows — like the Wouri!", fr: "L'eau qui coule — comme le Wouri !" }, category: "nature" },
+  { word: "RIVER", icon: "Waves", hint: { en: "Water that flows, like the Wouri!", fr: "L'eau qui coule, comme le Wouri !" }, category: "nature" },
   { word: "TREE", icon: "TreePine", hint: { en: "Tall plants in the rainforest", fr: "De grandes plantes dans la forêt tropicale" }, category: "nature" },
   { word: "RAIN", icon: "CloudRain", hint: { en: "Falls often in Cameroon!", fr: "Tombe souvent au Cameroun !" }, category: "nature" },
   { word: "SUN", icon: "Sun", hint: { en: "Shines bright in the dry season", fr: "Brille fort en saison sèche" }, category: "nature" },
-  { word: "BIRD", icon: "Bird", hint: { en: "Flies in the sky — many types in Cameroon", fr: "Vole dans le ciel — beaucoup d'espèces au Cameroun" }, category: "nature" },
+  { word: "BIRD", icon: "Bird", hint: { en: "Flies in the sky, many types in Cameroon", fr: "Vole dans le ciel, beaucoup d'espèces au Cameroun" }, category: "nature" },
   { word: "LION", icon: "Flame", hint: { en: "The Indomitable Lions of Cameroon!", fr: "Les Lions Indomptables du Cameroun !" }, category: "nature" },
   { word: "LAKE", icon: "Droplets", hint: { en: "Like Lake Nyos in the Northwest", fr: "Comme le Lac Nyos au Nord-Ouest" }, category: "nature" },
   { word: "HILL", icon: "Mountain", hint: { en: "Cameroon has many green hills", fr: "Le Cameroun a beaucoup de collines vertes" }, category: "nature" },
@@ -399,7 +399,7 @@ export const wordData = [
   { word: "LEAF", icon: "Leaf", hint: { en: "Grows green on every tree", fr: "Pousse en vert sur chaque arbre" }, category: "nature" },
   { word: "PALM", icon: "TreePine", hint: { en: "A tree that gives oil and wine", fr: "Un arbre qui donne huile et vin" }, category: "nature" },
   { word: "SEA", icon: "Waves", hint: { en: "The Atlantic meets Cameroon's coast", fr: "L'Atlantique borde la côte du Cameroun" }, category: "nature" },
-  { word: "FIRE", icon: "Flame", hint: { en: "Warm and bright — be careful!", fr: "Chaud et lumineux — attention !" }, category: "nature" },
+  { word: "FIRE", icon: "Flame", hint: { en: "Warm and bright, be careful!", fr: "Chaud et lumineux, attention !" }, category: "nature" },
   { word: "ROCK", icon: "Mountain", hint: { en: "Hard stone found on the hills", fr: "Une pierre dure trouvée sur les collines" }, category: "nature" },
 ];
 

@@ -1,5 +1,5 @@
 /**
- * store — local persistence and the offline outbox.
+ * store: local persistence and the offline outbox.
  *
  * The child's device is the origin of every fact about their learning. It
  * records EVENTS ("completed a word"), keeps a running local view so stars move
@@ -19,7 +19,7 @@ import { supabase, isBackendConfigured } from './lib/supabase';
 const STORAGE_KEY = 'lexia_state_v2';
 const LEGACY_KEY = 'lexia_state';
 
-/** Events older than this are dropped from the outbox — the server would
+/** Events older than this are dropped from the outbox: the server would
  *  refuse them anyway (they predate the current device grant). */
 const OUTBOX_MAX_AGE_DAYS = 60;
 /** Matches the server's per-call cap in sync_activity(). */
@@ -87,7 +87,7 @@ export function loadState() {
     const legacyRaw = localStorage.getItem(LEGACY_KEY);
     if (legacyRaw) return migrateLegacy(JSON.parse(legacyRaw));
   } catch {
-    /* corrupt or unavailable storage — start clean rather than crash */
+    /* corrupt or unavailable storage: start clean rather than crash */
   }
   return base;
 }
@@ -96,13 +96,13 @@ export function saveState(state) {
   try {
     localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
   } catch {
-    /* storage full or blocked — the app still works from memory */
+    /* storage full or blocked: the app still works from memory */
   }
 }
 
 /**
  * Record something the child did: update the local view immediately and queue
- * the event for the server. Pure — returns the next state, so React owns it.
+ * the event for the server. Pure: returns the next state, so React owns it.
  */
 export function queueEvent(state, kind, payload = {}) {
   const event = makeEvent(kind, payload);
@@ -126,7 +126,7 @@ export function pruneOutbox(outbox, now = Date.now()) {
  * Push queued events to the server.
  *
  * Returns the next state. Events are only dropped from the outbox once the
- * server has ACCEPTED them — a failed or offline sync leaves the queue intact
+ * server has ACCEPTED them: a failed or offline sync leaves the queue intact
  * so nothing a child did is ever lost to a bad connection.
  */
 export async function syncOutbox(state) {
@@ -187,7 +187,7 @@ export function progressFromEvents(events) {
  *
  * Creates the student server-side (which atomically creates the guardianship,
  * so nobody can attach themselves to an existing child) and mints a device
- * grant — the append-only, read-nothing credential that lets the outbox drain.
+ * grant: the append-only, read-nothing credential that lets the outbox drain.
  *
  * Idempotent: once linked it returns the state untouched, so it is safe to
  * call on every sign-in.
@@ -212,7 +212,7 @@ export async function linkChild(state) {
     const { data: token, error: tokenError } = await supabase.rpc(
       'issue_device_grant', { p_student_id: studentId }
     );
-    // Keep the student id even if the token failed — the next attempt reuses
+    // Keep the student id even if the token failed: the next attempt reuses
     // it rather than creating a duplicate child.
     if (tokenError) return { ...state, studentId };
 

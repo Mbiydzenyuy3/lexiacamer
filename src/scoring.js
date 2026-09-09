@@ -1,10 +1,10 @@
 /**
- * scoring — derive a child's progress from their activity events.
+ * scoring: derive a child's progress from their activity events.
  *
  * ⚠ THIS MUST MATCH supabase/migrations/0004_progress_aggregate.sql EXACTLY.
  *
  * The same rules deliberately exist in two places, because a child playing
- * offline has to see their stars move immediately — waiting for a server round
+ * offline has to see their stars move immediately: waiting for a server round
  * trip is not an option on a school connection. The server stays authoritative:
  * it recomputes from the same events, and its answer wins on reconciliation.
  * If these two ever disagree, a child sees one number and their parent sees
@@ -27,7 +27,7 @@ export const STICKER_COSTS = {
 
 export const STARS_PER_WORD = 5;
 export const STARS_PER_ROUND = 20;
-/** Phonics Lab challenge mode — see src/PhonicsLab.jsx. */
+/** Phonics Lab challenge mode: see src/PhonicsLab.jsx. */
 export const STARS_PER_PHONEME = 2;
 
 /** Word Forge and Phonics Lab share ONE "in a row" streak. */
@@ -47,7 +47,7 @@ export const EVENT_KINDS = [
   'session_started',
 ];
 
-/** Empty progress — the shape every screen reads. */
+/** Empty progress: the shape every screen reads. */
 export function emptyProgress() {
   return {
     words: 0,
@@ -133,7 +133,7 @@ export function deriveProgress(events = []) {
     phonemes * STARS_PER_PHONEME - spent, 0
   );
 
-  // Consecutive successes — words OR sounds — since the most recent failure.
+  // Consecutive successes: words OR sounds: since the most recent failure.
   progress.streak = list.filter(
     e => extendsStreak(e) &&
          (lastMissAt === null || new Date(e.occurred_at).getTime() > lastMissAt)
@@ -147,7 +147,7 @@ export function deriveProgress(events = []) {
  *
  * The device cannot keep every event it has ever produced, so it carries a
  * running total instead and folds each new event in. `applyEvent` must land on
- * exactly what `deriveProgress` would say over the same list — there is a test
+ * exactly what `deriveProgress` would say over the same list: there is a test
  * asserting that equivalence, because a drift here means a child's stars stop
  * matching the server's.
  *
