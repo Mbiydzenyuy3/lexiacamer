@@ -28,6 +28,23 @@ if [ $# -lt 1 ]; then
 fi
 
 DB_URL="$1"; shift
+
+# An empty or non-postgres URL makes psql silently fall back to a local socket
+# and fail as your unix user, which looks like a password problem and is not.
+# Catch it here and say what is actually wrong.
+case "$DB_URL" in
+  postgres://*|postgresql://*) ;;
+  "")
+    echo "No database URL given." >&2
+    echo "If you used \$DB_URL, it is not set in this shell. Either:" >&2
+    echo "  export DB_URL=\"postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres\"" >&2
+    echo "or paste the URI directly as the first argument." >&2
+    exit 1 ;;
+  *)
+    echo "That does not look like a database URL: it must start with postgresql://" >&2
+    echo "Get it from the Supabase dashboard: Connect -> Session pooler." >&2
+    exit 1 ;;
+esac
 MODE="apply"
 BASELINE=""
 
