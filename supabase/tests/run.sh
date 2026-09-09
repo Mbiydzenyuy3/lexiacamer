@@ -32,6 +32,7 @@ $PSQL -q -f supabase/migrations/0004_progress_aggregate.sql
 $PSQL -q -f supabase/migrations/0005_delete_export.sql
 $PSQL -q -f supabase/migrations/0006_subscriptions.sql
 $PSQL -q -f supabase/migrations/0007_profile_details.sql
+$PSQL -q -f supabase/migrations/0008_insights.sql
 $PSQL -q -f supabase/tests/01_grants.sql
 $PSQL -q -f supabase/tests/02_rls_test.sql
 $PSQL -q -f supabase/tests/03_sync_test.sql
@@ -40,4 +41,5 @@ $PSQL -q -f supabase/tests/05_progress_test.sql
 $PSQL -q -f supabase/tests/06_lifecycle_test.sql
 $PSQL -q -f supabase/tests/07_subscription_test.sql
 $PSQL -q -f supabase/tests/08_profile_details_test.sql
+$PSQL -q -f supabase/tests/09_insights_test.sql
 $PSQL -f supabase/tests/99_summary.sql
