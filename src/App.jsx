@@ -3,7 +3,12 @@ import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck, VolumeX, X } from 'lucide-react';
 import { getAvatarIcon } from './avatars';
 import speechEngine from './speech';
-import { loadState, saveState, queueEvent, syncOutbox, defaultState } from './store';
+import {
+  loadState, saveState, queueEvent, syncOutbox, defaultState,
+  linkChild, fetchServerProgress, reconcile,
+} from './store';
+import { useAuth } from './auth/AuthProvider';
+import SignIn from './auth/SignIn';
 import i18n from './i18n';
 import HomeScreen from './HomeScreen';
 import PhonicsLab from './PhonicsLab';
@@ -42,6 +47,7 @@ export default function App() {
   // Start new users straight on onboarding (no brief flash of Home first).
   const [screen, setScreen] = useState(state.user?.name ? 'home' : 'onboarding');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
+  const auth = useAuth();
   // Warn once if this device has no speech synthesis — the app still works, but
   // the child won't hear the letter/word sounds. Dismissible so it never nags.
   const [audioNoticeDismissed, setAudioNoticeDismissed] = useState(false);
@@ -88,6 +94,26 @@ export default function App() {
     const timer = setInterval(flush, 30_000);
     return () => { cancelled = true; clearInterval(timer); };
   }, [isOffline]);
+
+  // Once an adult signs in, attach this device's child to their account and
+  // mint the device grant that lets the outbox drain. Idempotent, so it is
+  // safe to run on every sign-in.
+  useEffect(() => {
+    if (!auth.session || isOffline) return;
+    let cancelled = false;
+    setState(current => {
+      linkChild(current).then(async linked => {
+        if (cancelled) return;
+        const server = await fetchServerProgress(linked.studentId);
+        if (cancelled) return;
+        // The server is authoritative, but anything still queued is re-applied
+        // so the child does not watch their most recent stars disappear.
+        setState(server ? reconcile(linked, server) : linked);
+      });
+      return current;
+    });
+    return () => { cancelled = true; };
+  }, [auth.session, isOffline]);
 
   // Offline detection
   useEffect(() => {
@@ -160,6 +186,11 @@ export default function App() {
       case 'settings':
         return <Settings t={t} settings={settings} setSettings={setSettings} onBack={() => setScreen('home')} />;
       case 'parent_dashboard':
+        // Kid mode never needs an account. The ADULT side does, once there is
+        // a backend to hold the record.
+        if (auth.available && !auth.session) {
+          return <SignIn t={t} onBack={() => setScreen('home')} />;
+        }
         return <ParentDashboard t={t} stats={stats} missedPhonemes={missedPhonemes} onResetProgress={handleEraseChild} onBack={() => setScreen('home')} />;
       case 'sticker_book':
         return <StickerBook t={t} stats={stats} unlockedStickers={unlockedStickers} onUnlockSticker={handleUnlockSticker} onBack={() => setScreen('home')} />;

@@ -181,3 +181,55 @@ export function reconcile(state, serverProgress) {
 export function progressFromEvents(events) {
   return deriveProgress(events);
 }
+
+/**
+ * Link the child on this device to the signed-in adult's account.
+ *
+ * Creates the student server-side (which atomically creates the guardianship,
+ * so nobody can attach themselves to an existing child) and mints a device
+ * grant — the append-only, read-nothing credential that lets the outbox drain.
+ *
+ * Idempotent: once linked it returns the state untouched, so it is safe to
+ * call on every sign-in.
+ */
+export async function linkChild(state) {
+  if (!isBackendConfigured || !supabase) return state;
+  if (!state.user?.name) return state;           // no child set up yet
+  if (state.studentId && state.deviceToken) return state;
+
+  try {
+    let studentId = state.studentId;
+
+    if (!studentId) {
+      const { data, error } = await supabase.rpc('create_student', {
+        p_name: state.user.name,
+        p_avatar: state.user.avatar || 'lion',
+      });
+      if (error) return state;
+      studentId = data;
+    }
+
+    const { data: token, error: tokenError } = await supabase.rpc(
+      'issue_device_grant', { p_student_id: studentId }
+    );
+    // Keep the student id even if the token failed — the next attempt reuses
+    // it rather than creating a duplicate child.
+    if (tokenError) return { ...state, studentId };
+
+    return { ...state, studentId, deviceToken: token };
+  } catch {
+    return state;
+  }
+}
+
+/** Read the server's authoritative progress for this device's child. */
+export async function fetchServerProgress(studentId) {
+  if (!isBackendConfigured || !supabase || !studentId) return null;
+  try {
+    const { data, error } = await supabase
+      .from('progress').select('*').eq('student_id', studentId).maybeSingle();
+    return error ? null : data;
+  } catch {
+    return null;
+  }
+}
