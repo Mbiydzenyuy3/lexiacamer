@@ -181,6 +181,16 @@ export default function App() {
     setScreen('onboarding');
   }, [lang, settings]);
 
+  // Screens that own the whole viewport: child onboarding, adult sign-in, and
+  // parent onboarding. These are focused one-task flows, so the app chrome
+  // would only offer ways to wander off mid-form. Each provides its own back
+  // arrow instead.
+  const needsSignIn = screen === 'parent_dashboard' && auth.available && !auth.session;
+  const needsParentOnboarding =
+    screen === 'parent_dashboard' && Boolean(auth.session) && !school.isSchoolUser
+    && Boolean(state.studentId) && !state.onboardedAt;
+  const isFocusedFlow = screen === 'onboarding' || needsSignIn || needsParentOnboarding;
+
   // Render current screen
   const renderScreen = () => {
     switch (screen) {
@@ -215,6 +225,7 @@ export default function App() {
             <ParentOnboarding
               studentId={state.studentId}
               initialChildName={user.name}
+              onBack={() => setScreen('home')}
               onDone={() => setState(s2 => ({ ...s2, onboardedAt: new Date().toISOString() }))}
             />
           );
@@ -245,7 +256,7 @@ export default function App() {
   return (
     <>
       {/* Top Bar: hidden during onboarding for a clean full-screen first run */}
-      {screen !== 'onboarding' && (
+      {!isFocusedFlow && (
       <header className="top-bar">
         <div className="top-bar-inner">
           {/* Left: Logo */}
@@ -314,7 +325,7 @@ export default function App() {
       </main>
 
       {/* Bottom Navigation: hidden during onboarding */}
-      {screen !== 'onboarding' && (
+      {!isFocusedFlow && (
       <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
         <button
           className={`bottom-nav-item ${screen === 'home' ? 'active' : ''}`}

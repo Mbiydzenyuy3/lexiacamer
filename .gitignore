@@ -12,3 +12,6 @@ dist
 /.claude
 
 .gstack/
+
+# Service-role key. Never committed, never in the browser bundle.
+.env.admin

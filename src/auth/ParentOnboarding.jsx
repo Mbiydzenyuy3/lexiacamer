@@ -25,7 +25,7 @@ const GENDERS = [
   { value: 'unspecified', label: 'Prefer not to say' },
 ];
 
-export default function ParentOnboarding({ studentId, initialChildName, onDone }) {
+export default function ParentOnboarding({ studentId, initialChildName, onBack, onDone }) {
   const [step, setStep] = useState(1);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState('');
@@ -39,6 +39,8 @@ export default function ParentOnboarding({ studentId, initialChildName, onDone }
   const [school, setSchool] = useState(null);
   const [classes, setClasses] = useState([]);
   const [classId, setClassId] = useState('');
+  const [searched, setSearched] = useState(false);
+  const [suggested, setSuggested] = useState(false);
 
   // Step 2
   const [parentName, setParentName] = useState('');
@@ -59,7 +61,7 @@ export default function ParentOnboarding({ studentId, initialChildName, onDone }
     let cancelled = false;
     const timer = setTimeout(async () => {
       const { data } = await supabase.rpc('search_schools', { p_query: q });
-      if (!cancelled) setSchools(data || []);
+      if (!cancelled) { setSchools(data || []); setSearched(true); }
     }, 250);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [schoolQuery, school]);
@@ -145,6 +147,13 @@ export default function ParentOnboarding({ studentId, initialChildName, onDone }
 
   return (
     <div className="screen">
+      {/* The app chrome is hidden on this flow, so this is the only way out. */}
+      <div className="focus-back">
+        <button className="btn btn-ghost p-2" onClick={onBack} aria-label="Go back">
+          <ArrowLeft size={24} />
+        </button>
+      </div>
+
       <div className="auth-card">
         <div className="onb-steps" aria-label={`Step ${step} of 3`}>
           {[1, 2, 3].map((n) => (
@@ -213,6 +222,35 @@ export default function ParentOnboarding({ studentId, initialChildName, onDone }
                       </li>
                     ))}
                   </ul>
+                )}
+                {/* Silence reads as broken. Say what happened, and give them
+                    a way forward that does not invent an unverified school. */}
+                {searched && schools.length === 0 && schoolQuery.trim().length >= 2 && (
+                  suggested ? (
+                    <p className="onb-hint onb-thanks">
+                      Thank you. We will reach out to
+                      {' '}<strong>{schoolQuery.trim()}</strong>. You can carry on
+                      without a school for now and add it once they join.
+                    </p>
+                  ) : (
+                    <div className="onb-noresult">
+                      <p style={{ margin: '0 0 0.6rem' }}>
+                        <strong>{schoolQuery.trim()}</strong> is not using
+                        LexiaCamer yet.
+                      </p>
+                      <button type="button" className="btn-resend"
+                              onClick={async () => {
+                                try {
+                                  await supabase.rpc('suggest_school', {
+                                    p_name: schoolQuery.trim(), p_town: null,
+                                  });
+                                } catch { /* a lead is best-effort */ }
+                                setSuggested(true);
+                              }}>
+                        Tell us about this school
+                      </button>
+                    </div>
+                  )
                 )}
                 <p className="onb-hint">
                   Not at school yet? Leave this blank. You can add it any time.

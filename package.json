@@ -7,7 +7,9 @@
     "build": "vite build",
     "preview": "vite preview",
     "test": "vitest run",
-    "test:watch": "vitest"
+    "test:watch": "vitest",
+    "admin:onboard-school": "node scripts/onboard-school.mjs",
+    "admin:school-demand": "node scripts/school-demand.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

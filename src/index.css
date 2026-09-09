@@ -2086,3 +2086,30 @@ p {
     color: var(--text-muted);
   }
 }
+
+.onb-noresult {
+  margin-top: 0.6rem;
+  padding: 0.9rem;
+  background: var(--amber-50);
+  border: 1px solid var(--amber-200);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+.onb-thanks {
+  padding: 0.75rem;
+  background: var(--green-50);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-sm);
+  color: var(--text-secondary);
+}
+
+/* A focused flow (sign-in, onboarding) hides the app chrome, so its back
+   arrow is the only way out and needs room of its own. */
+.focus-back {
+  display: flex;
+  align-items: center;
+  max-width: 26rem;
+  margin: 0 auto;
+  padding: 1rem 0 0.25rem;
+}
