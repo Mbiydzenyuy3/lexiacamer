@@ -10,6 +10,8 @@ import {
 import { useAuth } from './auth/AuthProvider';
 import SignIn from './auth/SignIn';
 import ParentOnboarding from './auth/ParentOnboarding';
+import SchoolDashboard from './school/SchoolDashboard';
+import { useSchoolContext } from './school/useSchool';
 import i18n from './i18n';
 import HomeScreen from './HomeScreen';
 import PhonicsLab from './PhonicsLab';
@@ -49,6 +51,9 @@ export default function App() {
   const [screen, setScreen] = useState(state.user?.name ? 'home' : 'onboarding');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const auth = useAuth();
+  // Where an adult belongs is answered by the database, not by what they
+  // picked at signup. A parent gets no schools; a teacher or director does.
+  const school = useSchoolContext(auth.session);
   // Warn once if this device has no speech synthesis: the app still works, but
   // the child won't hear the letter/word sounds. Dismissible so it never nags.
   const [audioNoticeDismissed, setAudioNoticeDismissed] = useState(false);
@@ -191,6 +196,17 @@ export default function App() {
         // a backend to hold the record.
         if (auth.available && !auth.session) {
           return <SignIn t={t} onBack={() => setScreen('home')} />;
+        }
+        // A teacher or director lands on their class roster, not on a child's
+        // progress screen.
+        if (school.isSchoolUser) {
+          return (
+            <SchoolDashboard
+              schools={school.schools}
+              classes={school.classes}
+              onBack={() => setScreen('home')}
+            />
+          );
         }
         // First time in: collect the child's details, the parent's, and
         // optionally where they are, before showing a dashboard of zeros.

@@ -1948,3 +1948,141 @@ p {
   margin-top: 1.5rem;
 }
 .onb-actions .btn { flex: 1; }
+
+/* ================================================================
+   SCHOOL DASHBOARD: teacher and director
+   ================================================================ */
+
+.sch-wrap { max-width: 60rem; margin: 0 auto; padding: 0 1rem 2rem; }
+
+.sch-role {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  margin: 0 0 1rem;
+  color: var(--text-secondary);
+  font-size: 0.9rem;
+}
+
+.sch-bar {
+  display: flex;
+  gap: 0.6rem;
+  align-items: flex-end;
+  flex-wrap: wrap;
+}
+
+.sch-select { flex: 1; min-width: 12rem; }
+
+.sch-refresh { width: auto; padding: 0.75rem 0.9rem; }
+
+.sch-asof {
+  display: flex;
+  gap: 0.35rem;
+  align-items: center;
+  margin: 0.6rem 0 0;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+.sch-asof.is-stale { color: var(--amber-600); }
+
+.sch-summary {
+  display: flex;
+  gap: 0.75rem;
+  flex-wrap: wrap;
+  margin: 1.25rem 0;
+}
+
+.sch-stat {
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  flex: 1;
+  min-width: 12rem;
+  padding: 0.9rem 1rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+}
+
+.sch-stat-n { font-size: 1.4rem; font-weight: 800; color: var(--text-primary); }
+.sch-stat-l { font-size: 0.85rem; color: var(--text-secondary); }
+
+.sch-h3 { margin: 1.5rem 0 0.75rem; }
+
+.sch-scroll { overflow-x: auto; }
+
+.sch-table {
+  width: 100%;
+  border-collapse: collapse;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-md);
+  overflow: hidden;
+}
+
+.sch-table th,
+.sch-table td {
+  padding: 0.7rem 0.9rem;
+  text-align: left;
+  border-bottom: 1px solid var(--border-light);
+}
+
+.sch-table th {
+  font-size: 0.8rem;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  color: var(--text-muted);
+  background: var(--green-50);
+}
+
+.sch-table tr:last-child td { border-bottom: 0; }
+
+.sch-phoneme {
+  display: inline-block;
+  padding: 0.15rem 0.5rem;
+  font-weight: 700;
+  color: var(--amber-600);
+  background: var(--amber-50);
+  border-radius: var(--radius-full);
+}
+
+.sch-muted { color: var(--text-muted); }
+
+.sch-empty {
+  padding: 1.25rem;
+  color: var(--text-secondary);
+  background: var(--bg-card);
+  border: 1px dashed var(--border-medium);
+  border-radius: var(--radius-md);
+}
+
+.sch-note {
+  margin-top: 1rem;
+  font-size: 0.85rem;
+  color: var(--text-muted);
+}
+
+/* On a phone the table becomes stacked cards: a director checking between
+   lessons is on a phone, not at a desk. */
+@media (max-width: 640px) {
+  .sch-table thead { display: none; }
+  .sch-table, .sch-table tbody, .sch-table tr, .sch-table td { display: block; width: 100%; }
+  .sch-table tr {
+    margin-bottom: 0.75rem;
+    border: 1px solid var(--border-light);
+    border-radius: var(--radius-md);
+    background: var(--bg-card);
+  }
+  .sch-table td {
+    display: flex;
+    justify-content: space-between;
+    gap: 1rem;
+    border-bottom: 1px solid var(--border-light);
+  }
+  .sch-table td::before {
+    content: attr(data-label);
+    font-size: 0.8rem;
+    color: var(--text-muted);
+  }
+}
