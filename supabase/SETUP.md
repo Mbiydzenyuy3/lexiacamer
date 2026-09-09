@@ -17,16 +17,32 @@ Everything is written and tested against a throwaway Postgres. This is the
 
 ## 2. Apply the schema
 
-Project Settings → Database → Connection string → **URI**. Use the **session**
-pooler (port `5432`), not the transaction pooler (`6543`) - migrations create
-functions and triggers, which need a session connection.
+In the dashboard, **Connect** -> **Session pooler**. Three connection strings
+are offered and only this one works:
+
+| Option | Why not |
+|---|---|
+| Direct connection | Host is **IPv6-only**. On a network without IPv6 routing it fails with "Permission denied", which reads like a password problem and is not. |
+| Transaction pooler (6543) | Cannot create functions or triggers. |
+| **Session pooler (5432)** | **Use this one.** |
+
+The session pooler username is `postgres.<project-ref>`, not plain `postgres`.
 
 ```bash
-./supabase/apply.sh "postgresql://postgres.<ref>:<password>@<host>:5432/postgres"
+./supabase/apply.sh "postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres"
 ```
 
-It applies every migration in order and then prints the RLS status of every
-table. **Every row must read `RLS on`.** Anything reading `*** RLS OFF ***` is
+Applied migrations are recorded in `schema_migrations`, so re-running only
+applies what is new. If the database was set up before that tracking existed,
+the script says so and tells you to baseline it once:
+
+```bash
+./supabase/apply.sh "$DB_URL" --baseline 0006_subscriptions.sql   # record, do not run
+./supabase/apply.sh "$DB_URL"                                     # apply the rest
+./supabase/apply.sh "$DB_URL" --status                            # what is pending
+```
+
+It then prints the RLS status of every table. **Every row must read `RLS on`.** Anything reading `*** RLS OFF ***` is
 readable by anyone on the internet holding your public anon key.
 
 ## 3. Point the app at it
