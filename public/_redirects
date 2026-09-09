@@ -1,0 +1,3 @@
+# Every path serves the app: /invite/<token> is a real route, and without this
+# a director clicking their link gets a 404 from the CDN.
+/*  /index.html  200

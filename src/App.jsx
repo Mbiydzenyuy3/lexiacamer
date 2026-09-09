@@ -10,6 +10,7 @@ import {
 import { useAuth } from './auth/AuthProvider';
 import SignIn from './auth/SignIn';
 import ParentOnboarding from './auth/ParentOnboarding';
+import InviteRedeem from './auth/InviteRedeem';
 import SchoolDashboard from './school/SchoolDashboard';
 import { useSchoolContext } from './school/useSchool';
 import i18n from './i18n';
@@ -51,6 +52,15 @@ export default function App() {
   const [screen, setScreen] = useState(state.user?.name ? 'home' : 'onboarding');
   const [isOffline, setIsOffline] = useState(!navigator.onLine);
   const auth = useAuth();
+
+  // /invite/<token>: the link the onboarding script hands a director. Read
+  // once on mount and held in state, because signing in navigates away from
+  // the URL and the token has to survive that.
+  const [inviteToken, setInviteToken] = useState(() => {
+    const m = typeof window !== 'undefined'
+      && window.location.pathname.match(/^\/invite\/([A-Za-z0-9_-]+)$/);
+    return m ? m[1] : null;
+  });
   // Where an adult belongs is answered by the database, not by what they
   // picked at signup. A parent gets no schools; a teacher or director does.
   const school = useSchoolContext(auth.session);
@@ -189,10 +199,31 @@ export default function App() {
   const needsParentOnboarding =
     screen === 'parent_dashboard' && Boolean(auth.session) && !school.isSchoolUser
     && Boolean(state.studentId) && !state.onboardedAt;
-  const isFocusedFlow = screen === 'onboarding' || needsSignIn || needsParentOnboarding;
+  const isFocusedFlow = screen === 'onboarding' || needsSignIn
+    || needsParentOnboarding || Boolean(inviteToken);
+
+  const finishInvite = useCallback(() => {
+    // Drop the token from the URL so a refresh does not retry a consumed one.
+    if (typeof window !== 'undefined') {
+      window.history.replaceState({}, '', '/');
+    }
+    setInviteToken(null);
+    setScreen('parent_dashboard');
+  }, []);
 
   // Render current screen
   const renderScreen = () => {
+    // An invite link outranks everything: it is why this person opened the app.
+    if (inviteToken) {
+      return (
+        <InviteRedeem
+          t={t}
+          token={inviteToken}
+          onDone={finishInvite}
+          onBack={finishInvite}
+        />
+      );
+    }
     switch (screen) {
       case 'onboarding':
         return <Onboarding t={t} onComplete={(userData) => {

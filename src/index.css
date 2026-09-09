@@ -2139,3 +2139,16 @@ p {
   font-style: normal;
   color: var(--text-muted);
 }
+
+.invite-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 4rem;
+  height: 4rem;
+  margin: 0 auto 1rem;
+  border-radius: var(--radius-full);
+}
+
+.invite-icon.is-ok  { color: var(--green-700); background: var(--green-100); }
+.invite-icon.is-bad { color: var(--rose-600);  background: var(--rose-100); }

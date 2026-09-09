@@ -41,6 +41,7 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
   const [classId, setClassId] = useState('');
   const [searched, setSearched] = useState(false);
   const [suggested, setSuggested] = useState(false);
+  const [searchError, setSearchError] = useState('');
 
   // Step 2
   const [parentName, setParentName] = useState('');
@@ -62,8 +63,25 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
     const timer = setTimeout(async () => {
       // Searches BOTH: verified schools on the platform and names from the
       // directory. on_platform decides what picking one actually does.
-      const { data } = await supabase.rpc('search_schools_all', { p_query: q });
-      if (!cancelled) { setSchools(data || []); setSearched(true); }
+      const { data, error: err } = await supabase.rpc('search_schools_all', {
+        p_query: q,
+      });
+      if (cancelled) return;
+      if (err) {
+        // Swallowing this made a broken backend look identical to "no schools
+        // match", which sent us hunting through the UI for a dropdown bug.
+        setSchools([]);
+        setSearched(true);
+        setSearchError(
+          /Could not find the function/i.test(err.message || '')
+            ? 'School search is not set up on the server yet.'
+            : 'We could not search for schools just now.'
+        );
+        return;
+      }
+      setSearchError('');
+      setSchools(data || []);
+      setSearched(true);
     }, 250);
     return () => { cancelled = true; clearTimeout(timer); };
   }, [schoolQuery, school]);
@@ -249,7 +267,11 @@ export default function ParentOnboarding({ studentId, initialChildName, onBack, 
                 )}
                 {/* Silence reads as broken. Say what happened, and give them
                     a way forward that does not invent an unverified school. */}
-                {searched && schools.length === 0 && schoolQuery.trim().length >= 2 && (
+                {searchError && (
+                  <p role="alert" className="auth-error">{searchError}</p>
+                )}
+                {!searchError && searched && schools.length === 0
+                  && schoolQuery.trim().length >= 2 && (
                   suggested ? (
                     <p className="onb-hint onb-thanks">
                       Thank you. We will reach out to
