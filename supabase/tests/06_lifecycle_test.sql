@@ -99,15 +99,15 @@ select expect_count('L12 the old school retains nothing',
 
 -- --- what survives is an anonymous count ------------------------------------
 reset role;
--- Jan + Feb at School A (2 months). Cancelled enrolment contributes nothing.
-select expect_count('L13 School A keeps 2 anonymous student-months',
+-- This child never paid, and a school earns only on PAID months, so deleting
+-- them leaves no billable remnant at all. (07_subscription_test covers the
+-- paid case, where the months DO survive anonymously.)
+select expect_count('L13 deleting an unpaid child leaves no remnant',
        (select coalesce(sum(student_months), 0) from billing_ledger
-         where school_id = '10000000-0000-0000-0000-00000000000a'), 2);
-select expect_count('L14 a cancelled claim earns no share',
+         where school_id = '10000000-0000-0000-0000-00000000000a'), 0);
+select expect_count('L14 no ledger row is created for an unpaid child',
        (select count(*) from billing_ledger
-         where school_id = '10000000-0000-0000-0000-00000000000a'
-           and year_month = '2026-01-01'
-           and student_months > 1), 0);
+         where school_id = '10000000-0000-0000-0000-00000000000a'), 0);
 select expect_count('L15 the ledger cannot identify anyone',
        (select count(*) from information_schema.columns
          where table_name = 'billing_ledger'
