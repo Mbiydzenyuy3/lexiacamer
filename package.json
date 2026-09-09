@@ -10,7 +10,8 @@
     "test:watch": "vitest",
     "admin:onboard-school": "node scripts/onboard-school.mjs",
     "admin:school-demand": "node scripts/school-demand.mjs",
-    "admin:import-schools": "node scripts/import-schools.mjs"
+    "admin:import-schools": "node scripts/import-schools.mjs",
+    "admin:invites": "node scripts/invites.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
