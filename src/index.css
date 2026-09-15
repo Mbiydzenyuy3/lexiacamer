@@ -3,7 +3,67 @@
    High-contrast, accessible, optimized for low-end Android devices
    ================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+/* ——— Fonts, served from this origin ———
+
+   Self-hosted rather than pulled from Google Fonts, for two reasons that both
+   matter here:
+
+   1. OFFLINE. This app promises to work with no internet. A cross-origin font
+      is not precached by the service worker, so before this change an offline
+      visitor silently fell back to the system sans-serif and the app looked
+      wrong. These files are precached with everything else, so the app looks
+      identical on the fifth offline visit as on the first.
+
+   2. WEAK NETWORKS. The old setup made TWO render-blocking stylesheet requests
+      (a <link> here and an @import in this file, which a browser cannot even
+      discover until this stylesheet has arrived, so they ran one after the
+      other), to two further origins needing their own DNS and TLS, before any
+      font byte was requested. That is several round trips on a connection
+      where a round trip is expensive.
+
+   Outfit is a VARIABLE font: one file covers every weight from 400 to 900,
+   instead of the six separate files the old static request downloaded.
+
+   Comic Neue is declared but not fetched until something actually uses it,
+   which only happens in dyslexia mode. Nobody pays for it otherwise. */
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('/fonts/outfit-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('/fonts/outfit-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+                 U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF,
+                 U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Comic Neue';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/comic-neue-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Comic Neue';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/comic-neue-700.woff2') format('woff2');
+}
 
 /* ——— Design Tokens ——— */
 :root {
@@ -1638,10 +1698,14 @@ p {
 
 .et-screen {
   min-height: 100vh;
+  min-height: 100dvh;
   display: flex;
+  /* Column, not row: this screen holds a wordmark, the card and a back link,
+     stacked. It centres them horizontally and vertically as a group. */
+  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.25rem;
+  padding: 1.75rem 1.25rem;
   background: var(--bg-body);
 }
 
@@ -2004,3 +2068,676 @@ p {
 }
 
 .fb-done p { margin: 0; }
+
+/* ================================================================
+   LANDING PAGE (/)
+   Phone-first. Everything here is prefixed .lp- so it can never
+   collide with the app shell, which shares the same stylesheet.
+   ================================================================ */
+
+.lp {
+  min-height: 100vh;
+  background: var(--bg-body);
+  color: var(--text-primary);
+}
+
+.lp-wrap {
+  width: 100%;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding-inline: 1.25rem;
+}
+
+.lp-section { padding-block: 3rem; }
+.lp-center { text-align: center; }
+
+/* ——— Header ——— */
+.lp-header {
+  position: sticky;
+  top: 0;
+  z-index: var(--z-sticky);
+  background: rgba(240, 245, 235, 0.88);
+  backdrop-filter: blur(10px);
+  border-bottom: 1px solid var(--border-light);
+  padding-top: env(safe-area-inset-top, 0px);
+}
+
+.lp-header-inner {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  max-width: 68rem;
+  margin: 0 auto;
+  padding: 0.7rem 1.25rem;
+}
+
+.lp-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.1rem;
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.lp-logo-img { width: 1.9rem; height: 1.9rem; border-radius: 0.5rem; }
+.lp-logo-text { font-weight: 800; font-size: 1.15rem; letter-spacing: -0.01em; }
+
+.lp-header-right { display: flex; align-items: center; gap: 0.6rem; }
+
+.lp-lang {
+  display: inline-flex;
+  padding: 0.15rem;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: var(--radius-full);
+}
+
+.lp-lang button {
+  padding: 0.3rem 0.65rem;
+  font: inherit;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-muted);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.lp-lang button.is-on { color: var(--text-primary); background: var(--green-100); }
+
+/* ——— Buttons ——— */
+.lp-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.9rem 1.6rem;
+  font: inherit;
+  font-size: 1rem;
+  font-weight: 700;
+  text-decoration: none;
+  border: 0;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+  transition: transform var(--duration-fast) var(--ease-out),
+              background-color var(--duration-fast) var(--ease-out);
+}
+
+.lp-btn:active { transform: scale(0.97); }
+.lp-btn-sm { padding: 0.55rem 1rem; font-size: 0.87rem; white-space: nowrap; }
+
+/* On a phone the header CTA is redundant: the hero button sits right below it,
+   visible without scrolling, and squeezing both onto one 390px row makes the
+   label wrap and crowd the logo. The header CTA earns its place only once
+   there is room for it. */
+@media (max-width: 560px) {
+  .lp-header-right .lp-btn-sm { display: none; }
+}
+
+.lp-btn-primary {
+  color: var(--text-inverse);
+  background: var(--color-primary);
+  box-shadow: var(--shadow-md);
+}
+
+.lp-btn-primary:hover { background: var(--color-primary-hover); }
+
+.lp-btn-quiet {
+  color: var(--text-secondary);
+  background: none;
+  text-decoration: underline;
+  text-underline-offset: 4px;
+}
+
+.lp-btn-invert {
+  color: var(--color-primary);
+  background: var(--bg-card);
+  box-shadow: var(--shadow-lg);
+}
+
+.lp-btn:focus-visible {
+  outline: 3px solid var(--color-primary);
+  outline-offset: 3px;
+}
+
+.lp-btn-invert:focus-visible { outline-color: var(--bg-card); }
+
+/* ——— Type ——— */
+.lp-h1 {
+  margin: 0 0 0.9rem;
+  font-size: clamp(2rem, 7vw, 3.1rem);
+  font-weight: 900;
+  line-height: 1.1;
+  letter-spacing: -0.02em;
+}
+
+.lp-h2 {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.4rem, 4vw, 1.9rem);
+  font-weight: 800;
+  text-align: center;
+}
+
+.lp-h2-left {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  text-align: left;
+  color: var(--color-primary);
+}
+
+.lp-h3 { margin: 0 0 0.35rem; font-size: 1.05rem; font-weight: 700; }
+
+.lp-lead {
+  margin: 0 0 1.4rem;
+  font-size: 1.05rem;
+  color: var(--text-secondary);
+  max-width: 34rem;
+}
+
+.lp-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  margin-bottom: 1rem;
+  padding: 0.35rem 0.8rem;
+  font-size: 0.72rem;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--amber-600);
+  background: var(--amber-50);
+  border: 1px solid var(--amber-200);
+  border-radius: var(--radius-full);
+}
+
+.lp-note { font-size: 0.87rem; color: var(--text-muted); text-align: center; }
+
+/* ——— Hero ——— */
+.lp-hero { padding-block: 2.5rem 1rem; }
+.lp-hero-grid { display: grid; gap: 2.5rem; }
+.lp-hero-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 0.75rem; }
+
+.lp-reassure {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem 1.25rem;
+  margin: 1.5rem 0 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.85rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.lp-reassure li { display: inline-flex; align-items: center; gap: 0.35rem; }
+.lp-reassure svg { color: var(--color-primary); flex-shrink: 0; }
+
+/* ——— The drawn phone ——— */
+.lp-phone {
+  justify-self: center;
+  width: min(17rem, 78vw);
+  padding: 0.55rem;
+  background: #10240a;
+  border-radius: 2.2rem;
+  box-shadow: var(--shadow-xl);
+}
+
+.lp-phone-screen {
+  padding: 1.1rem 0.9rem;
+  background: linear-gradient(to bottom, var(--green-50), var(--bg-card));
+  border-radius: 1.8rem;
+}
+
+.lp-mock-greet { font-size: 1.1rem; font-weight: 800; text-align: center; color: var(--green-800); }
+.lp-mock-sub { margin-bottom: 0.9rem; font-size: 0.7rem; text-align: center; color: var(--text-muted); }
+
+.lp-mock-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0.4rem; margin-bottom: 0.7rem; }
+
+.lp-mock-stat {
+  padding: 0.5rem 0.2rem;
+  text-align: center;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-xs);
+}
+
+.lp-mock-stat-v { font-size: 1rem; font-weight: 800; color: var(--green-700); }
+.lp-mock-stat-l { font-size: 0.55rem; font-weight: 700; letter-spacing: 0.05em; text-transform: uppercase; color: var(--text-muted); }
+
+.lp-mock-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 0.4rem; }
+
+.lp-mock-tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.7rem 0.3rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+  box-shadow: var(--shadow-xs);
+}
+
+.lp-mock-puck {
+  display: inline-flex;
+  padding: 0.4rem;
+  border-radius: var(--radius-sm);
+}
+
+.lp-mock-tile.t0 .lp-mock-puck { color: var(--green-700); background: var(--green-100); }
+.lp-mock-tile.t1 .lp-mock-puck { color: var(--amber-600); background: var(--amber-100); }
+.lp-mock-tile.t2 .lp-mock-puck { color: var(--indigo-600); background: var(--indigo-100); }
+.lp-mock-tile.t3 .lp-mock-puck { color: var(--text-secondary); background: var(--border-light); }
+
+.lp-mock-tile-label { font-size: 0.6rem; font-weight: 700; text-align: center; }
+
+/* ——— The honest panel ——— */
+.lp-honest {
+  padding: 1.4rem;
+  background: var(--amber-50);
+  border: 1px solid var(--amber-200);
+  border-radius: var(--radius-xl);
+}
+
+.lp-honest-title {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  margin: 0 0 0.7rem;
+  font-weight: 800;
+  color: var(--amber-600);
+}
+
+.lp-honest p { margin: 0 0 0.7rem; color: var(--text-secondary); }
+.lp-honest-last { margin-bottom: 0 !important; }
+
+/* ——— How it works ——— */
+.lp-steps { margin: 0; padding: 0; list-style: none; display: grid; gap: 1rem; }
+
+.lp-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  padding: 1.25rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.lp-step-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 2rem;
+  height: 2rem;
+  font-weight: 800;
+  color: var(--text-inverse);
+  background: var(--color-primary);
+  border-radius: var(--radius-full);
+}
+
+.lp-step-body { flex: 1; min-width: 0; }
+.lp-step-body p { margin: 0; font-size: 0.93rem; color: var(--text-secondary); }
+
+.lp-step-icon {
+  display: none;
+  flex-shrink: 0;
+  padding: 0.9rem;
+  color: var(--color-primary);
+  background: var(--green-50);
+  border-radius: var(--radius-lg);
+}
+
+/* ——— Feature cards ——— */
+.lp-cards { display: grid; gap: 1rem; }
+
+.lp-card {
+  padding: 1.4rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.lp-card p { margin: 0; font-size: 0.93rem; color: var(--text-secondary); }
+
+.lp-puck {
+  display: inline-flex;
+  margin-bottom: 0.8rem;
+  padding: 0.7rem;
+  border-radius: var(--radius-md);
+}
+
+.lp-card.c0 .lp-puck { color: var(--green-700); background: var(--green-100); }
+.lp-card.c1 .lp-puck { color: var(--amber-600); background: var(--amber-100); }
+.lp-card.c2 .lp-puck { color: var(--indigo-600); background: var(--indigo-100); }
+.lp-card.c3 .lp-puck { color: var(--sky-500); background: var(--sky-50); }
+
+/* ——— Built for Cameroon ——— */
+.lp-band { padding-block: 3rem; background: var(--green-100); }
+.lp-band-grid { display: grid; gap: 2rem; align-items: center; }
+.lp-band .lp-h2 { text-align: left; }
+
+.lp-facts { margin: 0; padding: 0; list-style: none; display: grid; gap: 1rem; }
+.lp-facts li { display: flex; align-items: flex-start; gap: 0.75rem; }
+.lp-facts p { margin: 0; font-size: 0.9rem; color: var(--text-secondary); }
+
+.lp-fact-icon {
+  display: inline-flex;
+  flex-shrink: 0;
+  padding: 0.5rem;
+  color: var(--green-700);
+  background: var(--bg-card);
+  border-radius: var(--radius-sm);
+}
+
+.lp-bignum {
+  padding: 2rem 1.25rem;
+  text-align: center;
+  background: var(--bg-card);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-md);
+}
+
+.lp-bignum-v { font-size: clamp(2.5rem, 10vw, 3.5rem); font-weight: 900; line-height: 1; color: var(--color-primary); }
+.lp-bignum-l { margin-top: 0.4rem; font-weight: 700; }
+.lp-bignum-s { font-size: 0.85rem; color: var(--text-muted); }
+
+/* ——— Who sees what ——— */
+.lp-aud { display: grid; gap: 1.5rem; margin-bottom: 1.5rem; }
+.lp-aud-col p { margin: 0; font-size: 0.93rem; color: var(--text-secondary); }
+
+/* ——— Privacy ——— */
+.lp-privacy {
+  padding: 1.75rem 1.5rem;
+  background: var(--bg-card);
+  border-radius: var(--radius-2xl);
+  box-shadow: var(--shadow-sm);
+}
+
+.lp-privacy-lead { margin: 0 0 1rem; font-size: 1.15rem; font-weight: 800; }
+.lp-privacy-cols { display: grid; gap: 0.9rem; }
+.lp-privacy-cols p { margin: 0; font-size: 0.93rem; color: var(--text-secondary); }
+
+.lp-contact-body {
+  max-width: 34rem;
+  margin: 1.25rem auto 0.5rem;
+  color: var(--text-secondary);
+}
+
+/* ——— Final CTA ——— */
+.lp-final { padding-block: 3.5rem; background: var(--color-primary); color: var(--text-inverse); }
+
+.lp-final-title {
+  margin: 0 0 1.5rem;
+  font-size: clamp(1.5rem, 5vw, 2.4rem);
+  font-weight: 900;
+  line-height: 1.15;
+}
+
+.lp-final-note { margin: 1rem 0 0; font-size: 0.87rem; opacity: 0.85; }
+
+/* ——— Footer ——— */
+.lp-footer {
+  padding-block: 2.5rem 1.5rem;
+  background: var(--bg-card);
+  border-top: 1px solid var(--border-light);
+  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
+}
+
+.lp-footer-grid { display: grid; gap: 1.75rem; }
+.lp-footer-blurb { max-width: 22rem; margin: 0.75rem 0 0; font-size: 0.87rem; color: var(--text-secondary); }
+.lp-footer-h { margin: 0 0 0.6rem; font-size: 0.72rem; font-weight: 800; letter-spacing: 0.06em; text-transform: uppercase; color: var(--text-muted); }
+
+.lp-footer-link {
+  display: block;
+  margin-bottom: 0.4rem;
+  padding: 0;
+  font: inherit;
+  font-size: 0.9rem;
+  color: var(--text-secondary);
+  background: none;
+  border: 0;
+  text-align: left;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.lp-footer-link:hover { color: var(--color-primary); text-decoration: underline; }
+
+.lp-footer-base {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding-top: 1.25rem;
+  border-top: 1px solid var(--border-light);
+  font-size: 0.8rem;
+  color: var(--text-muted);
+}
+
+/* ——— Reveal on scroll ———
+   Scoped to .lp-animate, which only appears once JS has confirmed it can
+   actually reveal these again. Without it the content is simply visible. */
+.lp-animate .lp-reveal {
+  opacity: 0;
+  transform: translateY(14px);
+  transition: opacity var(--duration-slow) var(--ease-out),
+              transform var(--duration-slow) var(--ease-out);
+}
+
+.lp-animate .lp-reveal.is-in { opacity: 1; transform: none; }
+
+@media (prefers-reduced-motion: reduce) {
+  .lp-animate .lp-reveal { opacity: 1; transform: none; }
+}
+
+/* ——— Wider screens ——— */
+@media (min-width: 640px) {
+  .lp-section { padding-block: 4rem; }
+  .lp-cards { grid-template-columns: 1fr 1fr; }
+  .lp-aud { grid-template-columns: repeat(3, 1fr); }
+  .lp-privacy-cols { grid-template-columns: 1fr 1fr; gap: 1.25rem; }
+  .lp-privacy { padding: 2.25rem; }
+  .lp-step-icon { display: inline-flex; }
+}
+
+@media (min-width: 900px) {
+  .lp-hero { padding-block: 4rem 2rem; }
+  .lp-hero-grid { grid-template-columns: 1.15fr 0.85fr; align-items: center; gap: 3rem; }
+  .lp-band-grid { grid-template-columns: 1.2fr 0.8fr; gap: 3rem; }
+  .lp-footer-grid { grid-template-columns: 2fr 1fr 1fr; }
+  .lp-section { padding-block: 5rem; }
+}
+
+/* ——— Early tester: additions for the redesigned 3-step flow ——— */
+
+.et-wordmark {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.1rem;
+  margin-bottom: 1.1rem;
+}
+
+.et-wordmark-img { width: 1.7rem; height: 1.7rem; border-radius: 0.45rem; }
+.et-wordmark-text { font-weight: 800; font-size: 1.05rem; letter-spacing: -0.01em; }
+
+.et-progress { margin-bottom: 1.25rem; text-align: center; }
+
+.et-dots { display: flex; justify-content: center; gap: 0.4rem; margin-bottom: 0.4rem; }
+
+.et-dot {
+  width: 0.5rem;
+  height: 0.5rem;
+  background: var(--border-medium);
+  border-radius: var(--radius-full);
+  transition: background-color var(--duration-normal) var(--ease-out);
+}
+
+.et-dot.is-done { background: var(--green-400); }
+.et-dot.is-on { background: var(--color-primary); }
+
+.et-stepcount {
+  margin: 0;
+  font-size: 0.7rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-muted);
+}
+
+.et-center { text-align: center; }
+.et-lead-sm { font-size: 0.95rem; }
+.et-input-tight { margin-bottom: 0.6rem; }
+
+.et-reassure {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  gap: 0.5rem 1rem;
+  margin: 1.25rem 0;
+  padding: 0;
+  list-style: none;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+}
+
+.et-reassure li { display: inline-flex; align-items: center; gap: 0.3rem; }
+.et-reassure svg { color: var(--color-primary); flex-shrink: 0; }
+
+/* The answer to "what happens to my number", directly under the field that
+   asks for it. Green, not amber: this is reassurance, not a warning. */
+.et-promise {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.6rem;
+  margin-bottom: 1.25rem;
+  padding: 0.85rem 1rem;
+  background: var(--green-50);
+  border: 1px solid var(--green-200);
+  border-radius: var(--radius-md);
+}
+
+.et-promise svg { flex-shrink: 0; margin-top: 0.1rem; color: var(--green-700); }
+.et-promise p { margin: 0; font-size: 0.85rem; line-height: 1.5; color: var(--text-secondary); }
+
+.et-tasks { margin: 1.25rem 0; padding: 0; list-style: none; display: grid; gap: 0.9rem; }
+.et-tasks li { display: flex; align-items: flex-start; gap: 0.7rem; }
+.et-tasks strong { display: block; font-size: 0.95rem; }
+.et-tasks p { margin: 0.1rem 0 0; font-size: 0.85rem; color: var(--text-muted); }
+
+.et-task-n {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 1.6rem;
+  height: 1.6rem;
+  font-size: 0.78rem;
+  font-weight: 800;
+  color: var(--green-800);
+  background: var(--green-100);
+  border-radius: var(--radius-full);
+}
+
+/* Indigo so it reads as information, clearly separate from the amber
+   "not finished" warning on step 1. */
+.et-fbnote {
+  margin-bottom: 1.25rem;
+  padding: 1rem 1.1rem;
+  background: var(--indigo-50);
+  border: 1px solid var(--indigo-200);
+  border-radius: var(--radius-md);
+}
+
+.et-fbnote-title {
+  display: flex;
+  align-items: center;
+  gap: 0.4rem;
+  margin: 0 0 0.4rem;
+  font-weight: 700;
+  color: var(--indigo-700);
+}
+
+.et-fbnote p { margin: 0; font-size: 0.87rem; color: var(--text-secondary); }
+
+.et-fbnote-demo {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 0.75rem !important;
+}
+
+.et-fbnote-label { font-size: 0.78rem; color: var(--text-muted); }
+
+.et-fbnote-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0.3rem 0.7rem;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--text-inverse);
+  background: var(--color-accent);
+  border-radius: var(--radius-full);
+}
+
+.et-back {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.25rem;
+  margin-top: 1rem;
+  padding: 0.5rem 0.75rem;
+  font: inherit;
+  font-size: 0.87rem;
+  font-weight: 600;
+  color: var(--text-secondary);
+  background: none;
+  border: 0;
+  border-radius: var(--radius-full);
+  cursor: pointer;
+}
+
+.et-back:hover { color: var(--color-primary); }
+
+/* ——— Boot splash: shown only while a lazy chunk is in flight ——— */
+
+.boot {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 1.1rem;
+  min-height: 100vh;
+  min-height: 100dvh;
+  background: var(--bg-body);
+}
+
+.boot-logo { width: 3.5rem; height: 3.5rem; border-radius: var(--radius-md); }
+
+.boot-dots { display: flex; gap: 0.35rem; }
+
+.boot-dots i {
+  width: 0.45rem;
+  height: 0.45rem;
+  background: var(--green-400);
+  border-radius: var(--radius-full);
+  animation: bootPulse 1.1s var(--ease-out) infinite;
+}
+
+.boot-dots i:nth-child(2) { animation-delay: 0.15s; }
+.boot-dots i:nth-child(3) { animation-delay: 0.3s; }
+
+@keyframes bootPulse {
+  0%, 100% { opacity: 0.3; transform: scale(0.8); }
+  50%      { opacity: 1;   transform: scale(1); }
+}
+
+/* Reserves height while a screen chunk loads, so the page does not jump. */
+.screen-loading { min-height: 60vh; }

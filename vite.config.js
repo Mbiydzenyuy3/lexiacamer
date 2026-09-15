@@ -8,6 +8,12 @@ export default defineConfig({
     VitePWA({
       registerType: 'autoUpdate',
       useCredentials: true,
+      workbox: {
+        // The default glob omits woff2, so the fonts were never precached and
+        // an offline visitor silently dropped to the system font. Without this
+        // line, self-hosting them fixes nothing for the offline case.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+      },
       includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
         name: 'Lexia Cameroon',
@@ -29,6 +35,23 @@ export default defineConfig({
       }
     })
   ],
+  build: {
+    rollupOptions: {
+      output: {
+        /**
+         * Stop rollup emitting sub-kilobyte chunks for individual icons.
+         *
+         * On a fast connection a dozen tiny files are free. On a weak
+         * connection in rural Cameroon, latency dominates: each extra request
+         * costs a round trip of several hundred milliseconds regardless of how
+         * few bytes come back, so three 1KB chunks are far worse than one 3KB
+         * one. Merging anything under 20KB trades a little duplication for
+         * fewer round trips, which is the right way round here.
+         */
+        experimentalMinChunkSize: 20000,
+      },
+    },
+  },
   server: {
     host: true
   }

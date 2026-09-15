@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageSquare, X, Check } from 'lucide-react';
-import { supabase, isBackendConfigured } from './lib/supabase';
+import { getSupabase, warmSupabase } from './lib/supabase';
 
 /**
  * FeedbackButton: reachable from every screen.
@@ -58,6 +58,7 @@ export default function FeedbackButton({ screen }) {
   // is what makes a sheet feel broken, the content sliding away underneath.
   useEffect(() => {
     if (!open) return undefined;
+    warmSupabase();
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     panelRef.current?.focus();
@@ -74,15 +75,15 @@ export default function FeedbackButton({ screen }) {
     if (!rating && !message.trim()) return;
     setBusy(true);
 
-    const insert = (isBackendConfigured && supabase)
-      ? supabase.from('feedback').insert({
-          screen: screen || null,
-          category: category || 'other',
-          rating: rating || null,
-          message: message.trim() || null,
-          user_agent: navigator.userAgent.slice(0, 400),
-        }).then(() => {}, () => {})
-      : Promise.resolve();
+    const insert = getSupabase()
+      .then((sb) => (sb ? sb.from('feedback').insert({
+        screen: screen || null,
+        category: category || 'other',
+        rating: rating || null,
+        message: message.trim() || null,
+        user_agent: navigator.userAgent.slice(0, 400),
+      }) : null))
+      .then(() => {}, () => {});
 
     // The round trip is ~2.5s on a good connection here; on a phone on mobile
     // data in Yaounde it is much worse. Nobody should watch "Sending..." for

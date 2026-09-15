@@ -7,24 +7,52 @@
   <link rel="apple-touch-icon" href="/apple-touch-icon.png">
   <link rel="mask-icon" href="/masked-icon.svg" color="#059669">
   <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
-  <meta name="theme-color" content="#4f46e5" />
-  <meta name="description" content="Lexia Cameroon: Empowering kids to read through interactive phonics." />
-  <title>LexiaCamer</title>
-  <!-- Google Fonts: Outfit (Default) & Comic Neue (Dyslexia Mode) -->
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+  <meta name="theme-color" content="#059669" />
+  <title>LexiaCamer — a reading app for children in Cameroon</title>
+  <meta name="description"
+        content="LexiaCamer teaches letter sounds and spelling in English and French. Free, works offline, no account needed. An early prototype, and we say plainly what is not finished yet." />
+
+  <!-- Open Graph. This is what a parent sees when the link is pasted into a
+       Facebook post or a WhatsApp message, which is how almost everyone
+       currently arrives. Without these it renders as an untitled grey box,
+       which is the worst possible first impression for a product whose whole
+       pitch is that it is trustworthy.
+       NOTE: og:url and og:image must be absolute, so they name the current
+       Vercel deployment. Change both when the real domain is bought. -->
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="LexiaCamer" />
+  <meta property="og:title" content="Your child can learn to read, even with no internet." />
+  <meta property="og:description"
+        content="Letter sounds and spelling, in English and French. Free while we build, no account needed, works offline. Built for Cameroon." />
+  <meta property="og:url" content="https://lexiacamer.vercel.app/" />
+  <meta property="og:image" content="https://lexiacamer.vercel.app/og-image.png" />
+  <meta property="og:image:width" content="1200" />
+  <meta property="og:image:height" content="630" />
+  <meta property="og:image:alt"
+        content="LexiaCamer: your child can learn to read, even with no internet." />
+  <meta property="og:locale" content="en_GB" />
+  <meta property="og:locale:alternate" content="fr_FR" />
+
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Your child can learn to read, even with no internet." />
+  <meta name="twitter:description"
+        content="Letter sounds and spelling, in English and French. Free while we build, works offline. Built for Cameroon." />
+  <meta name="twitter:image" content="https://lexiacamer.vercel.app/og-image.png" />
+  <!-- Fonts are served from this origin (see the @font-face block in
+       index.css). Preloaded so the download starts with the stylesheet rather
+       than after it, which on a weak connection saves a round trip. -->
+  <link rel="preload" href="/fonts/outfit-latin.woff2" as="font" type="font/woff2" crossorigin>
   <script type="application/ld+json">
     {
       "@context": "https://schema.org",
-      "@type": "WebSite",
+      "@type": "SoftwareApplication",
       "name": "LexiaCamer",
-      "url": "https://lexiacamer.com",
-      "potentialAction": {
-        "@type": "SearchAction",
-        "target": "https://lexiacamer.com/?q={search_term_string}",
-        "query-input": "required name=search_term_string"
-      }
+      "applicationCategory": "EducationalApplication",
+      "operatingSystem": "Any, via a web browser",
+      "url": "https://lexiacamer.vercel.app/",
+      "inLanguage": ["en", "fr"],
+      "description": "A reading app for children in Cameroon. Teaches letter sounds and spelling in English and French, and works offline.",
+      "offers": { "@type": "Offer", "price": "0", "priceCurrency": "XAF" }
     }
   </script>
 </head>

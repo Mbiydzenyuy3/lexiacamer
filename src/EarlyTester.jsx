@@ -1,21 +1,23 @@
-import React, { useState } from 'react';
-import { ArrowRight, Check, FlaskConical, Volume2, MessageSquare } from 'lucide-react';
-import { supabase, isBackendConfigured } from './lib/supabase';
+import React, { useState, useEffect } from 'react';
+import { ArrowRight, Check, FlaskConical, Volume2, MessageSquare,
+         ShieldCheck, ChevronLeft, Clock, Smartphone } from 'lucide-react';
+import { getSupabase, warmSupabase } from './lib/supabase';
 
 /**
- * EarlyTester: the gate in front of the prototype.
+ * EarlyTester: the gate between the landing page and the app.
  *
  * The point is not to collect data. It is to change what a bug MEANS. Someone
- * who arrives from a Facebook link expecting a finished product and hits
- * missing audio concludes the app does not work. Someone who was asked to help
- * test it reports the same thing as a finding. Same bug, opposite outcome.
+ * who arrives expecting a finished product and hits missing audio concludes the
+ * app does not work. Someone who was asked to help test it reports the same
+ * thing as a finding. Same bug, opposite outcome.
  *
  * So this screen is honest about what is unfinished BEFORE anyone taps in,
- * naming the audio specifically rather than hiding behind "some features may
- * be incomplete".
+ * naming the audio specifically rather than hiding behind "some features may be
+ * incomplete".
  *
- * Deliberately three questions and a contact. Every extra field costs
- * volunteers, and nothing beyond this changes what gets built next.
+ * Deliberately four questions. Every extra field costs volunteers, and nothing
+ * beyond this changes what gets built next. The "Step N of 3" counter is doing
+ * real work: a person who can see the end of a form finishes it.
  */
 
 const ROLES = [
@@ -33,20 +35,47 @@ const GOALS = [
   'Not sure yet',
 ];
 
-export default function EarlyTester({ onStart }) {
+const STEPS = { intro: 1, form: 2, welcome: 3 };
+
+function Progress({ step }) {
+  const n = STEPS[step];
+  return (
+    <div className="et-progress">
+      <div className="et-dots" aria-hidden="true">
+        {[1, 2, 3].map((i) => (
+          <span key={i} className={`et-dot${i === n ? ' is-on' : ''}${i < n ? ' is-done' : ''}`} />
+        ))}
+      </div>
+      <p className="et-stepcount">Step {n} of 3</p>
+    </div>
+  );
+}
+
+function Wordmark() {
+  return (
+    <div className="et-wordmark">
+      <img src="/pwa-192x192.png" alt="" className="et-wordmark-img" />
+      <span className="et-wordmark-text">exiaCamer</span>
+    </div>
+  );
+}
+
+export default function EarlyTester({ onStart, onBack }) {
   const [step, setStep] = useState('intro');   // intro | form | welcome
   const [role, setRole] = useState('');
   const [name, setName] = useState('');
   const [contact, setContact] = useState('');
   const [goal, setGoal] = useState('');
   const [busy, setBusy] = useState(false);
-  const [error, setError] = useState('');
 
   const contactLooksLikeEmail = contact.includes('@');
 
+  // Fetched in the background while they fill the form in, so pressing the
+  // button does not also wait on a 35KB download over a weak connection.
+  useEffect(() => { if (step === 'form') warmSupabase(); }, [step]);
+
   const join = async (e) => {
     e?.preventDefault();
-    setError('');
     setBusy(true);
 
     const record = {
@@ -57,22 +86,34 @@ export default function EarlyTester({ onStart }) {
       wants_help_with: goal || null,
     };
 
-    let saved = false;
-    try {
-      if (isBackendConfigured && supabase) {
-        const { error: err } = await supabase.from('testers').insert(record);
-        saved = !err;
-      }
-    } catch { /* offline, or the table is not there yet */ }
-
-    // A volunteer is NEVER blocked because our storage failed. This screen
+    // A volunteer is NEVER blocked, by a failed save OR a slow one. This screen
     // exists to set expectations, not to collect data: losing a contact costs
-    // less than losing the tester. The signup is kept locally and retried on
-    // the next load, so it is usually not even lost.
+    // less than losing the tester.
+    //
+    // So the record is written locally FIRST and treated as pending, and the
+    // insert clears it if and when it lands. Measured at ~12s on this
+    // connection; on mobile data in Yaounde it is worse, and nobody waits that
+    // long on a spinner to volunteer. After 2.5s we let them in regardless and
+    // the insert finishes in the background. If it never does, retryPendingTester
+    // resends it on the next load, so the contact is usually not even lost.
     try {
       localStorage.setItem('lexia_tester', JSON.stringify({ role, at: Date.now() }));
-      if (!saved) localStorage.setItem('lexia_tester_pending', JSON.stringify(record));
+      localStorage.setItem('lexia_tester_pending', JSON.stringify(record));
     } catch { /* private browsing; they simply see this screen again */ }
+
+    const insert = getSupabase().then(
+      (sb) => (sb ? sb.from('testers').insert(record) : null),
+    ).then(
+      (res) => {
+        if (res && !res.error) {
+          try { localStorage.removeItem('lexia_tester_pending'); } catch { /* ignore */ }
+        }
+      },
+      () => { /* offline, or the table is not there yet */ },
+    );
+
+    const patience = new Promise((resolve) => setTimeout(resolve, 2500));
+    await Promise.race([insert, patience]);
 
     setBusy(false);
     setStep('welcome');
@@ -81,7 +122,9 @@ export default function EarlyTester({ onStart }) {
   if (step === 'intro') {
     return (
       <div className="et-screen">
+        <Wordmark />
         <div className="et-card">
+          <Progress step="intro" />
           <span className="et-badge"><FlaskConical size={14} /> Early prototype</span>
           <h1 className="et-title">Be one of the first to test LexiaCamer</h1>
           <p className="et-lead">
@@ -107,11 +150,23 @@ export default function EarlyTester({ onStart }) {
             </p>
           </div>
 
+          <ul className="et-reassure">
+            <li><ShieldCheck size={15} /> No account needed</li>
+            <li><Smartphone size={15} /> Nothing to install</li>
+            <li><Clock size={15} /> Takes a minute</li>
+          </ul>
+
           <button className="et-btn et-btn-primary" onClick={() => setStep('form')}>
             Become an early tester <ArrowRight size={18} />
           </button>
           <p className="et-foot">Free. No account needed. Takes a minute.</p>
         </div>
+
+        {onBack && (
+          <button className="et-back" onClick={onBack}>
+            <ChevronLeft size={16} /> Back to the home page
+          </button>
+        )}
       </div>
     );
   }
@@ -119,8 +174,11 @@ export default function EarlyTester({ onStart }) {
   if (step === 'form') {
     return (
       <div className="et-screen">
+        <Wordmark />
         <form className="et-card" onSubmit={join}>
+          <Progress step="form" />
           <h2 className="et-title et-title-sm">Tell us who you are</h2>
+          <p className="et-lead et-lead-sm">Four questions. Then you are in.</p>
 
           <fieldset className="et-field">
             <legend className="et-label">I am a...</legend>
@@ -128,6 +186,7 @@ export default function EarlyTester({ onStart }) {
               {ROLES.map((r) => (
                 <button key={r.value} type="button"
                         className={`et-chip${role === r.value ? ' is-on' : ''}`}
+                        aria-pressed={role === r.value}
                         onClick={() => setRole(r.value)}>
                   {r.label}
                 </button>
@@ -137,17 +196,25 @@ export default function EarlyTester({ onStart }) {
 
           <label className="et-label" htmlFor="et-name">Your name</label>
           <input id="et-name" className="et-input" value={name} required
-                 onChange={(e) => setName(e.target.value)} maxLength={120} />
+                 onChange={(e) => setName(e.target.value)} maxLength={120}
+                 placeholder="Full name" />
 
           <label className="et-label" htmlFor="et-contact">
             WhatsApp number or email
           </label>
-          <input id="et-contact" className="et-input" value={contact} required
+          <input id="et-contact" className="et-input et-input-tight" value={contact} required
                  onChange={(e) => setContact(e.target.value)} maxLength={200}
                  placeholder="+237 6 00 00 00 00" />
-          <p className="et-hint">
-            So we can tell you when the next version is ready. Nothing else.
-          </p>
+
+          {/* The scariest field on the page, so the answer sits directly under
+              it rather than in a policy nobody opens. */}
+          <div className="et-promise">
+            <ShieldCheck size={17} />
+            <p>
+              We message you once, when the next version is ready. Nothing else.
+              No account, no password, no payment, and we never share it.
+            </p>
+          </div>
 
           <fieldset className="et-field">
             <legend className="et-label">
@@ -157,6 +224,7 @@ export default function EarlyTester({ onStart }) {
               {GOALS.map((g) => (
                 <button key={g} type="button"
                         className={`et-chip${goal === g ? ' is-on' : ''}`}
+                        aria-pressed={goal === g}
                         onClick={() => setGoal(g)}>
                   {g}
                 </button>
@@ -168,33 +236,69 @@ export default function EarlyTester({ onStart }) {
                   disabled={busy || !role || !name.trim() || !contact.trim()}>
             {busy ? 'Joining...' : 'Join and start testing'} <ArrowRight size={18} />
           </button>
-          {error && <p className="et-error" role="alert">{error}</p>}
         </form>
+
+        <button className="et-back" onClick={() => setStep('intro')}>
+          <ChevronLeft size={16} /> Back
+        </button>
       </div>
     );
   }
 
   return (
     <div className="et-screen">
+      <Wordmark />
       <div className="et-card">
+        <Progress step="welcome" />
         <div className="et-tick"><Check size={30} /></div>
-        <h2 className="et-title et-title-sm">You are in. Thank you.</h2>
-        <p className="et-lead">
-          Here is what would help us most.
-        </p>
-        <ol className="et-steps">
-          <li>Open <strong>Word Forge</strong> and spell a few words.</li>
-          <li>Try <strong>Phonics Lab</strong> and tap some letters.</li>
-          <li>Spend a sticker in the <strong>Sticker Book</strong>.</li>
-          <li>Notice anything confusing, and tell us.</li>
+        <h2 className="et-title et-title-sm et-center">You are in. Thank you.</h2>
+        <p className="et-lead et-center">Here is what would help us most.</p>
+
+        <ol className="et-tasks">
+          <li>
+            <span className="et-task-n">1</span>
+            <div>
+              <strong>Open Word Forge and spell a few words</strong>
+              <p>It is the most finished part of the app.</p>
+            </div>
+          </li>
+          <li>
+            <span className="et-task-n">2</span>
+            <div>
+              <strong>Try Phonics Lab and tap some letters</strong>
+              <p>This is where the missing audio will show.</p>
+            </div>
+          </li>
+          <li>
+            <span className="et-task-n">3</span>
+            <div>
+              <strong>Spend a sticker in the Sticker Book</strong>
+              <p>See whether the reward feels worth it.</p>
+            </div>
+          </li>
+          <li>
+            <span className="et-task-n">4</span>
+            <div>
+              <strong>Notice anything confusing, and tell us</strong>
+              <p>Especially anything a child could not work out alone.</p>
+            </div>
+          </li>
         </ol>
-        <p className="et-known-title" style={{ marginTop: '1.25rem' }}>
-          <MessageSquare size={16} /> The feedback button is on every screen
-        </p>
-        <p className="et-hint" style={{ marginTop: 0 }}>
-          Use it the moment something is wrong. You do not need to remember it
-          until later.
-        </p>
+
+        <div className="et-fbnote">
+          <p className="et-fbnote-title">
+            <MessageSquare size={16} /> The feedback button is on every screen
+          </p>
+          <p>
+            Use it the moment something is wrong. You do not need to remember it
+            until later.
+          </p>
+          <p className="et-fbnote-demo">
+            <span className="et-fbnote-label">What it looks like:</span>
+            <span className="et-fbnote-pill"><MessageSquare size={13} /> Feedback</span>
+          </p>
+        </div>
+
         <button className="et-btn et-btn-primary" onClick={onStart}>
           Start testing <ArrowRight size={18} />
         </button>
