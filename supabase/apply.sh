@@ -20,6 +20,18 @@
 # without IPv6 routing. The session pooler is reachable over IPv4 and its
 # username is postgres.<project-ref>, not plain postgres.
 #
+# PREFER LEAVING THE PASSWORD OUT OF THE URL. A URL with the password in it
+# goes into your shell history, and into the process list where any other user
+# on the machine can read it with ps. psql reads $PGPASSWORD instead:
+#
+#   read -rsp "DB password: " PGPASSWORD; export PGPASSWORD; echo
+#   ./supabase/apply.sh "postgresql://postgres.<ref>@aws-<n>-<region>.pooler.supabase.com:5432/postgres"
+#   unset PGPASSWORD
+#
+# If a password has ever been pasted somewhere it should not be, reset it in
+# the dashboard: Settings -> Database -> Reset database password. That key
+# bypasses every row-level security policy in the project.
+#
 set -euo pipefail
 
 if [ $# -lt 1 ]; then
@@ -37,7 +49,7 @@ case "$DB_URL" in
   "")
     echo "No database URL given." >&2
     echo "If you used \$DB_URL, it is not set in this shell. Either:" >&2
-    echo "  export DB_URL=\"postgresql://postgres.<ref>:<password>@aws-0-<region>.pooler.supabase.com:5432/postgres\"" >&2
+    echo "  export DB_URL=\"postgresql://postgres.<ref>:<password>@aws-<n>-<region>.pooler.supabase.com:5432/postgres\"" >&2
     echo "or paste the URI directly as the first argument." >&2
     exit 1 ;;
   *)
@@ -59,7 +71,7 @@ This machine has no IPv6 route, and that host is IPv6-only. It cannot work.
 
 You changed the username but not the host. BOTH have to change together:
 
-  host:      db.${_ref}.supabase.co   ->  aws-0-<region>.pooler.supabase.com
+  host:      db.${_ref}.supabase.co   ->  aws-<n>-<region>.pooler.supabase.com
   username:  postgres                  ->  postgres.${_ref}
 
 Do not type the region by hand. In the Supabase dashboard:
@@ -86,6 +98,38 @@ command -v psql >/dev/null 2>&1 || {
   echo "psql not found. Install postgresql-client first." >&2; exit 1; }
 
 PSQL="psql $DB_URL -v ON_ERROR_STOP=1 -q -t -A"
+
+# Connect once before doing anything, so a bad credential is reported as a bad
+# credential. Raw psql says `password authentication failed for user
+# "postgres"` even when the username you gave was postgres.<ref>, because the
+# pooler reports the base role -- which reads as "my username is wrong" and
+# sends people to change the one part that was already correct.
+if ! _probe=$(psql "$DB_URL" -v ON_ERROR_STOP=1 -q -t -A -c 'select 1' 2>&1); then
+  case "$_probe" in
+    *"password authentication failed"*|*"SASL"*)
+      cat >&2 <<'MSG'
+
+Could not sign in to the database.
+
+The host and username are fine -- this is the password. psql names the user
+as "postgres" no matter what you passed, because the pooler reports the base
+role, so the username is not the thing to change.
+
+  1. Supabase dashboard -> Settings -> Database -> Reset database password
+  2. Re-run, keeping the new password out of your shell history:
+
+       read -rsp "DB password: " PGPASSWORD; export PGPASSWORD; echo
+       ./supabase/apply.sh "postgresql://postgres.<ref>@<host>:5432/postgres"
+       unset PGPASSWORD
+
+MSG
+      exit 1 ;;
+    *)
+      echo "Could not connect to the database:" >&2
+      echo "$_probe" >&2
+      exit 1 ;;
+  esac
+fi
 
 $PSQL -c "create table if not exists schema_migrations (
             filename   text primary key,
