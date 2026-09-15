@@ -1,0 +1,145 @@
+{
+  "schemaVersion": 1,
+  "targets": {
+    "/": {
+      "targetKind": "new-target",
+      "projectId": "993445b9-e282-42d9-ac2b-d5ff444ce0eb",
+      "activeDraftId": "5ddc9507-7b61-4c1e-830e-2e3df7671630",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "public-pwa-192x192.png"
+      ],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "public-pwa-192x192.png",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/993445b9-e282-42d9-ac2b-d5ff444ce0eb/brand-assets/public-pwa-192x192.png/pwa-192x192.png",
+          "sourcePath": "public/pwa-192x192.png"
+        }
+      },
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        ".superdesign/init/theme.md:1:104",
+        "src/EarlyTester.jsx",
+        "src/HomeScreen.jsx",
+        "src/index.css:1636:2006"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "01b9cbf072bf739cbca5896492b38ac5a8a90c6235652d57e684394938eccb51",
+        ".superdesign/init/theme.md": "3a8cda3fbe8c31a898d2cce480c1cadc37ae53fac259f9e3807f6908e40fa6b0",
+        "src/EarlyTester.jsx": "f781b1a1fe4f0714c31f75327fb8a1139ad6502694b1b0e92ec653721e8914c2",
+        "src/HomeScreen.jsx": "aed1bb844b2d34485f5625c654aa517906e6d7276a599f9ddce78af90d991696",
+        "src/index.css": "dffbbf7a5b64650ffba5bd74bc245d381c66f60fdf75498b9ebb92bb355f0323"
+      },
+      "drafts": {
+        "5ddc9507-7b61-4c1e-830e-2e3df7671630": {
+          "title": "LexiaCamer Landing Page",
+          "visualDirection": "warm green, honest-prototype, single CTA",
+          "currentVersion": 1
+        }
+      },
+      "updatedAt": "2026-09-15T16:23:22.188389+00:00"
+    },
+    "/early-tester/intro": {
+      "targetKind": "new-target",
+      "projectId": "993445b9-e282-42d9-ac2b-d5ff444ce0eb",
+      "activeDraftId": "0518e032-b3dd-4f0f-b9e5-a919f7559e78",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "public-pwa-192x192.png"
+      ],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "public-pwa-192x192.png",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/993445b9-e282-42d9-ac2b-d5ff444ce0eb/brand-assets/public-pwa-192x192.png/pwa-192x192.png",
+          "sourcePath": "public/pwa-192x192.png"
+        }
+      },
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "src/EarlyTester.jsx",
+        "src/index.css:1636:2006"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "01b9cbf072bf739cbca5896492b38ac5a8a90c6235652d57e684394938eccb51",
+        "src/EarlyTester.jsx": "f781b1a1fe4f0714c31f75327fb8a1139ad6502694b1b0e92ec653721e8914c2",
+        "src/index.css": "dffbbf7a5b64650ffba5bd74bc245d381c66f60fdf75498b9ebb92bb355f0323"
+      },
+      "drafts": {
+        "0518e032-b3dd-4f0f-b9e5-a919f7559e78": {
+          "title": "Early tester \u2014 step 1, intro",
+          "parentDraftId": "5ddc9507-7b61-4c1e-830e-2e3df7671630",
+          "currentVersion": 1
+        }
+      },
+      "updatedAt": "2026-09-15T16:23:22.188389+00:00"
+    },
+    "/early-tester/form": {
+      "targetKind": "new-target",
+      "projectId": "993445b9-e282-42d9-ac2b-d5ff444ce0eb",
+      "activeDraftId": "9ff31898-b480-42fc-b8ea-6951877ff3fe",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "public-pwa-192x192.png"
+      ],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "public-pwa-192x192.png",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/993445b9-e282-42d9-ac2b-d5ff444ce0eb/brand-assets/public-pwa-192x192.png/pwa-192x192.png",
+          "sourcePath": "public/pwa-192x192.png"
+        }
+      },
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "src/EarlyTester.jsx",
+        "src/index.css:1636:2006"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "01b9cbf072bf739cbca5896492b38ac5a8a90c6235652d57e684394938eccb51",
+        "src/EarlyTester.jsx": "f781b1a1fe4f0714c31f75327fb8a1139ad6502694b1b0e92ec653721e8914c2",
+        "src/index.css": "dffbbf7a5b64650ffba5bd74bc245d381c66f60fdf75498b9ebb92bb355f0323"
+      },
+      "drafts": {
+        "9ff31898-b480-42fc-b8ea-6951877ff3fe": {
+          "title": "Early tester \u2014 step 2, who you are",
+          "parentDraftId": "5ddc9507-7b61-4c1e-830e-2e3df7671630",
+          "currentVersion": 1
+        }
+      },
+      "updatedAt": "2026-09-15T16:23:22.188389+00:00"
+    },
+    "/early-tester/welcome": {
+      "targetKind": "new-target",
+      "projectId": "993445b9-e282-42d9-ac2b-d5ff444ce0eb",
+      "activeDraftId": "5e789f9f-ea0e-42ca-bd67-2abd8f6e933f",
+      "designSystemPath": ".superdesign/design-system.md",
+      "referenceIds": [
+        "public-pwa-192x192.png"
+      ],
+      "brandAssets": {
+        "logo": {
+          "assetKey": "public-pwa-192x192.png",
+          "url": "https://vgbujcuwptvheqijyjbe.supabase.co/storage/v1/object/public/hmac-uploads/projects/993445b9-e282-42d9-ac2b-d5ff444ce0eb/brand-assets/public-pwa-192x192.png/pwa-192x192.png",
+          "sourcePath": "public/pwa-192x192.png"
+        }
+      },
+      "contextFiles": [
+        ".superdesign/design-system.md",
+        "src/EarlyTester.jsx",
+        "src/index.css:1636:2006"
+      ],
+      "fingerprints": {
+        ".superdesign/design-system.md": "01b9cbf072bf739cbca5896492b38ac5a8a90c6235652d57e684394938eccb51",
+        "src/EarlyTester.jsx": "f781b1a1fe4f0714c31f75327fb8a1139ad6502694b1b0e92ec653721e8914c2",
+        "src/index.css": "dffbbf7a5b64650ffba5bd74bc245d381c66f60fdf75498b9ebb92bb355f0323"
+      },
+      "drafts": {
+        "5e789f9f-ea0e-42ca-bd67-2abd8f6e933f": {
+          "title": "Early tester \u2014 step 3, you are in",
+          "parentDraftId": "5ddc9507-7b61-4c1e-830e-2e3df7671630",
+          "currentVersion": 1
+        }
+      },
+      "updatedAt": "2026-09-15T16:23:22.188389+00:00"
+    }
+  }
+}

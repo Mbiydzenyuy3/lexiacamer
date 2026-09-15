@@ -14,3 +14,4 @@ dist
 .gstack/
 
 .env.admin
+.superdesign/tmp/
