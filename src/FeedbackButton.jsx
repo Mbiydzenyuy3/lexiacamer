@@ -73,24 +73,30 @@ export default function FeedbackButton({ screen }) {
     e?.preventDefault();
     if (!rating && !message.trim()) return;
     setBusy(true);
-    try {
-      if (isBackendConfigured && supabase) {
-        await supabase.from('feedback').insert({
+
+    const insert = (isBackendConfigured && supabase)
+      ? supabase.from('feedback').insert({
           screen: screen || null,
           category: category || 'other',
           rating: rating || null,
           message: message.trim() || null,
           user_agent: navigator.userAgent.slice(0, 400),
-        });
-      }
-    } catch {
-      // Never block a tester on our own storage failing. Losing one note is
-      // better than making them think the app broke while reporting a bug.
-    } finally {
-      setBusy(false);
-      setSent(true);
-      setTimeout(close, 1800);
-    }
+        }).then(() => {}, () => {})
+      : Promise.resolve();
+
+    // The round trip is ~2.5s on a good connection here; on a phone on mobile
+    // data in Yaounde it is much worse. Nobody should watch "Sending..." for
+    // that long to file a one-line bug report, so the thank-you appears after
+    // 2.5s whatever the network is doing. The insert is not cancelled: it
+    // finishes in the background, and if it fails we lose one note rather than
+    // making someone think the app broke while they were reporting that it
+    // broke.
+    const patience = new Promise((resolve) => setTimeout(resolve, 2500));
+    await Promise.race([insert, patience]);
+
+    setBusy(false);
+    setSent(true);
+    setTimeout(close, 1800);
   };
 
   return (
