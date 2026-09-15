@@ -12,6 +12,9 @@ import Settings from './Settings';
 import ParentDashboard from './ParentDashboard';
 import StickerBook from './StickerBook';
 import Onboarding from './Onboarding';
+import EarlyTester from './EarlyTester';
+import FeedbackButton from './FeedbackButton';
+import { retryPendingTester } from './lib/supabase';
 
 /**
  * App — Root Shell
@@ -22,6 +25,16 @@ import Onboarding from './Onboarding';
 export default function App() {
   // Read persisted state once on mount (not once per field).
   const initial = useMemo(() => loadState(), []);
+
+  // The prototype sits behind an early-tester gate. Someone arriving from a
+  // link expecting a finished product and meeting unfinished audio decides the
+  // app does not work; someone asked to help test it reports a finding. Same
+  // bug, opposite conclusion, so the framing comes first.
+  //
+  // Remembered per device, so a tester is never asked twice.
+  const [isTester, setIsTester] = useState(() => {
+    try { return Boolean(localStorage.getItem('lexia_tester')); } catch { return false; }
+  });
 
   // Start new users straight on onboarding (no brief flash of Home first).
   const [screen, setScreen] = useState(initial.user?.name ? 'home' : 'onboarding');
@@ -59,6 +72,9 @@ export default function App() {
   useEffect(() => {
     saveState({ lang, stats, settings, user, unlockedStickers, missedPhonemes });
   }, [lang, stats, settings, user, unlockedStickers, missedPhonemes]);
+
+  // A signup stranded by a bad connection goes out on the next load.
+  useEffect(() => { retryPendingTester(); }, []);
 
   // Offline detection
   useEffect(() => {
@@ -156,6 +172,12 @@ export default function App() {
 
   const AvatarIcon = getAvatarIcon(user?.avatar, BookOpen);
 
+  // The gate owns the whole screen: no app chrome to wander off into while
+  // someone is deciding whether to help.
+  if (!isTester) {
+    return <EarlyTester onStart={() => setIsTester(true)} />;
+  }
+
   return (
     <>
       {/* Top Bar — hidden during onboarding for a clean full-screen first run */}
@@ -197,6 +219,10 @@ export default function App() {
         </div>
       </header>
       )}
+
+      {/* Reachable everywhere: a tester who has to leave the app to report
+          something mostly will not. */}
+      <FeedbackButton screen={screen} />
 
       {/* Offline Banner */}
       {isOffline && (

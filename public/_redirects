@@ -1,0 +1,2 @@
+# /early-tester is a real route; without this the CDN 404s it.
+/*  /index.html  200

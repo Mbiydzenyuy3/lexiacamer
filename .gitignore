@@ -12,3 +12,5 @@ dist
 /.claude
 
 .gstack/
+
+.env.admin
