@@ -23,8 +23,6 @@ create table testers (
   email       text check (char_length(email) <= 200),
   testing_for text check (char_length(testing_for) <= 120),
   wants_help_with text check (char_length(wants_help_with) <= 120),
-  -- No account is required to volunteer, and the prototype has no accounts at
-  -- all. Left free-form so this stands alone.
   created_at  timestamptz not null default now(),
   check (coalesce(whatsapp, '') <> '' or coalesce(email, '') <> '')
 );
@@ -73,3 +71,22 @@ create policy feedback_insert on feedback
 -- scripts, the same way school leads and the demand report already work.
 grant insert on testers  to anon, authenticated;
 grant insert on feedback to anon, authenticated;
+
+-- ----------------------------------------------------------------------------
+-- Link to an account WHERE ONE EXISTS.
+--
+-- This file has to apply to two different databases: the prototype, which has
+-- no accounts at all, and the full app, which does. Adding the column
+-- conditionally keeps one migration for both, so merging the branches later is
+-- not a conflict to resolve by hand.
+-- ----------------------------------------------------------------------------
+do $$
+begin
+  if to_regclass('public.profiles') is not null then
+    alter table testers  add column if not exists profile_id uuid
+      references profiles(id) on delete set null;
+    alter table feedback add column if not exists profile_id uuid
+      references profiles(id) on delete set null;
+  end if;
+end;
+$$;
