@@ -6,7 +6,8 @@
     "dev": "vite",
     "build": "vite build",
     "preview": "vite preview",
-    "admin:feedback": "node scripts/feedback.mjs"
+    "admin:feedback": "node scripts/feedback.mjs",
+    "posts": "node scripts/posts.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

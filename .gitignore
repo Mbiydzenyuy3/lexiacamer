@@ -15,3 +15,6 @@ dist
 
 .env.admin
 .superdesign/tmp/
+
+# Generated Facebook posts. Regenerate with: npm run posts
+content/
