@@ -95,8 +95,11 @@ export default function FeedbackButton({ screen }) {
 
   return (
     <>
-      <button ref={openerRef} className="fb-fab" onClick={() => setOpen(true)}
-              aria-haspopup="dialog" aria-expanded={open} aria-label="Give feedback">
+      {/* Stays mounted while the dialog is open so focus has somewhere to
+          return to, but gets out of the way visually. */}
+      <button ref={openerRef} className={`fb-fab${open ? ' is-behind' : ''}`}
+              onClick={() => setOpen(true)} aria-haspopup="dialog"
+              aria-expanded={open} aria-label="Give feedback">
         <MessageSquare size={20} />
         <span className="fb-fab-label">Feedback</span>
       </button>

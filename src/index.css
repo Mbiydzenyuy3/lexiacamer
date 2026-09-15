@@ -1846,6 +1846,8 @@ p {
   cursor: pointer;
 }
 
+.fb-fab.is-behind { opacity: 0; pointer-events: none; }
+
 .fb-fab:focus-visible {
   outline: 3px solid var(--color-primary);
   outline-offset: 3px;
