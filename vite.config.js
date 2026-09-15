@@ -14,12 +14,15 @@ export default defineConfig({
         // line, self-hosting them fixes nothing for the offline case.
         globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
       },
-      includeAssets: ['favicon.ico', 'apple-touch-icon.png', 'masked-icon.svg'],
+      // favicon.ico does not exist in public/; listing it achieved nothing.
+      includeAssets: ['apple-touch-icon.png', 'masked-icon.svg'],
       manifest: {
         name: 'Lexia Cameroon',
         short_name: 'Lexia',
         description: 'Bilingual Literacy Tool for Cameroon',
-        theme_color: '#4f46e5',
+        // Matches <meta name="theme-color"> in index.html. They disagreed once
+        // and the installed PWA got an indigo splash with a green tab.
+        theme_color: '#059669',
         icons: [
           {
             src: 'pwa-192x192.png',

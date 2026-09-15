@@ -2,7 +2,7 @@ import React, { useState, useEffect, lazy, Suspense } from 'react'
 import ReactDOM from 'react-dom/client'
 import ErrorBoundary from './ErrorBoundary'
 import Landing from './Landing'
-import { retryPendingTester } from './lib/supabase'
+import { retryPendingTester, retryPendingFeedback } from './lib/supabase'
 import './index.css'
 
 /**
@@ -48,13 +48,38 @@ function Root() {
 
   // /early-tester skips the landing page and opens the gate directly, so the
   // link already shared on Facebook keeps working and lands where it promised.
-  const [showGate, setShowGate] = useState(
-    () => window.location.pathname.replace(/\/$/, '') === '/early-tester'
-  )
+  const atGate = () => window.location.pathname.replace(/\/$/, '') === '/early-tester'
+  const [showGate, setShowGate] = useState(atGate)
+
+  // The gate is a real URL, not just a piece of state.
+  //
+  // Without this, tapping the Android back gesture from the gate leaves the
+  // site entirely and returns to Facebook -- and the back gesture is exactly
+  // what this audience uses. Pushing a history entry makes back mean "return
+  // to the landing page", and makes the gate linkable and refreshable.
+  useEffect(() => {
+    const onPop = () => setShowGate(atGate())
+    window.addEventListener('popstate', onPop)
+    return () => window.removeEventListener('popstate', onPop)
+  }, [])
+
+  const openGate = () => {
+    if (!atGate()) window.history.pushState({ gate: true }, '', '/early-tester')
+    setShowGate(true)
+    window.scrollTo(0, 0)
+  }
+
+  // Goes back rather than pushing again, so the history stack does not grow
+  // every time someone toggles between the two.
+  const closeGate = () => {
+    if (window.history.state?.gate) window.history.back()
+    else { window.history.pushState({}, '', '/'); setShowGate(false) }
+    window.scrollTo(0, 0)
+  }
 
   // A signup stranded by a bad connection goes out on the next load. This
   // downloads nothing unless something is actually waiting to be sent.
-  useEffect(() => { retryPendingTester() }, [])
+  useEffect(() => { retryPendingTester(); retryPendingFeedback() }, [])
 
   // Fetch the app in the background while someone reads the landing page, so
   // pressing the button costs nothing. requestIdleCallback keeps it off the
@@ -64,14 +89,15 @@ function Root() {
     let cancelled = false
     const warm = () => {
       if (cancelled) return
-      import('./EarlyTester')
-      import('./App')
+      import('./EarlyTester').catch(() => {})
+      import('./App').catch(() => {})
     }
-    const ric = window.requestIdleCallback
+    const ric = window.requestIdleCallback && window.cancelIdleCallback
+      ? window.requestIdleCallback : null
     const handle = ric ? ric(warm, { timeout: 4000 }) : setTimeout(warm, 2500)
     return () => {
       cancelled = true
-      if (ric && window.cancelIdleCallback) window.cancelIdleCallback(handle)
+      if (ric) window.cancelIdleCallback(handle)
       else clearTimeout(handle)
     }
   }, [isTester])
@@ -79,13 +105,8 @@ function Root() {
   let view
   if (!isTester) {
     view = showGate
-      ? (
-        <EarlyTester
-          onStart={() => setIsTester(true)}
-          onBack={() => { setShowGate(false); window.scrollTo(0, 0) }}
-        />
-      )
-      : <Landing onStart={() => { setShowGate(true); window.scrollTo(0, 0) }} />
+      ? <EarlyTester onStart={() => setIsTester(true)} onBack={closeGate} />
+      : <Landing onStart={openGate} />
   } else {
     view = <App />
   }

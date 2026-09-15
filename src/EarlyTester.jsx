@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { ArrowRight, Check, FlaskConical, Volume2, MessageSquare,
          ShieldCheck, ChevronLeft, Clock, Smartphone } from 'lucide-react';
-import { getSupabase, warmSupabase } from './lib/supabase';
+import { getSupabase, warmSupabase, isBackendConfigured } from './lib/supabase';
 
 /**
  * EarlyTester: the gate between the landing page and the app.
@@ -51,11 +51,13 @@ function Progress({ step }) {
   );
 }
 
+// The logo IS the L, so the text alone reads as "exiaCamer". The group carries
+// the real name for anyone not seeing the image.
 function Wordmark() {
   return (
-    <div className="et-wordmark">
+    <div className="et-wordmark" role="img" aria-label="LexiaCamer">
       <img src="/pwa-192x192.png" alt="" className="et-wordmark-img" />
-      <span className="et-wordmark-text">exiaCamer</span>
+      <span className="et-wordmark-text" aria-hidden="true">exiaCamer</span>
     </div>
   );
 }
@@ -78,7 +80,14 @@ export default function EarlyTester({ onStart, onBack }) {
     e?.preventDefault();
     setBusy(true);
 
+    // The id is generated HERE, not by the server, so this insert is
+    // idempotent. Without it, a tester on a weak connection who reloads while
+    // the insert is still in flight gets counted twice: the reload kills the
+    // response, not the row, and the retry then inserts it again. That number
+    // is published on Facebook as "N people are testing LexiaCamer", so a
+    // duplicate is not cosmetic -- it makes a public claim untrue.
     const record = {
+      id: (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`),
       role,
       name: name.trim(),
       whatsapp: contactLooksLikeEmail ? null : contact.trim(),
@@ -98,14 +107,24 @@ export default function EarlyTester({ onStart, onBack }) {
     // resends it on the next load, so the contact is usually not even lost.
     try {
       localStorage.setItem('lexia_tester', JSON.stringify({ role, at: Date.now() }));
-      localStorage.setItem('lexia_tester_pending', JSON.stringify(record));
+      // The pending copy holds their NAME and PHONE NUMBER, so it is only
+      // written when there is somewhere for it to go. With no backend
+      // configured nothing will ever collect it, and leaving a parent's
+      // contact details in the browser of a shared family phone or a
+      // cybercafe machine would contradict the promise made on the very
+      // screen that asked for them. It is stamped so it can expire.
+      if (isBackendConfigured) {
+        localStorage.setItem('lexia_tester_pending',
+          JSON.stringify({ ...record, savedAt: Date.now() }));
+      }
     } catch { /* private browsing; they simply see this screen again */ }
 
     const insert = getSupabase().then(
       (sb) => (sb ? sb.from('testers').insert(record) : null),
     ).then(
       (res) => {
-        if (res && !res.error) {
+        // A duplicate id means a previous attempt already landed: also success.
+        if (res && (!res.error || res.error.code === '23505')) {
           try { localStorage.removeItem('lexia_tester_pending'); } catch { /* ignore */ }
         }
       },

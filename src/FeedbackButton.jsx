@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef, useCallback } from 'react';
 import { MessageSquare, X, Check } from 'lucide-react';
-import { getSupabase, warmSupabase } from './lib/supabase';
+import { getSupabase, warmSupabase, queueFeedback, unqueueFeedback } from './lib/supabase';
 
 /**
  * FeedbackButton: reachable from every screen.
@@ -62,7 +62,22 @@ export default function FeedbackButton({ screen }) {
     const previous = document.body.style.overflow;
     document.body.style.overflow = 'hidden';
     panelRef.current?.focus();
-    const onKey = (e) => { if (e.key === 'Escape') close(); };
+
+    // aria-modal tells a screen reader the rest of the page is inert; it does
+    // NOT stop Tab walking out of the panel into the page behind, including
+    // the opener button that is deliberately kept mounted. Without this, a
+    // keyboard user tabs out of a dialog they cannot see they have left.
+    const FOCUSABLE = 'a[href],button:not([disabled]),textarea,input,select,[tabindex]:not([tabindex="-1"])';
+    const onKey = (e) => {
+      if (e.key === 'Escape') { close(); return; }
+      if (e.key !== 'Tab') return;
+      const items = panelRef.current?.querySelectorAll(FOCUSABLE);
+      if (!items?.length) return;
+      const first = items[0];
+      const last = items[items.length - 1];
+      if (e.shiftKey && document.activeElement === first) { e.preventDefault(); last.focus(); }
+      else if (!e.shiftKey && document.activeElement === last) { e.preventDefault(); first.focus(); }
+    };
     window.addEventListener('keydown', onKey);
     return () => {
       document.body.style.overflow = previous;
@@ -75,15 +90,25 @@ export default function FeedbackButton({ screen }) {
     if (!rating && !message.trim()) return;
     setBusy(true);
 
+    // Written locally FIRST, and only cleared once the server confirms. The
+    // previous version ignored res.error entirely, so an offline tester -- on
+    // the app whose whole pitch is that it works offline -- saw "Thank you"
+    // while their report went nowhere.
+    const row = {
+      id: (crypto.randomUUID?.() ?? `${Date.now()}-${Math.random().toString(16).slice(2)}`),
+      screen: screen || null,
+      category: category || 'other',
+      rating: rating || null,
+      message: message.trim() || null,
+      user_agent: navigator.userAgent.slice(0, 400),
+    };
+    queueFeedback(row);
+
     const insert = getSupabase()
-      .then((sb) => (sb ? sb.from('feedback').insert({
-        screen: screen || null,
-        category: category || 'other',
-        rating: rating || null,
-        message: message.trim() || null,
-        user_agent: navigator.userAgent.slice(0, 400),
-      }) : null))
-      .then(() => {}, () => {});
+      .then((sb) => (sb ? sb.from('feedback').insert(row) : null))
+      .then((res) => {
+        if (res && (!res.error || res.error.code === '23505')) unqueueFeedback(row.id);
+      }, () => {});
 
     // The round trip is ~2.5s on a good connection here; on a phone on mobile
     // data in Yaounde it is much worse. Nobody should watch "Sending..." for

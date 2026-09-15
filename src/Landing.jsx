@@ -56,7 +56,10 @@ export default function Landing({ onStart }) {
   }, [lang]);
 
   const scrollTo = (id) => {
-    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
+    document.getElementById(id)?.scrollIntoView({
+      behavior: reduced ? 'auto' : 'smooth', block: 'start',
+    });
   };
 
   return (
@@ -268,20 +271,20 @@ export default function Landing({ onStart }) {
       <footer className="lp-footer">
         <div className="lp-wrap lp-footer-grid">
           <div>
-            <span className="lp-logo">
+            <span className="lp-logo" role="img" aria-label="LexiaCamer">
               <img src="/pwa-192x192.png" alt="" className="lp-logo-img" />
-              <span className="lp-logo-text">exiaCamer</span>
+              <span className="lp-logo-text" aria-hidden="true">exiaCamer</span>
             </span>
             <p className="lp-footer-blurb">{t.footerBlurb}</p>
           </div>
           <div>
-            <h4 className="lp-footer-h">{t.footerLanguage}</h4>
+            <h3 className="lp-footer-h">{t.footerLanguage}</h3>
             <button className="lp-footer-link" onClick={() => setLang(lang === 'en' ? 'fr' : 'en')}>
               {t.otherLang}
             </button>
           </div>
           <div>
-            <h4 className="lp-footer-h">{t.footerLinks}</h4>
+            <h3 className="lp-footer-h">{t.footerLinks}</h3>
             {/* Points at the section on this page, not a policy that does not
                 exist. A dead link in the footer of a trust page is a own goal. */}
             <a className="lp-footer-link" href="#privacy">{t.footerPrivacy}</a>

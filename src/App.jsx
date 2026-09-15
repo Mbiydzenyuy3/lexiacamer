@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useMemo, lazy, Suspense } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck, VolumeX, X } from 'lucide-react';
 import { getAvatarIcon } from './avatars';
 import speechEngine from './speech';
@@ -16,8 +16,15 @@ import FeedbackButton from './FeedbackButton';
 
 /**
  * App — Root Shell
- * Handles: routing, language toggle, offline detection, global stats.
+ * Handles: routing, offline detection, global stats.
  * All persistence lives in ./store so a backend can drop in without a rewrite.
+ *
+ * The screens are imported statically, deliberately. App is already a separate
+ * lazy chunk that main.jsx prefetches in the background while someone reads the
+ * landing page, so by the time a child taps in it is there. Splitting it
+ * further would turn each tap between Phonics Lab, Word Forge and the Sticker
+ * Book into its own request -- and on a weak connection a round trip costs far
+ * more than the few kilobytes it would save.
  */
 
 export default function App() {
@@ -229,9 +236,7 @@ export default function App() {
 
       {/* Main Content */}
       <main key={screen}>
-        <Suspense fallback={<div className="screen-loading" role="status" aria-label="Loading" />}>
-          {renderScreen()}
-        </Suspense>
+        {renderScreen()}
       </main>
 
       {/* Bottom Navigation — hidden during onboarding */}

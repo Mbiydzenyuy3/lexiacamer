@@ -7,6 +7,10 @@
  */
 import { createClient } from '@supabase/supabase-js';
 import { readFileSync, existsSync } from 'node:fs';
+import { resolve } from 'node:path';
+
+/** Anchored to the repo root, not the working directory. */
+const ROOT = resolve(import.meta.dirname, '../..');
 
 export function loadEnv(file) {
   if (!existsSync(file)) return {};
@@ -23,8 +27,8 @@ export function loadEnv(file) {
 }
 
 export const env = {
-  ...loadEnv('.env'),
-  ...loadEnv('.env.admin'),
+  ...loadEnv(resolve(ROOT, '.env')),
+  ...loadEnv(resolve(ROOT, '.env.admin')),
   ...process.env,
 };
 
