@@ -62,8 +62,33 @@ try {
     // /me returning a person rather than the page is the single most common
     // mistake: the first token the Explorer hands you is a User token.
     no(`This is a USER token (it identifies "${me.name}"), not a Page token.`);
-    info('In Graph API Explorer, open the "User or Page" dropdown and choose');
-    info('"Get Page Access Token", then pick LexiaCamer. Copy THAT token.');
+
+    // Rather than send them back through the UI that produced the wrong
+    // token, fetch the right one. /me/accounts returns every page this user
+    // administers WITH its page token attached -- which is exactly what the
+    // "Get Page Access Token" dropdown does, minus the dropdown.
+    try {
+      const { data: pages = [] } = await get('me/accounts',
+        { fields: 'id,name,access_token' });
+      const mine = pages.find((p) => p.id === PAGE_ID);
+      if (mine?.access_token) {
+        console.log('');
+        ok('Recovered the Page token for you. Put this in .env.admin:');
+        console.log('');
+        console.log(`    META_PAGE_TOKEN=${mine.access_token}`);
+        console.log('');
+        info('Then run this again. It is short-lived, so do it now.');
+      } else if (pages.length) {
+        info(`This user administers: ${pages.map((p) => `${p.name} (${p.id})`).join(', ')}`);
+        info(`None match META_PAGE_ID=${PAGE_ID}. Check the id.`);
+      } else {
+        info('This token administers no pages at all -- the page was probably');
+        info('not ticked on the approval screen. Generate it again and tick it.');
+      }
+    } catch {
+      info('In Graph API Explorer, open the "User or Page" dropdown and choose');
+      info('"Get Page Access Token", then pick LexiaCamer. Copy THAT token.');
+    }
     fatal = true;
   }
 } catch (e) {
