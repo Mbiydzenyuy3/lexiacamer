@@ -29,9 +29,9 @@ const landing = {
     navCta: 'Become an early tester',
 
     badge: 'Early prototype',
-    heroTitle: 'Your child can learn to read, even with no internet.',
+    heroTitle: 'Your child can learn to read in English, even with no internet.',
     heroLead:
-      'LexiaCamer teaches letter sounds and spelling in English and French. It is free, it works offline, and it needs no account.',
+      'LexiaCamer teaches English letter sounds and spelling. The app itself is in English and French, so you can help your child even if you do not read English yourself. Free, offline, no account.',
     heroCta: 'Become an early tester',
     heroSecondary: 'See what a child sees',
     reassure: ['No account needed', 'Works offline', 'Free while we build'],
@@ -54,6 +54,8 @@ const landing = {
     honestBody1c:
       ", so the app currently uses your phone's built-in voice. On some Android phones that sounds wrong, or does not play at all. We know, and we are recording real voices next.",
     honestBody2:
+      'Reading in French is not built yet either. Today the sounds and the words are English ones, so a child learning to read French will not find what they need. The app is translated; the lessons are not. We say so here rather than let you discover it.',
+    honestBody3:
       'Everything else is worth your opinion: the spelling game, the stickers, and whether a child can find their way around.',
 
     howTitle: 'How it works',
@@ -99,8 +101,8 @@ const landing = {
         body: 'After the first load, it works entirely offline.',
       },
       {
-        title: 'English and French',
-        body: 'Both languages throughout, not a half translation.',
+        title: 'English reading, French instructions',
+        body: 'The child learns to read English. Menus, hints and the parent view are in French too, so you can sit with them.',
       },
       {
         title: 'Readable in bright daylight',
@@ -161,9 +163,9 @@ const landing = {
     navCta: 'Devenir testeur',
 
     badge: 'Prototype',
-    heroTitle: 'Votre enfant peut apprendre à lire, même sans internet.',
+    heroTitle: 'Votre enfant peut apprendre à lire en anglais, même sans internet.',
     heroLead:
-      "LexiaCamer enseigne les sons des lettres et l'orthographe, en français et en anglais. C'est gratuit, ça marche hors ligne, et aucun compte n'est nécessaire.",
+      "LexiaCamer enseigne les sons des lettres et l'orthographe en anglais. L'application est en français, pour que vous puissiez aider votre enfant même si vous ne lisez pas l'anglais. Gratuit, hors ligne, sans compte.",
     heroCta: 'Devenir testeur',
     heroSecondary: 'Voir ce que voit un enfant',
     reassure: ['Aucun compte', 'Marche hors ligne', 'Gratuit pendant la construction'],
@@ -183,6 +185,8 @@ const landing = {
     honestBody1c:
       ", donc l'application utilise pour l'instant la voix intégrée de votre téléphone. Sur certains téléphones Android, le son est mauvais ou ne se lance pas du tout. Nous le savons, et nous enregistrons de vraies voix ensuite.",
     honestBody2:
+      "L'apprentissage de la lecture en français n'existe pas encore non plus. Aujourd'hui les sons et les mots sont anglais : un enfant qui apprend à lire le français n'y trouvera pas ce qu'il lui faut. L'application est traduite ; les leçons ne le sont pas. Nous le disons ici plutôt que de vous laisser le découvrir.",
+    honestBody3:
       "Tout le reste mérite votre avis : le jeu d'orthographe, les autocollants, et si un enfant arrive à se repérer seul.",
 
     howTitle: 'Comment ça marche',
@@ -228,8 +232,8 @@ const landing = {
         body: 'Après le premier chargement, elle marche entièrement hors ligne.',
       },
       {
-        title: 'Français et anglais',
-        body: 'Les deux langues partout, pas une demi-traduction.',
+        title: "Lecture en anglais, consignes en français",
+        body: "L'enfant apprend à lire l'anglais. Les menus, les indices et la vue parent sont aussi en français, pour que vous puissiez l'accompagner.",
       },
       {
         title: 'Lisible en plein soleil',

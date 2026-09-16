@@ -27,16 +27,20 @@ export const WHATSAPP = [
   {
     key: 'parent-to-parent',
     when: 'The general one. Send to family and class groups.',
-    en: `I found a free app for teaching children to read — letter sounds and spelling, English and French.
+    en: `I found a free app for teaching children to read in English — letter sounds and spelling.
 
-Two things that make it useful here: it works offline once it loads, and there's no account or download.
+Two things that make it useful here: it works offline once it loads, and there's no account or download. The app itself is in French too, so you can help even if you don't read English.
+
+It teaches English reading only for now, not French.
 
 It's still being built, so some parts are rough. They're asking parents to try it and say what's wrong.
 
 ${LINK}`,
-    fr: `J'ai trouvé une application gratuite pour apprendre à lire aux enfants — les sons des lettres et l'orthographe, en français et en anglais.
+    fr: `J'ai trouvé une application gratuite pour apprendre à lire l'anglais aux enfants — les sons des lettres et l'orthographe.
 
-Deux choses utiles ici : elle marche hors ligne une fois chargée, et il n'y a ni compte ni téléchargement.
+Deux choses utiles ici : elle marche hors ligne une fois chargée, et il n'y a ni compte ni téléchargement. L'application est en français, donc on peut aider son enfant même sans lire l'anglais.
+
+Elle enseigne la lecture en anglais seulement pour l'instant, pas en français.
 
 Elle est encore en construction, donc certaines parties sont brutes. Ils demandent aux parents de l'essayer et de dire ce qui ne va pas.
 
@@ -45,10 +49,10 @@ ${LINK}`,
   {
     key: 'status',
     when: 'WhatsApp status. Shorter still, because nobody reads a long status.',
-    en: `Free reading app for kids. Works with no internet. Still being built — they want honest feedback.
+    en: `Free app for children learning to read ENGLISH. Works with no internet, and the app is in French so you can help. Still being built — they want honest feedback.
 
 ${LINK}`,
-    fr: `Appli de lecture gratuite pour enfants. Marche sans internet. Encore en construction — ils veulent des avis honnêtes.
+    fr: `Appli gratuite pour les enfants qui apprennent à lire l'ANGLAIS. Marche sans internet, et l'appli est en français pour que vous puissiez aider. Encore en construction — ils veulent des avis honnêtes.
 
 ${LINK}`,
   },
@@ -128,8 +132,8 @@ Arrêtez pendant qu'il s'amuse encore. C'est ce que personne ne dit.`,
 
 /** The reply to have ready, for when someone asks. Not a pitch. */
 export const WHEN_ASKED = {
-  en: `I've been using a free app called LexiaCamer for the letter sounds — it works offline, which is why I can use it anywhere. It's still being built and the sounds aren't recorded yet, so it uses the phone's voice for now. Free, no account: ${LINK}`,
-  fr: `J'utilise une application gratuite qui s'appelle LexiaCamer pour les sons des lettres — elle marche hors ligne, ce qui me permet de l'utiliser partout. Elle est encore en construction et les sons ne sont pas encore enregistrés, donc elle utilise la voix du téléphone pour l'instant. Gratuit, sans compte : ${LINK}`,
+  en: `I've been using a free app called LexiaCamer for the English letter sounds — it works offline, which is why I can use it anywhere. Two honest caveats: the sounds aren't recorded yet so it uses the phone's voice, and it teaches English reading only, not French. Free, no account: ${LINK}`,
+  fr: `J'utilise une application gratuite qui s'appelle LexiaCamer pour les sons des lettres anglaises — elle marche hors ligne, ce qui me permet de l'utiliser partout. Deux réserves honnêtes : les sons ne sont pas encore enregistrés, donc elle utilise la voix du téléphone, et elle enseigne la lecture en anglais seulement, pas en français. Gratuit, sans compte : ${LINK}`,
 };
 
 /* ————————————————————————————————————————————————————————————
@@ -142,9 +146,9 @@ export const WHEN_ASKED = {
 export const TEACHER = {
   en: `Good afternoon,
 
-I am building a free reading app for children here in Cameroon — letter sounds and spelling, English and French. It works offline after it loads once, so it does not need data in the classroom.
+I am building a free reading app for children here in Cameroon — English letter sounds and spelling. It works offline after it loads once, so it does not need data in the classroom. The interface is in English and French, so a francophone colleague or parent can use it alongside a child.
 
-It is not finished. The letter sounds are not recorded yet, so it uses the phone's built-in voice, which on some phones sounds wrong. I would rather tell you that now than have you find it.
+It is not finished, in two ways I would rather tell you now than have you discover in front of a class. The letter sounds are not recorded yet, so it uses the phone's built-in voice, which on some phones sounds wrong. And it teaches reading in ENGLISH only — the lessons are not translated, so it is not a tool for teaching French reading.
 
 Would you be willing to try it with a few children and tell me what confused them? Ten minutes is enough. There is a feedback button on every screen.
 
@@ -153,9 +157,9 @@ It is free, there is no account, and I am not selling anything.
 ${LINK}`,
   fr: `Bonjour,
 
-Je construis une application de lecture gratuite pour les enfants ici au Cameroun — les sons des lettres et l'orthographe, en français et en anglais. Elle fonctionne hors ligne après le premier chargement, donc elle ne consomme pas de données en classe.
+Je construis une application de lecture gratuite pour les enfants ici au Cameroun — les sons des lettres et l'orthographe en anglais. Elle fonctionne hors ligne après le premier chargement, donc elle ne consomme pas de données en classe. L'interface est en français et en anglais, pour qu'un enseignant ou un parent francophone puisse accompagner l'enfant.
 
-Elle n'est pas terminée. Les sons des lettres ne sont pas encore enregistrés, elle utilise donc la voix intégrée du téléphone, ce qui sonne faux sur certains appareils. Je préfère vous le dire maintenant plutôt que vous le laissiez découvrir.
+Elle n'est pas terminée, de deux façons que je préfère vous dire maintenant plutôt que vous les laissiez découvrir devant une classe. Les sons des lettres ne sont pas encore enregistrés : elle utilise la voix intégrée du téléphone, ce qui sonne faux sur certains appareils. Et elle enseigne la lecture en ANGLAIS uniquement — les leçons ne sont pas traduites, ce n'est donc pas un outil pour enseigner la lecture du français.
 
 Accepteriez-vous de l'essayer avec quelques enfants et de me dire ce qui les a perdus ? Dix minutes suffisent. Il y a un bouton d'avis sur chaque écran.
 

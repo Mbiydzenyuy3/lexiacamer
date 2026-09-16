@@ -148,7 +148,8 @@ export default function Landing({ onStart }) {
             <p>
               {t.honestBody1a}<strong>{t.honestBody1b}</strong>{t.honestBody1c}
             </p>
-            <p className="lp-honest-last">{t.honestBody2}</p>
+            <p>{t.honestBody2}</p>
+            <p className="lp-honest-last">{t.honestBody3}</p>
           </div>
         </section>
 

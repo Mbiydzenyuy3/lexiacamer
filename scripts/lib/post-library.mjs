@@ -1,8 +1,13 @@
 /**
  * The post library.
  *
- * Every post is bilingual, because half the audience reads French and a page
- * that posts only in English quietly excludes them.
+ * Every post is written in English and French, because most of the audience
+ * reads French and a page that posts only in English quietly excludes them.
+ *
+ * That is about the POSTS, not the product. The app teaches reading in English
+ * and only its interface is translated, so no post here may imply a child can
+ * learn to read French with it. Writing to someone in their language while
+ * misdescribing what they would get is worse than not writing to them at all.
  *
  * Three rules hold this file together. They are easy to break and expensive to
  * break, so they are written down rather than assumed:
@@ -159,6 +164,8 @@ The 34 letter sounds in LexiaCamer are not recorded yet. Right now the app uses 
 
 We are recording real voices next. Cameroonian voices, saying the sounds the way a teacher here says them.
 
+There is a second gap, and it matters more to some of you: the lessons are English only. The app is translated into French, but the sounds and the words a child practises are English ones. A child learning to read French will not find what they need here yet.
+
 Everything else is worth your opinion today: the spelling game, the stickers, whether a five-year-old can find their way around without help.
 
 If you would rather wait for the sound, wait. If you would rather help us get it right, the door is open: ${SITE}
@@ -170,6 +177,8 @@ Les 34 sons des lettres de LexiaCamer ne sont pas encore enregistrés. Pour l'in
 
 Nous enregistrons de vraies voix ensuite. Des voix camerounaises, qui prononcent les sons comme un enseignant d'ici.
 
+Il y a un second manque, et il compte davantage pour certains d'entre vous : les leçons sont uniquement en anglais. L'application est traduite en français, mais les sons et les mots que l'enfant travaille sont anglais. Un enfant qui apprend à lire le français n'y trouvera pas encore ce qu'il lui faut.
+
 Tout le reste mérite votre avis dès aujourd'hui : le jeu d'orthographe, les autocollants, et si un enfant de cinq ans arrive à se repérer seul.
 
 Si vous préférez attendre le son, attendez. Si vous préférez nous aider à bien le faire, la porte est ouverte : ${SITE}
@@ -180,32 +189,37 @@ ${TAGS_FR}`,
 
   /* ——— Product, told as a benefit rather than a feature. ——— */
   {
-    key: 'bilingual',
+    key: 'english-reading',
     kind: 'evergreen',
     card: ['statement', {
-      kicker: 'English & Français',
-      title: 'Both languages. Not half a translation.',
-      sub: 'Children here learn in two languages. An app that only speaks one is only half useful.',
+      kicker: 'English reading',
+      title: 'Learning to read English, with the app speaking your language.',
+      sub: 'The child reads English. The menus and hints are French too, so you can sit with them.',
     }],
-    en: `Children here grow up between two languages. An app that speaks only one is only half useful.
+    en: `A thing worth being clear about, because plenty of apps are not.
 
-LexiaCamer is English and French throughout — not an English app with a French menu bolted on. The sounds, the words, the instructions, the parent view.
+LexiaCamer teaches a child to read in ENGLISH. The letter sounds, the words they build, the spelling game: all English.
 
-Switch it whenever you like. Some families use one language at home and the other at school, and the app does not mind.
+What is in French is the app around it. The menus, the hints, the parent view. So a parent who does not read English can still sit beside their child and help, instead of handing over a phone and hoping.
+
+If you are looking for something to teach your child to read in French, this is not it yet, and we will say so rather than take your time.
 
 ${SITE}
 
 ${TAGS_EN}`,
-    fr: `Les enfants d'ici grandissent entre deux langues. Une application qui n'en parle qu'une n'est utile qu'à moitié.
+    fr: `Une chose à dire clairement, parce que beaucoup d'applications ne le font pas.
 
-LexiaCamer est en français et en anglais partout — pas une application anglaise avec un menu traduit. Les sons, les mots, les consignes, la vue parent.
+LexiaCamer apprend à votre enfant à lire en ANGLAIS. Les sons des lettres, les mots qu'il construit, le jeu d'orthographe : tout est en anglais.
 
-Changez de langue quand vous voulez. Certaines familles utilisent une langue à la maison et l'autre à l'école, et l'application s'en accommode.
+Ce qui est en français, c'est l'application autour. Les menus, les indices, la vue parent. Ainsi un parent qui ne lit pas l'anglais peut quand même s'asseoir à côté de son enfant et l'aider, au lieu de tendre un téléphone en espérant.
+
+Si vous cherchez de quoi apprendre à lire en français à votre enfant, ce n'est pas encore ça, et nous préférons le dire plutôt que de vous faire perdre du temps.
 
 ${SITE}
 
 ${TAGS_FR}`,
   },
+
   {
     key: 'dyslexia',
     kind: 'evergreen',
