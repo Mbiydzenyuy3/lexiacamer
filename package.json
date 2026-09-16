@@ -9,7 +9,8 @@
     "admin:feedback": "node scripts/feedback.mjs",
     "posts": "node scripts/posts.mjs",
     "outreach": "node scripts/outreach.mjs",
-    "recording-guide": "node scripts/recording-guide.mjs"
+    "recording-guide": "node scripts/recording-guide.mjs",
+    "meta:check": "node scripts/meta-check.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
