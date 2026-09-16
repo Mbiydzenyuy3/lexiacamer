@@ -110,13 +110,25 @@ if (type === 'PAGE' && String(info.profile_id) === String(PAGE_ID)) {
   fatal = true;
 }
 
-/* 2. Can it post? The only permission that actually matters here. */
+/* 2. Can it post?
+ *
+ * BOTH of these, not just the obvious one. Publishing to a Page requires
+ * pages_read_engagement as well as pages_manage_posts -- the name suggests it
+ * is only for reading insights, and it is not. Checking only for
+ * pages_manage_posts let a token pass every check here and then fail on the
+ * first real call with "(#200) The permission(s) pages_read_engagement are not
+ * available", which reads like an App Review problem and is not.
+ */
 if (!fatal) {
-  if (scopes.includes('pages_manage_posts')) {
-    ok('Has pages_manage_posts — it can schedule posts');
+  const REQUIRED = ['pages_manage_posts', 'pages_read_engagement'];
+  const missing = REQUIRED.filter((r) => !scopes.includes(r));
+  if (!missing.length) {
+    ok('Has pages_manage_posts and pages_read_engagement — it can publish');
   } else {
-    no(`Missing pages_manage_posts. It has: ${scopes.join(', ') || 'nothing'}`);
-    info2('Regenerate the token with that permission ticked.');
+    no(`Missing: ${missing.join(', ')}`);
+    info2(`It has: ${scopes.join(', ') || 'nothing'}`);
+    info2('Publishing needs BOTH. Generate a new System User token with');
+    info2('pages_manage_posts, pages_read_engagement and pages_show_list.');
     fatal = true;
   }
 }

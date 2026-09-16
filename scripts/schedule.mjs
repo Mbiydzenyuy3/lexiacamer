@@ -187,9 +187,34 @@ for (let i = 0; i < pending.length; i += 1) {
   }
 }
 
-console.log(`
+// Reporting "they are in Planner" after scheduling nothing is the kind of
+// cheerful lie that sends someone hunting through a UI for posts that were
+// never created. Say what actually happened.
+if (done === pending.length) {
+  console.log(`
   ${done} of ${pending.length} scheduled.
 
   They are in Business Suite → Planner, unpublished, for you to review.
   Nothing is live until its scheduled time.
 `);
+} else if (done > 0) {
+  console.log(`
+  ${done} of ${pending.length} scheduled; ${pending.length - done} failed.
+
+  The ones that succeeded are in Planner. Fix the errors above and run
+  again -- the ledger means the successful ones will not be repeated.
+`);
+} else {
+  console.log(`
+  Nothing was scheduled. Planner will be empty.
+
+  If every line above mentions a missing permission, the token needs it.
+  Publishing to a Page requires BOTH of these, not just the first:
+
+      pages_manage_posts
+      pages_read_engagement
+
+  Generate a new System User token with both ticked, then:
+      npm run meta:check
+`);
+}
