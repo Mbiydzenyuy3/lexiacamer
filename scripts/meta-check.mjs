@@ -22,7 +22,7 @@ const API = 'https://graph.facebook.com/v21.0';
 
 const ok = (m) => console.log(`  \x1b[32m✓\x1b[0m ${m}`);
 const no = (m) => console.log(`  \x1b[31m✗\x1b[0m ${m}`);
-const info = (m) => console.log(`    ${m}`);
+const info2 = (m) => console.log(`    ${m}`);
 
 if (!TOKEN || !PAGE_ID) {
   console.error(`
@@ -53,91 +53,87 @@ console.log('\nChecking the Meta page token\n' + '='.repeat(28) + '\n');
 
 let fatal = false;
 
-/* 1. Is the token valid at all, and is it a PAGE token? */
+/**
+ * Identity comes from debug_token, NOT from /me.
+ *
+ * /me?fields=name looks like the obvious way to ask "what is this token?", and
+ * it is a trap: reading a Page's name requires pages_read_engagement, which
+ * posting does not. Checking that way made the checker demand a permission the
+ * real task never uses, and fail a token that works perfectly.
+ *
+ * debug_token inspects the token itself -- its type, the object it belongs to,
+ * its scopes and its expiry -- and needs no permission on the page at all.
+ */
+let info;
 try {
-  const me = await get('me', { fields: 'id,name' });
-  if (me.id === PAGE_ID) {
-    ok(`Page token for "${me.name}"`);
-  } else if (me.id) {
-    // /me returning a person rather than the page is the single most common
-    // mistake: the first token the Explorer hands you is a User token.
-    no(`This is a USER token (it identifies "${me.name}"), not a Page token.`);
-
-    // Rather than send them back through the UI that produced the wrong
-    // token, fetch the right one. /me/accounts returns every page this user
-    // administers WITH its page token attached -- which is exactly what the
-    // "Get Page Access Token" dropdown does, minus the dropdown.
-    try {
-      const { data: pages = [] } = await get('me/accounts',
-        { fields: 'id,name,access_token' });
-      const mine = pages.find((p) => p.id === PAGE_ID);
-      if (mine?.access_token) {
-        console.log('');
-        ok('Recovered the Page token for you. Put this in .env.admin:');
-        console.log('');
-        console.log(`    META_PAGE_TOKEN=${mine.access_token}`);
-        console.log('');
-        info('Then run this again. It is short-lived, so do it now.');
-      } else if (pages.length) {
-        info(`This user administers: ${pages.map((p) => `${p.name} (${p.id})`).join(', ')}`);
-        info(`None match META_PAGE_ID=${PAGE_ID}. Check the id.`);
-      } else {
-        info('This token administers no pages at all -- the page was probably');
-        info('not ticked on the approval screen. Generate it again and tick it.');
-      }
-    } catch {
-      info('In Graph API Explorer, open the "User or Page" dropdown and choose');
-      info('"Get Page Access Token", then pick LexiaCamer. Copy THAT token.');
-    }
-    fatal = true;
-  }
+  const { data } = await get('debug_token', { input_token: TOKEN });
+  info = data || {};
 } catch (e) {
   no(`The token was rejected: ${e.message}`);
-  if (/expire|session/i.test(e.message)) {
-    info('Tokens from Graph API Explorer are short-lived. Generate a new one.');
+  if (/expire|session/i.test(e.message)) info2('It has expired. Generate a new one.');
+  process.exit(1);
+}
+
+const type = (info.type || '').toUpperCase();
+const scopes = info.scopes || [];
+
+/* 1. Page token, or the user token it is derived from? */
+if (type === 'PAGE' && String(info.profile_id) === String(PAGE_ID)) {
+  ok(`Page token for page ${PAGE_ID}`);
+} else if (type === 'PAGE') {
+  no(`Page token, but for page ${info.profile_id}, not ${PAGE_ID}.`);
+  info2('Check META_PAGE_ID against the asset_id in your Business Suite URL.');
+  fatal = true;
+} else {
+  no(`This is a ${type || 'USER'} token, not a Page token.`);
+  try {
+    const { data: pages = [] } = await get('me/accounts', { fields: 'id,name,access_token' });
+    const mine = pages.find((p) => String(p.id) === String(PAGE_ID));
+    if (mine?.access_token) {
+      console.log('');
+      ok('Recovered the Page token for you. Put this in .env.admin:');
+      console.log('');
+      console.log(`    META_PAGE_TOKEN=${mine.access_token}`);
+      console.log('');
+      info2('Then run this again.');
+    } else if (pages.length) {
+      info2(`This token administers: ${pages.map((p) => `${p.name} (${p.id})`).join(', ')}`);
+      info2(`None match META_PAGE_ID=${PAGE_ID}.`);
+    } else {
+      info2('It administers no pages. On the approval screen the page was not');
+      info2('ticked, or the system user has no role on it.');
+    }
+  } catch (e) {
+    info2(`Could not look up its pages: ${e.message}`);
+    info2('It needs pages_show_list to do that.');
   }
   fatal = true;
 }
 
-/* 2. Does it reach the right page? */
+/* 2. Can it post? The only permission that actually matters here. */
 if (!fatal) {
-  try {
-    const page = await get(PAGE_ID, { fields: 'id,name,fan_count' });
-    ok(`Reaches the page: ${page.name}${page.fan_count !== undefined ? ` (${page.fan_count} followers)` : ''}`);
-  } catch (e) {
-    no(`Cannot read page ${PAGE_ID}: ${e.message}`);
-    info('Check META_PAGE_ID matches the asset_id in your Business Suite URL.');
+  if (scopes.includes('pages_manage_posts')) {
+    ok('Has pages_manage_posts — it can schedule posts');
+  } else {
+    no(`Missing pages_manage_posts. It has: ${scopes.join(', ') || 'nothing'}`);
+    info2('Regenerate the token with that permission ticked.');
     fatal = true;
   }
 }
 
-/* 3. Can it publish? Asked by inspecting the token, never by posting. */
+/* 3. How long it lasts. */
 if (!fatal) {
-  try {
-    const { data } = await get('debug_token', { input_token: TOKEN });
-    const scopes = data?.scopes || [];
-    if (scopes.includes('pages_manage_posts')) ok('Has pages_manage_posts — it can schedule posts');
-    else {
-      no('Missing pages_manage_posts — it can read, but cannot post');
-      info('Re-generate the token with that permission ticked.');
-      fatal = true;
+  if (!info.expires_at) {
+    ok('Does not expire');
+  } else {
+    const at = new Date(info.expires_at * 1000);
+    const days = Math.round((at - Date.now()) / 86400000);
+    if (days <= 2) {
+      no(`Expires in ${days} day${days === 1 ? '' : 's'} (${at.toDateString()})`);
+      info2('Generate a System User token with expiration set to Never.');
+    } else {
+      ok(`Expires ${at.toDateString()} (${days} days)`);
     }
-
-    if (data?.expires_at === 0) {
-      ok('Does not expire');
-    } else if (data?.expires_at) {
-      const when = new Date(data.expires_at * 1000);
-      const days = Math.round((when - Date.now()) / 86400000);
-      if (days <= 2) {
-        no(`Expires in ${days} day${days === 1 ? '' : 's'} (${when.toDateString()})`);
-        info('Short-lived. The scheduler can exchange it for a 60-day token.');
-      } else {
-        ok(`Expires ${when.toDateString()} (${days} days)`);
-      }
-    }
-  } catch (e) {
-    info(`Could not inspect the token's permissions: ${e.message}`);
-    info('Not fatal — the checks above are the ones that matter.');
   }
 }
 
