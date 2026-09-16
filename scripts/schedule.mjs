@@ -4,8 +4,17 @@
  *
  *   npm run schedule                    show what WOULD be scheduled
  *   npm run schedule -- --confirm       actually schedule it
+ *   npm run schedule -- --list          what is scheduled on the page now
+ *   npm run schedule -- --update        push caption edits to scheduled posts
+ *   npm run schedule -- --cancel-all    delete every scheduled post
  *   npm run schedule -- --lang fr       French captions (default)
  *   npm run schedule -- --date 2026-09-16   a specific batch
+ *
+ * EDITING HAPPENS HERE, NOT IN PLANNER. Business Suite will not let you edit a
+ * post an app created -- you can delete it or publish it, and that is all. So
+ * the caption files in content/<date>/ are the thing you edit, and --update
+ * pushes the change to the already-scheduled post. Planner remains the place
+ * to SEE what is coming; it is not the place to change it.
  *
  * Posts are created UNPUBLISHED with a future publish time, so they land in
  * Business Suite's Planner where you review, edit or delete them before they
@@ -39,6 +48,89 @@ if (!TOKEN || !PAGE_ID) {
   console.error('\n  Missing META_PAGE_TOKEN or META_PAGE_ID in .env.admin.');
   console.error('  Run `npm run meta:check` for the details.\n');
   process.exit(1);
+}
+
+/* ——— Talking to the page ——— */
+
+async function api(path, { method = 'GET', params = {} } = {}) {
+  const url = new URL(`${API}/${path}`);
+  if (method === 'GET') for (const [k, v] of Object.entries(params)) url.searchParams.set(k, v);
+  url.searchParams.set('access_token', TOKEN);
+  const opts = { method };
+  if (method !== 'GET' && Object.keys(params).length) {
+    const form = new FormData();
+    for (const [k, v] of Object.entries(params)) form.append(k, v);
+    form.append('access_token', TOKEN);
+    opts.body = form;
+  }
+  const res = await fetch(url, opts);
+  const body = await res.json().catch(() => ({}));
+  if (body.error) throw new Error(body.error.message);
+  return body;
+}
+
+const when2 = (iso) => new Date(iso * 1000).toLocaleString('en-GB',
+  { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
+
+/** Everything queued on the page, whoever created it. */
+async function scheduled() {
+  const { data = [] } = await api(`${PAGE_ID}/scheduled_posts`,
+    { params: { fields: 'id,message,scheduled_publish_time', limit: 100 } });
+  return data;
+}
+
+/* ——— --list ——— */
+
+if (has('list')) {
+  const items = await scheduled();
+  if (!items.length) console.log('\n  Nothing is scheduled on this page.\n');
+  else {
+    console.log(`\n  ${items.length} scheduled on the page:\n`);
+    for (const it of items) {
+      console.log(`  ${when2(it.scheduled_publish_time).padEnd(24)} ${(it.message || '').split('\n')[0].slice(0, 46)}`);
+      console.log(`    ${it.id}`);
+    }
+    console.log('');
+  }
+  process.exit(0);
+}
+
+/* ——— --cancel-all ——— */
+
+if (has('cancel-all')) {
+  const items = await scheduled();
+  if (!items.length) { console.log('\n  Nothing scheduled to cancel.\n'); process.exit(0); }
+  if (!CONFIRM) {
+    console.log(`\n  ${items.length} scheduled posts would be DELETED:\n`);
+    for (const it of items) {
+      console.log(`  ${when2(it.scheduled_publish_time).padEnd(24)} ${(it.message || '').split('\n')[0].slice(0, 46)}`);
+    }
+    console.log(`
+  Nothing has been deleted. To do it:
+    npm run schedule -- --cancel-all --confirm
+
+  They are unpublished, so nothing anyone has seen is affected.
+`);
+    process.exit(0);
+  }
+  let gone = 0;
+  for (const it of items) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await api(it.id, { method: 'DELETE' });
+      console.log(`  \x1b[32m✓\x1b[0m deleted ${(it.message || it.id).split('\n')[0].slice(0, 46)}`);
+      gone += 1;
+    } catch (e) { console.log(`  \x1b[31m✗\x1b[0m ${it.id}: ${e.message}`); }
+  }
+  // The ledger describes posts that no longer exist.
+  if (existsSync(resolve(ROOT, 'content'))) {
+    for (const d of readdirSync(resolve(ROOT, 'content'))) {
+      const l = resolve(ROOT, 'content', d, '.scheduled.json');
+      if (existsSync(l)) writeFileSync(l, '{}');
+    }
+  }
+  console.log(`\n  ${gone} deleted. Ledgers cleared, so you can schedule again.\n`);
+  process.exit(0);
 }
 
 /* ——— Which batch ——— */
@@ -140,6 +232,33 @@ if (!CONFIRM) {
   Posts are created unpublished, so they appear in Business Suite's
   Planner where you can review, edit or delete them before they go live.
 `);
+  process.exit(0);
+}
+
+/* ——— --update: push edited captions ——— */
+
+if (has('update')) {
+  const edited = posts.filter((p) => ledger[p.key]);
+  if (!edited.length) {
+    console.log('\n  None of these are scheduled yet, so there is nothing to update.\n');
+    process.exit(0);
+  }
+  if (!CONFIRM) {
+    console.log(`\n  Would push the current caption of ${edited.length} post(s) to the page.`);
+    console.log('  Images cannot be changed this way -- cancel and reschedule for that.');
+    console.log('\n    npm run schedule -- --update --confirm\n');
+    process.exit(0);
+  }
+  let changed = 0;
+  for (const p of edited) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await api(ledger[p.key].postId, { method: 'POST', params: { message: p.message } });
+      console.log(`  \x1b[32m✓\x1b[0m ${p.key}`);
+      changed += 1;
+    } catch (e) { console.log(`  \x1b[31m✗\x1b[0m ${p.key}: ${e.message}`); }
+  }
+  console.log(`\n  ${changed} updated.\n`);
   process.exit(0);
 }
 
