@@ -160,11 +160,13 @@ ${TAGS_FR}`,
     }],
     en: `Something that is not finished, told to you before you find it.
 
-The 34 letter sounds in LexiaCamer are not recorded yet. Right now the app uses your phone's built-in voice, and on some Android phones that sounds wrong — or does not play at all.
+The 32 letter sounds in LexiaCamer are not recorded yet. Right now the app uses your phone's built-in voice, and on some Android phones that sounds wrong — or does not play at all.
 
 We are recording real voices next. Cameroonian voices, saying the sounds the way a teacher here says them.
 
 There is a second gap, and it matters more to some of you: the lessons are English only. The app is translated into French, but the sounds and the words a child practises are English ones. A child learning to read French will not find what they need here yet.
+
+French is next, after the English version is right. Its own sounds, its own words — not these ones translated, because that is not how reading works. We would rather do one language properly than two badly.
 
 Everything else is worth your opinion today: the spelling game, the stickers, whether a five-year-old can find their way around without help.
 
@@ -173,11 +175,13 @@ If you would rather wait for the sound, wait. If you would rather help us get it
 ${TAGS_EN}`,
     fr: `Quelque chose qui n'est pas terminé, dit avant que vous ne le découvriez.
 
-Les 34 sons des lettres de LexiaCamer ne sont pas encore enregistrés. Pour l'instant, l'application utilise la voix intégrée de votre téléphone, et sur certains Android cela sonne faux — ou ne se lance pas du tout.
+Les 32 sons des lettres de LexiaCamer ne sont pas encore enregistrés. Pour l'instant, l'application utilise la voix intégrée de votre téléphone, et sur certains Android cela sonne faux — ou ne se lance pas du tout.
 
 Nous enregistrons de vraies voix ensuite. Des voix camerounaises, qui prononcent les sons comme un enseignant d'ici.
 
 Il y a un second manque, et il compte davantage pour certains d'entre vous : les leçons sont uniquement en anglais. L'application est traduite en français, mais les sons et les mots que l'enfant travaille sont anglais. Un enfant qui apprend à lire le français n'y trouvera pas encore ce qu'il lui faut.
+
+Le français vient ensuite, une fois la version anglaise au point. Avec ses propres sons et ses propres mots — pas ceux-ci traduits, parce que ce n'est pas ainsi qu'on apprend à lire. Nous préférons faire une langue correctement que deux mal.
 
 Tout le reste mérite votre avis dès aujourd'hui : le jeu d'orthographe, les autocollants, et si un enfant de cinq ans arrive à se repérer seul.
 

@@ -8,7 +8,8 @@
     "preview": "vite preview",
     "admin:feedback": "node scripts/feedback.mjs",
     "posts": "node scripts/posts.mjs",
-    "outreach": "node scripts/outreach.mjs"
+    "outreach": "node scripts/outreach.mjs",
+    "recording-guide": "node scripts/recording-guide.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",

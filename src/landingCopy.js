@@ -50,11 +50,11 @@ const landing = {
     // first is the one trust signal a fake product will not copy.
     honestTitle: 'What is not finished yet',
     honestBody1a: 'The ',
-    honestBody1b: '34 letter sounds are not recorded yet',
+    honestBody1b: '32 letter sounds are not recorded yet',
     honestBody1c:
       ", so the app currently uses your phone's built-in voice. On some Android phones that sounds wrong, or does not play at all. We know, and we are recording real voices next.",
     honestBody2:
-      'Reading in French is not built yet either. Today the sounds and the words are English ones, so a child learning to read French will not find what they need. The app is translated; the lessons are not. We say so here rather than let you discover it.',
+      'Reading in French is not built yet either. Today the sounds and the words are English ones, so a child learning to read French will not find what they need here. The app is translated; the lessons are not. French is what we build after the English version is right — properly, with its own sounds and its own words, not a translation of these. Follow the page and we will tell you when it is ready.',
     honestBody3:
       'Everything else is worth your opinion: the spelling game, the stickers, and whether a child can find their way around.',
 
@@ -181,11 +181,11 @@ const landing = {
 
     honestTitle: "Ce qui n'est pas encore terminé",
     honestBody1a: 'Les ',
-    honestBody1b: "34 sons des lettres ne sont pas encore enregistrés",
+    honestBody1b: "32 sons des lettres ne sont pas encore enregistrés",
     honestBody1c:
       ", donc l'application utilise pour l'instant la voix intégrée de votre téléphone. Sur certains téléphones Android, le son est mauvais ou ne se lance pas du tout. Nous le savons, et nous enregistrons de vraies voix ensuite.",
     honestBody2:
-      "L'apprentissage de la lecture en français n'existe pas encore non plus. Aujourd'hui les sons et les mots sont anglais : un enfant qui apprend à lire le français n'y trouvera pas ce qu'il lui faut. L'application est traduite ; les leçons ne le sont pas. Nous le disons ici plutôt que de vous laisser le découvrir.",
+      "L'apprentissage de la lecture en français n'existe pas encore non plus. Aujourd'hui les sons et les mots sont anglais : un enfant qui apprend à lire le français n'y trouvera pas ce qu'il lui faut ici. L'application est traduite ; les leçons ne le sont pas. Le français, c'est ce que nous construisons une fois la version anglaise au point — pour de vrai, avec ses propres sons et ses propres mots, pas une traduction de ceux-ci. Suivez la page et nous vous dirons quand ce sera prêt.",
     honestBody3:
       "Tout le reste mérite votre avis : le jeu d'orthographe, les autocollants, et si un enfant arrive à se repérer seul.",
 

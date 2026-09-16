@@ -326,10 +326,10 @@ export const phonicsData = [
   { letter: "SH", sound: "sh",    example: "Shey",         category: "blends", color: "tile-indigo" },
   { letter: "TH", sound: "th",    example: "Thandani",     category: "blends", color: "tile-indigo" },
   { letter: "PH", sound: "ph",    example: "Philip",       category: "blends", color: "tile-indigo" },
-  { letter: "NG", sound: "Ngong",        example: "Ngong",         category: "blends", color: "tile-rose" },
-  { letter: "ND", sound: "Ndolé",        example: "Ndolé",         category: "blends", color: "tile-rose" },
-  { letter: "MB", sound: "Mbang",        example: "Mbang",         category: "blends", color: "tile-rose" },
-  { letter: "NK", sound: "Nkam",         example: "Nkongsamba",    category: "blends", color: "tile-rose" },
+  { letter: "NG", sound: "ng",    example: "Ngong",         category: "blends", color: "tile-rose" },
+  { letter: "ND", sound: "nd",    example: "Ndolé",         category: "blends", color: "tile-rose" },
+  { letter: "MB", sound: "mb",    example: "Mbang",         category: "blends", color: "tile-rose" },
+  { letter: "NK", sound: "nk",    example: "Nkongsamba",    category: "blends", color: "tile-rose" },
 ];
 
 /** Word Forge vocabulary — Cameroonian context */
