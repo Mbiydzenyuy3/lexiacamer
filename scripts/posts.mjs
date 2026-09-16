@@ -31,6 +31,40 @@ import { env } from './lib/admin-client.mjs';
 import { POSTS } from './lib/post-library.mjs';
 import { CARDS, render, canRasterise } from './lib/post-cards.mjs';
 
+/**
+ * Instagram is a different room, and the same text does not work in it.
+ *
+ * A URL in an Instagram caption is NOT a link -- it renders as plain text
+ * nobody can tap, so a post ending in one is a dead end that also looks like
+ * the author does not know the platform. The link lives in the bio, and the
+ * caption says so.
+ *
+ * Hashtags do real discovery work there, unlike on Facebook where they mostly
+ * do not, so the set is wider and more specific.
+ */
+const IG_TAGS = {
+  en: '#Cameroon #Cameroun #LearnToRead #Phonics #ParentingTips #KidsLearning '
+    + '#EarlyLiteracy #ReadingForKids #Douala #Yaounde #LearnEnglish #EdTechAfrica',
+  fr: '#Cameroun #Cameroon #ApprendreALire #Phonetique #ConseilsParents '
+    + '#EnfantsQuiLisent #LectureEnfant #Douala #Yaounde #ApprendreLAnglais #EdTechAfrique',
+};
+
+const IG_BIO = {
+  en: 'Free, offline, no account. Link in bio.',
+  fr: 'Gratuit, hors ligne, sans compte. Lien dans la bio.',
+};
+
+/** Strips the URL and the Facebook tag line, then closes for Instagram. */
+function forInstagram(body, lang) {
+  return body
+    .split('\n')
+    .filter((l) => !l.includes('lexiacamer.vercel.app') && !l.trim().startsWith('#'))
+    .join('\n')
+    .replace(/\n{3,}/g, '\n\n')
+    .trim()
+    + `\n\n${IG_BIO[lang]}\n\n${IG_TAGS[lang]}`;
+}
+
 const argv = process.argv.slice(2);
 const arg = (name, fallback) => {
   const i = argv.indexOf(`--${name}`);
@@ -189,6 +223,11 @@ const lines = [
   'English and a French version; post whichever fits the audience you are',
   'reaching, or alternate week by week.',
   '',
+  '**Instagram has the bigger audience, so start there.** Use the `-ig.png`',
+  'card (1080x1350) and the Instagram version of the caption: a URL in an',
+  'Instagram caption is plain text nobody can tap, so the link lives in your',
+  'bio and the caption says so. The landscape card is for Facebook only.',
+  '',
   data.testers || data.feedback
     ? `Live figures used: ${data.testers} testers, ${data.feedback} pieces of feedback.`
     : 'No live figures were available, so only evergreen posts are included.',
@@ -204,23 +243,38 @@ for (let i = 0; i < out.length; i += 1) {
   const base = `${n}-${post.key}`;
 
   const [cardKind, cardProps] = typeof post.card === 'function' ? post.card(data) : post.card;
-  const html = CARDS[cardKind](cardProps);
+
   const png = resolve(dir, `${base}.png`);
-  const ok = render(html, resolve(dir, `${base}.html`), png);
+  const ok = render(CARDS[cardKind](cardProps), resolve(dir, `${base}.html`), png);
   if (ok) made += 1;
+
+  // Instagram has 256 followers to Facebook's 12, so the portrait card is not
+  // an afterthought -- it is the one most people will actually see.
+  const igPng = resolve(dir, `${base}-ig.png`);
+  const igOk = render(CARDS[cardKind](cardProps, 'portrait'),
+    resolve(dir, `${base}-ig.html`), igPng, 'portrait');
+  if (igOk) made += 1;
 
   lines.push(`## ${n}. ${fmt(days[i])}${post.ask ? '  · asks for something' : ''}`);
   lines.push('');
-  lines.push(`Image: \`${base}.png\`${ok ? '' : ' (render `' + base + '.html` yourself)'}`);
+  lines.push(`Facebook: \`${base}.png\` (1200x630)${ok ? '' : ' — render the .html yourself'}`);
+  lines.push(`Instagram: \`${base}-ig.png\` (1080x1350)${igOk ? '' : ' — render the .html yourself'}`);
   lines.push('');
 
   for (const lang of LANGS) {
     const body = typeof post[lang] === 'function' ? post[lang](data) : post[lang];
     writeFileSync(resolve(dir, `${base}.${lang}.txt`), `${body}\n`);
+    writeFileSync(resolve(dir, `${base}-ig.${lang}.txt`), `${forInstagram(body, lang)}\n`);
     lines.push(`<details><summary><b>${lang.toUpperCase()}</b></summary>`);
     lines.push('');
     lines.push('```');
     lines.push(body);
+    lines.push('```');
+    lines.push('');
+    lines.push('*Instagram version:*');
+    lines.push('');
+    lines.push('```');
+    lines.push(forInstagram(body, lang));
     lines.push('```');
     lines.push('</details>');
     lines.push('');

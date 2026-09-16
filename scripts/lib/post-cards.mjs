@@ -19,7 +19,19 @@ import { resolve, join } from 'node:path';
 const ROOT = resolve(import.meta.dirname, '../..');
 
 /** Facebook's landscape size. */
-const W = 1200, H = 630;
+/**
+ * Canvas sizes.
+ *
+ * `link` is the 1.91:1 crop Facebook uses for a shared link. `portrait` is for
+ * Instagram, where that same landscape card is letterboxed into a thin strip
+ * and occupies roughly a third of the screen a 4:5 does. Same content, same
+ * tokens; the shape is the whole difference between being seen and scrolled
+ * past.
+ */
+export const SIZES = {
+  link:     { w: 1200, h: 630,  pad: 84, brandTop: 56, h1: 70, sub: 29, width: '17ch' },
+  portrait: { w: 1080, h: 1350, pad: 88, brandTop: 84, h1: 124, sub: 44, width: '10ch' },
+};
 
 /**
  * Escape anything interpolated into a card.
@@ -65,24 +77,26 @@ function logoDataUri() {
   return `data:image/png;base64,${readFileSync(p).toString('base64')}`;
 }
 
-const SHELL = (inner, opts = {}) => `<!doctype html><html><head><meta charset="utf-8"><style>
+const SHELL = (inner, opts = {}) => { const S = SIZES[opts.size] || SIZES.link;
+  return `<!doctype html><html><head><meta charset="utf-8"><style>
   ${fontFace()}
   *{margin:0;padding:0;box-sizing:border-box}
-  body{width:1200px;height:630px;font-family:'Outfit',system-ui,sans-serif;
+  body{width:${S.w}px;height:${S.h}px;font-family:'Outfit',system-ui,sans-serif;
        background:${opts.bg || C.body};color:${opts.fg || C.text};
        display:flex;flex-direction:column;justify-content:center;
-       padding:76px 84px;position:relative;overflow:hidden}
-  .glow{position:absolute;right:-200px;top:-200px;width:660px;height:660px;
+       padding:${S.pad}px;position:relative;overflow:hidden}
+  .glow{position:absolute;right:-200px;top:-200px;width:${Math.round(S.w*0.55)}px;
+        height:${Math.round(S.w*0.55)}px;
         background:radial-gradient(circle,${opts.glow || C.green100} 0%,rgba(255,255,255,0) 70%)}
-  .brand{position:absolute;left:84px;top:56px;display:flex;align-items:center;gap:5px}
+  .brand{position:absolute;left:${S.pad}px;top:${S.brandTop}px;display:flex;align-items:center;gap:5px}
   .brand img{width:44px;height:44px;border-radius:12px}
   .brand span{font-size:32px;font-weight:800;letter-spacing:-.02em;color:${opts.fg || C.text}}
-  .flag{position:absolute;right:84px;bottom:56px;display:flex;gap:8px;align-items:flex-start}
+  .flag{position:absolute;right:${S.pad}px;bottom:${S.brandTop}px;display:flex;gap:8px;align-items:flex-start}
   .flag i{display:block;flex:none;width:22px;height:44px;border-radius:5px}
-  h1{font-size:${opts.size || 70}px;font-weight:900;line-height:1.06;letter-spacing:-.03em;
-     max-width:${opts.width || '17ch'};position:relative;margin-top:14px}
-  .sub{margin-top:26px;font-size:29px;line-height:1.4;color:${opts.sub || C.text2};
-       max-width:28ch;position:relative}
+  h1{font-size:${S.h1}px;font-weight:900;line-height:1.06;letter-spacing:-.03em;
+     max-width:${S.width};position:relative;margin-top:14px}
+  .sub{margin-top:${S.sub > 40 ? 40 : 26}px;font-size:${S.sub}px;line-height:1.4;
+       color:${opts.sub || C.text2};max-width:${S.sub > 40 ? '17ch' : '24ch'};position:relative}
   /* align-self, because body is a flex column: without it the pill stretches
      the full 1200px instead of hugging its text. */
   .kicker{display:inline-flex;align-self:flex-start;padding:11px 24px;font-size:21px;
@@ -94,49 +108,49 @@ const SHELL = (inner, opts = {}) => `<!doctype html><html><head><meta charset="u
   <div class="brand"><img src="${logoDataUri()}" alt=""><span>exiaCamer</span></div>
   ${inner.html}
   <div class="flag"><i style="background:${opts.flagGreen || C.green600}"></i><i style="background:#f43f5e"></i><i style="background:#f59e0b"></i></div>
-</body></html>`;
+</body></html>`; };
 
 /* ——— Card templates ——— */
 
 export const CARDS = {
   /** A plain claim, in the product's voice. The workhorse. */
-  statement: ({ kicker, title, sub }) => SHELL({
+  statement: ({ kicker, title, sub }, size) => SHELL({
     html: `${kicker ? `<span class="kicker" style="color:${C.green700};background:${C.card};border:2px solid ${C.green200}">${esc(kicker)}</span>` : ''}
            <h1>${esc(title)}</h1>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}`,
-  }),
+  }, { size }),
 
   /** One number, large. Only ever rendered from a real figure. */
-  stat: ({ value, label, sub }) => SHELL({
+  stat: ({ value, label, sub }, size) => SHELL({
     css: `.v{font-size:210px;font-weight:900;line-height:.9;letter-spacing:-.05em;
              color:${C.green600};position:relative;align-self:flex-start}
           .l{margin-top:18px;font-size:40px;font-weight:800;position:relative}`,
     html: `<div class="v">${esc(value)}</div><div class="l">${esc(label)}</div>
            ${sub ? `<div class="sub">${esc(sub)}</div>` : ''}`,
-  }),
+  }, { size }),
 
   /** A phonics tip. Useful whether or not anyone installs anything. */
-  tip: ({ title, sub }) => SHELL({
+  tip: ({ title, sub }, size) => SHELL({
     css: `.k{color:${C.amber600};background:${C.amber50};border:2px solid ${C.amber200}}`,
     html: `<span class="kicker k">Reading tip</span><h1>${esc(title)}</h1>
            ${sub ? `<div class="sub">${esc(sub)}</div>` : ''}`,
-  }, { glow: C.amber100 }),
+  }, { glow: C.amber100, size }),
 
   /** Naming what is unfinished. The page's signature move. */
-  honest: ({ title, sub }) => SHELL({
+  honest: ({ title, sub }, size) => SHELL({
     css: `.k{color:${C.amber600};background:${C.card};border:2px solid ${C.amber200}}`,
     html: `<span class="kicker k">What is not finished</span><h1>${esc(title)}</h1>
            ${sub ? `<div class="sub">${esc(sub)}</div>` : ''}`,
-  }, { bg: C.amber50, glow: C.amber200 }),
+  }, { bg: C.amber50, glow: C.amber200, size }),
 
   /** The ask. Inverted, so it is visibly different from the rest. */
-  cta: ({ title, sub }) => SHELL({
+  cta: ({ title, sub }, size) => SHELL({
     css: `.k{color:${C.green700};background:${C.card};border:0}`,
     html: `<span class="kicker k">Free · no account</span><h1>${esc(title)}</h1>
            ${sub ? `<div class="sub">${esc(sub)}</div>` : ''}`,
     // flagGreen: the brand green vanishes against a green card, leaving what
     // looks like a two-colour flag.
   }, { bg: C.green600, fg: C.inverse, sub: 'rgba(255,255,255,.88)',
-       glow: 'rgba(255,255,255,.14)', flagGreen: C.green200 }),
+       glow: 'rgba(255,255,255,.14)', flagGreen: C.green200, size }),
 };
 
 /* ——— Rasterising ——— */
@@ -206,7 +220,8 @@ export function canRasterise() { return rasteriser() !== null; }
  * Writes `html` to `htmlPath` and, when possible, a PNG beside it.
  * Returns true when the PNG was produced.
  */
-export function render(html, htmlPath, pngPath) {
+export function render(html, htmlPath, pngPath, size = 'link') {
+  const { w: W, h: H } = SIZES[size] || SIZES.link;
   writeFileSync(htmlPath, html);
   const r = rasteriser();
   if (!r) return false;
