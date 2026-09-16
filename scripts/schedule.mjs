@@ -6,6 +6,7 @@
  *   npm run schedule -- --confirm       actually schedule it
  *   npm run schedule -- --list          what is scheduled on the page now
  *   npm run schedule -- --update        push caption edits to scheduled posts
+ *   npm run schedule -- --prune         delete scheduled posts no ledger knows
  *   npm run schedule -- --cancel-all    delete every scheduled post
  *   npm run schedule -- --lang fr       French captions (default)
  *   npm run schedule -- --date 2026-09-16   a specific batch
@@ -92,6 +93,74 @@ if (has('list')) {
     }
     console.log('');
   }
+  process.exit(0);
+}
+
+/* ——— --prune ———
+ *
+ * Deletes scheduled posts that no ledger accounts for.
+ *
+ * These accumulate: regenerating a batch removes its ledger while the posts
+ * stay queued on the page, and a rescheduled batch can land beside survivors
+ * of the previous one. The symptom is the same post going out twice at the
+ * same minute, which nobody notices until it happens in public.
+ *
+ * Only posts this tool created can be recognised, so anything scheduled by
+ * hand in Planner would look orphaned too -- hence the dry run listing exactly
+ * what it means to delete before it touches anything.
+ */
+
+function allLedgers() {
+  const known = new Map();
+  const base = resolve(ROOT, 'content');
+  if (!existsSync(base)) return known;
+  for (const d of readdirSync(base)) {
+    const f = resolve(base, d, '.scheduled.json');
+    if (!existsSync(f)) continue;
+    try {
+      for (const [key, v] of Object.entries(JSON.parse(readFileSync(f, 'utf8')))) {
+        if (v?.postId) known.set(v.postId, `${d}/${key}`);
+      }
+    } catch { /* unreadable ledger; treat as knowing nothing */ }
+  }
+  return known;
+}
+
+if (has('prune')) {
+  const known = allLedgers();
+  const items = await scheduled();
+  const orphans = items.filter((it) => !known.has(it.id));
+
+  console.log(`\n  ${items.length} scheduled on the page, ${known.size} tracked by a ledger.\n`);
+  if (!orphans.length) { console.log('  Nothing orphaned. Every scheduled post is accounted for.\n'); process.exit(0); }
+
+  console.log(`  ${orphans.length} not accounted for:\n`);
+  for (const o of orphans) {
+    console.log(`  ${when2(o.scheduled_publish_time).padEnd(24)} ${(o.message || '').split('\n')[0].slice(0, 46)}`);
+  }
+
+  if (!CONFIRM) {
+    console.log(`
+  Nothing has been deleted. Check the list above is really unwanted --
+  anything you scheduled by hand in Planner will appear here too, because
+  this tool has no record of it.
+
+  To delete them:
+    npm run schedule -- --prune --confirm
+`);
+    process.exit(0);
+  }
+
+  let gone = 0;
+  for (const o of orphans) {
+    try {
+      // eslint-disable-next-line no-await-in-loop
+      await api(o.id, { method: 'DELETE' });
+      console.log(`  \x1b[32m✓\x1b[0m deleted ${when2(o.scheduled_publish_time)}`);
+      gone += 1;
+    } catch (e) { console.log(`  \x1b[31m✗\x1b[0m ${o.id}: ${e.message}`); }
+  }
+  console.log(`\n  ${gone} deleted. ${items.length - gone} still scheduled.\n`);
   process.exit(0);
 }
 
