@@ -27,6 +27,9 @@
  *    parent who gets a feature list owes you nothing.
  */
 
+import { readFileSync } from 'node:fs';
+import { resolve } from 'node:path';
+
 export const SITE = 'https://lexiacamer.vercel.app/';
 const TAGS_EN = '#Cameroon #LearnToRead #Phonics #Parenting';
 const TAGS_FR = '#Cameroun #ApprendreALire #Phonetique #Parents';
@@ -454,3 +457,125 @@ ${SITE}
 ${TAGS_FR}`,
   },
 ];
+
+
+/* ————————————————————————————————————————————————————————————
+   THE DAILY SOUND
+   ————————————————————————————————————————————————————————————
+   One post per letter, generated from the app's own phonicsData.
+
+   These exist because a page cannot build an audience posting twice a week,
+   and eight posts is not enough to post more often than that. The constraint
+   was never how much effort a person has -- the posts are generated -- it was
+   how many posts existed. There are 32 sounds in the app, each of which is a
+   parent learning one real thing they can use tonight, so there are 32 posts.
+
+   They are deliberately small. A page needs a rhythm more than it needs eight
+   essays, and a short post that teaches "say mmm, not em" earns more goodwill
+   than a long one about features.
+
+   Generated from the source of truth rather than written out, so a sound added
+   to the app appears here and a sound corrected there is corrected here.
+———————————————————————————————————————————————————————————— */
+
+function readPhonics() {
+  const src = readFileSync(resolve(import.meta.dirname, '../../src/i18n.js'), 'utf8');
+  const from = src.indexOf('export const phonicsData');
+  const body = src.slice(from, src.indexOf('\n];', from));
+  return body.split('{').slice(1).map((e) => {
+    const get = (k) => (e.match(new RegExp(`${k}: "([^"]+)"`)) || [])[1] || '';
+    return { letter: get('letter'), sound: get('sound'), example: get('example'), category: get('category') };
+  }).filter((x) => x.letter);
+}
+
+/** How to say it, and the trap to avoid. Only the awkward ones are named. */
+const SAY_EN = {
+  A: 'Short, as in "cat" — not the letter name "ay".',
+  E: 'Short, as in "bed" — not "ee".',
+  I: 'Short, as in "sit" — not "eye".',
+  O: 'Short, as in "hot" — not "oh".',
+  U: 'Short, as in "cup" — not "you".',
+  B: 'Keep it short. "buh" makes "bat" sound like "buh-a-tuh".',
+  D: 'Keep it short. Not "duh".',
+  K: 'Keep it short. Not "kuh".',
+  P: 'Keep it short. Not "puh".',
+  T: 'Keep it short. Not "tuh".',
+  G: 'Hard, as in "go".',
+  C: 'The hard "k" sound, as in "cat".',
+  F: 'You can hold this one: "ffff". Stretching helps a child hear it.',
+  L: 'You can hold this one: "llll".',
+  M: 'You can hold this one: "mmmm".',
+  N: 'You can hold this one: "nnnn".',
+  S: 'You can hold this one: "ssss".',
+  Z: 'You can hold this one: "zzzz".',
+  R: 'You can hold this one: "rrrr".',
+  H: 'Just the breath. Almost nothing.',
+  NG: 'The sound at the END of "sing" — not "en-gee".',
+  ND: 'One sound, not "en-dee". Listen for it in Ndolé.',
+  MB: 'One sound, not "em-bee". Listen for it in Mbang.',
+  NK: 'One sound, not "en-kay". Listen for it in Nkongsamba.',
+  TH: 'Tongue between the teeth, as in "this".',
+  PH: 'Says "f". Same sound as the letter F.',
+  SH: 'You can hold this one: "shhh".',
+  CH: 'As in "church".',
+};
+
+const SAY_FR = {
+  A: 'Court, comme dans « cat » — pas le nom de la lettre.',
+  E: 'Court, comme dans « bed » — pas « i ».',
+  I: 'Court, comme dans « sit ».',
+  O: 'Court, comme dans « hot ».',
+  U: 'Court, comme dans « cup ».',
+  B: 'Gardez-le court. « beu » transforme « bat » en « beu-a-teu ».',
+  D: 'Gardez-le court. Pas « deu ».',
+  K: 'Gardez-le court. Pas « keu ».',
+  P: 'Gardez-le court. Pas « peu ».',
+  T: 'Gardez-le court. Pas « teu ».',
+  G: 'Dur, comme dans « go ».',
+  C: 'Le son dur « k », comme dans « cat ».',
+  F: 'Celui-ci se tient : « ffff ». L\'étirer aide l\'enfant à l\'entendre.',
+  L: 'Celui-ci se tient : « llll ».',
+  M: 'Celui-ci se tient : « mmmm ».',
+  N: 'Celui-ci se tient : « nnnn ».',
+  S: 'Celui-ci se tient : « ssss ».',
+  Z: 'Celui-ci se tient : « zzzz ».',
+  R: 'Celui-ci se tient : « rrrr ».',
+  H: 'Juste le souffle. Presque rien.',
+  NG: 'Le son à la FIN de « sing » — pas « èn-gé ».',
+  ND: 'Un seul son, pas « èn-dé ». Écoutez-le dans Ndolé.',
+  MB: 'Un seul son, pas « èm-bé ». Écoutez-le dans Mbang.',
+  NK: 'Un seul son, pas « èn-ka ». Écoutez-le dans Nkongsamba.',
+  TH: 'La langue entre les dents, comme dans « this ».',
+  PH: 'Se dit « f ». Le même son que la lettre F.',
+  SH: 'Celui-ci se tient : « shhh ».',
+  CH: 'Comme dans « church ».',
+};
+
+export const SOUND_POSTS = readPhonics().map((s) => ({
+  key: `sound-${s.letter.toLowerCase()}`,
+  kind: 'sound',
+  card: ['sound', {
+    kicker: 'Sound of the day',
+    letter: s.letter,
+    say: s.sound,
+    example: s.example,
+  }],
+  en: `Today's sound: ${s.letter}
+
+Say "${s.sound}" — the sound, not the letter's name.
+
+${SAY_EN[s.letter] || `You can hear it in ${s.example}.`}
+
+Point at it once tonight and ask your child what it says. That is the whole exercise.
+
+${TAGS_EN}`,
+  fr: `Le son du jour : ${s.letter}
+
+Dites « ${s.sound} » — le son, pas le nom de la lettre.
+
+${SAY_FR[s.letter] || `On l'entend dans ${s.example}.`}
+
+Montrez-la une fois ce soir et demandez à votre enfant ce qu'elle dit. C'est tout l'exercice.
+
+${TAGS_FR}`,
+}));

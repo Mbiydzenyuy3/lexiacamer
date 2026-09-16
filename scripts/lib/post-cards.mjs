@@ -142,6 +142,26 @@ export const CARDS = {
            ${sub ? `<div class="sub">${esc(sub)}</div>` : ''}`,
   }, { bg: C.amber50, glow: C.amber200, size }),
 
+  /**
+   * One letter, enormous.
+   *
+   * The daily sound posts live or die on the letter being readable at thumbnail
+   * size in a crowded feed, so it gets most of the canvas and everything else
+   * gets out of the way.
+   */
+  sound: ({ letter, say, example, kicker }) => SHELL({
+    css: `.kicker{margin-top:46px}
+          .big{font-size:${letter.length > 1 ? 280 : 340}px;font-weight:900;line-height:.82;
+              letter-spacing:-.04em;color:${C.green700};position:relative;
+              align-self:flex-start;margin:-10px 0 0 -12px}
+          .say{margin-top:6px;font-size:52px;font-weight:800;position:relative}
+          .ex{margin-top:14px;font-size:34px;color:${C.text2};position:relative}`,
+    html: `<span class="kicker" style="color:${C.green700};background:${C.card};border:2px solid ${C.green200}">${esc(kicker)}</span>
+           <div class="big">${esc(letter)}</div>
+           <div class="say">Say &ldquo;${esc(say)}&rdquo;</div>
+           <div class="ex">as in ${esc(example)}</div>`,
+  }),
+
   /** The ask. Inverted, so it is visibly different from the rest. */
   cta: ({ title, sub }, size) => SHELL({
     css: `.k{color:${C.green700};background:${C.card};border:0}`,

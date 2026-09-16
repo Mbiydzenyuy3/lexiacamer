@@ -28,7 +28,7 @@ import { resolve } from 'node:path';
 /** Anchored to the repo, so the script works from any working directory. */
 const ROOT = resolve(import.meta.dirname, '..');
 import { env } from './lib/admin-client.mjs';
-import { POSTS } from './lib/post-library.mjs';
+import { POSTS, SOUND_POSTS } from './lib/post-library.mjs';
 import { CARDS, render, canRasterise } from './lib/post-cards.mjs';
 
 /**
@@ -76,7 +76,17 @@ const WEEKS = Math.max(1, Math.min(12, Number(arg('weeks', 4)) || 4));
 const LANGS = (arg('lang') ? [arg('lang')] : ['en', 'fr'])
   .filter((l) => l === 'en' || l === 'fr');
 if (!LANGS.length) { console.error('  --lang must be en or fr.\n'); process.exit(1); }
-const PER_WEEK = 2;   // What one person can actually sustain.
+/**
+ * Posts per week.
+ *
+ * Was 2, on the reasoning that it is what one person can sustain by hand. That
+ * stopped being the constraint the moment the posts were generated, and a page
+ * with twelve followers cannot build an audience on two posts a week -- it
+ * sits dormant for four days at a time, which is invisible to both people and
+ * the feed algorithm. The real limit is how many posts exist, which is why the
+ * sound series was added.
+ */
+const PER_WEEK = Math.max(1, Math.min(7, Number(arg('per-week', 5)) || 5));
 
 /** The only answers the app offers, and so the only ones we will ever print. */
 const GOALS = new Set(['Letter sounds', 'Reading words', 'Spelling',
@@ -163,30 +173,46 @@ function schedule(data, slots) {
 
   const asks = usable.filter((p) => p.ask);
   const rest = usable.filter((p) => !p.ask);
+  // The sound posts are the filler that makes a real cadence possible. They
+  // are interleaved rather than batched, so the page does not read as
+  // thirty-two alphabet cards followed by everything else.
+  const sounds = [...SOUND_POSTS];
 
   // Rotate rather than repeat: a page that posts the same thing twice in a
   // month looks automated, which is the one thing this must not look like.
   const out = [];
-  let ri = 0, ai = 0;
+  let ri = 0, ai = 0, si = 0;
   for (let i = 0; i < slots; i += 1) {
-    // Roughly one ask in three, and never two in a row.
-    const wantAsk = i % 3 === 2 && asks.length > 0;
-    if (wantAsk) { out.push(asks[ai % asks.length]); ai += 1; }
+    // One ask in five, a substantial post every other day, a sound between
+    // them. Enough rhythm to be worth following, not so much asking that
+    // people stop reading.
+    if (i % 5 === 4 && asks.length) { out.push(asks[ai % asks.length]); ai += 1; }
+    else if (i % 2 === 0 && sounds.length) { out.push(sounds[si % sounds.length]); si += 1; }
     else if (rest.length) { out.push(rest[ri % rest.length]); ri += 1; }
-    else { out.push(asks[ai % asks.length]); ai += 1; }
+    else if (sounds.length) { out.push(sounds[si % sounds.length]); si += 1; }
   }
-  return { out, dropped, pool: usable.length };
+  return { out, dropped, pool: usable.length + sounds.length };
 }
 
-/** Tuesday and Friday: two fixed days beat a cadence nobody keeps. */
+/**
+ * Days to post on, starting TODAY where there is still time.
+ *
+ * Starting tomorrow leaves the page dormant on the day you decided to fix it,
+ * which is the opposite of the intent.
+ */
 function postingDays(weeks) {
   const days = [];
+  // 5/week skips Sunday and one midweek day; 7 posts every day.
+  const skip = PER_WEEK >= 7 ? [] : PER_WEEK >= 6 ? [0] : [0, 3];
   const d = new Date();
-  d.setHours(9, 0, 0, 0);
+  d.setDate(d.getDate() - 1);   // so the loop's first increment lands on today
   while (days.length < weeks * PER_WEEK) {
     d.setDate(d.getDate() + 1);
-    const wd = d.getDay();
-    if (wd === 2 || wd === 5) days.push(new Date(d));
+    if (skip.includes(d.getDay())) continue;
+    const at = new Date(d);
+    // Mornings before school, evenings when the day is done.
+    at.setHours(days.length % 2 === 0 ? 7 : 19, 30, 0, 0);
+    if (at.getTime() > Date.now() + 20 * 60000) days.push(at);
   }
   return days;
 }
@@ -284,6 +310,18 @@ for (let i = 0; i < out.length; i += 1) {
 }
 
 writeFileSync(resolve(dir, 'calendar.md'), lines.join('\n'));
+
+// The schedule is decided HERE and written down, so the scheduler does not
+// have to re-derive it. Two copies of the cadence logic drifted apart within
+// an hour of existing: calendar.md said Thursday and the scheduler said
+// Friday, which is the sort of disagreement nobody notices until posts appear
+// on the wrong days.
+writeFileSync(resolve(dir, 'schedule.json'), JSON.stringify(
+  out.map((p, i) => ({
+    key: `${String(i + 1).padStart(2, '0')}-${p.key}`,
+    at: days[i].toISOString(),
+    ask: Boolean(p.ask),
+  })), null, 2));
 
 console.log(`\n  ${out.length} posts written to content/${stamp}/`);
 console.log(`  ${made} images rendered, ${pool} posts in the pool.`);

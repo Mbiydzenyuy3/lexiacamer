@@ -22,6 +22,8 @@ import { resolve, basename } from 'node:path';
 import { env } from './lib/admin-client.mjs';
 
 const ROOT = resolve(import.meta.dirname, '..');
+const fmtEarly = (d) => d.toLocaleString('en-GB',
+  { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 const API = 'https://graph.facebook.com/v21.0';
 
 const argv = process.argv.slice(2);
@@ -63,44 +65,47 @@ const ledger = existsSync(ledgerPath)
 
 /* ——— The posts, and when they go out ——— */
 
-/** Tuesday 07:30 and Friday 19:30, matching what calendar.md says. */
-function slots(count) {
-  const out = [];
-  const d = new Date();
-  while (out.length < count) {
-    d.setDate(d.getDate() + 1);
-    const wd = d.getDay();
-    if (wd !== 2 && wd !== 5) continue;
-    const when = new Date(d);
-    when.setHours(wd === 2 ? 7 : 19, 30, 0, 0);
-    // Meta rejects anything less than 10 minutes out; a batch generated today
-    // can otherwise produce a slot that has already passed.
-    if (when.getTime() > Date.now() + 15 * 60000) out.push(when);
-  }
-  return out;
-}
+/**
+ * The dates come from schedule.json, written by `npm run posts`.
+ *
+ * This file used to re-derive them, and the two copies disagreed immediately:
+ * calendar.md said Thursday, the scheduler said Friday. Whoever owns the
+ * cadence should own it alone.
+ */
+const planPath = resolve(dir, 'schedule.json');
+if (!existsSync(planPath)) {
+  console.error(`
+  No schedule.json in content/${batch}.
 
-const posts = readdirSync(dir)
-  .filter((f) => f.endsWith(`.${LANG}.txt`) && !f.includes('-ig.'))
-  .sort()
-  .map((f) => {
-    const key = basename(f, `.${LANG}.txt`);
-    return {
-      key,
-      message: readFileSync(resolve(dir, f), 'utf8').trim(),
-      image: resolve(dir, `${key}.png`),
-    };
-  })
-  .filter((p) => {
-    if (!existsSync(p.image)) {
-      console.log(`  ! ${p.key}: no image, skipped`);
-      return false;
-    }
-    return true;
-  });
+  It is written by \`npm run posts\`. Regenerate the batch:
+      npm run posts
+`);
+  process.exit(1);
+}
+const plan = JSON.parse(readFileSync(planPath, 'utf8'));
+
+const posts = plan.map((entry) => ({
+  key: entry.key,
+  at: new Date(entry.at),
+  message: (() => {
+    const f = resolve(dir, `${entry.key}.${LANG}.txt`);
+    return existsSync(f) ? readFileSync(f, 'utf8').trim() : null;
+  })(),
+  image: resolve(dir, `${entry.key}.png`),
+})).filter((p) => {
+  if (!p.message) { console.log(`  ! ${p.key}: no ${LANG} caption, skipped`); return false; }
+  if (!existsSync(p.image)) { console.log(`  ! ${p.key}: no image, skipped`); return false; }
+  // Meta rejects a publish time under ten minutes away, and a slot from an
+  // older batch may simply have passed.
+  if (p.at.getTime() < Date.now() + 15 * 60000) {
+    console.log(`  ! ${p.key}: ${fmtEarly(p.at)} is in the past, skipped`);
+    return false;
+  }
+  return true;
+});
 
 const pending = posts.filter((p) => !ledger[p.key]);
-const when = slots(pending.length);
+const when = pending.map((p) => p.at);
 
 console.log(`\n  Batch:    content/${batch}`);
 console.log(`  Language: ${LANG.toUpperCase()}`);
