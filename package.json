@@ -10,7 +10,8 @@
     "posts": "node scripts/posts.mjs",
     "outreach": "node scripts/outreach.mjs",
     "recording-guide": "node scripts/recording-guide.mjs",
-    "meta:check": "node scripts/meta-check.mjs"
+    "meta:check": "node scripts/meta-check.mjs",
+    "schedule": "node scripts/schedule.mjs"
   },
   "dependencies": {
     "@supabase/supabase-js": "^2.116.0",
