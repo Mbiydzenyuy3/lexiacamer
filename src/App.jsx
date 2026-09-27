@@ -21,11 +21,19 @@ import Settings from './Settings';
 import ParentDashboard from './ParentDashboard';
 import StickerBook from './StickerBook';
 import Onboarding from './Onboarding';
+import FeedbackButton from './FeedbackButton';
 
 /**
- * App - Root Shell
- * Handles: routing, language toggle, offline detection, global stats.
+ * App — Root Shell
+ * Handles: routing, offline detection, global stats.
  * All persistence lives in ./store so a backend can drop in without a rewrite.
+ *
+ * The screens are imported statically, deliberately. App is already a separate
+ * lazy chunk that main.jsx prefetches in the background while someone reads the
+ * landing page, so by the time a child taps in it is there. Splitting it
+ * further would turn each tap between Phonics Lab, Word Forge and the Sticker
+ * Book into its own request -- and on a weak connection a round trip costs far
+ * more than the few kilobytes it would save.
  */
 
 export default function App() {
@@ -288,43 +296,47 @@ export default function App() {
     <>
       {/* Top Bar: hidden during onboarding for a clean full-screen first run */}
       {!isFocusedFlow && (
-      <header className="top-bar">
-        <div className="top-bar-inner">
-          {/* Left: Logo */}
-          <button
-            className="top-bar-logo"
-            onClick={() => handleNavigate('home')}
-            aria-label="LexiaCamer home"
-          >
-            <img src="/pwa-192x192.png" alt="L" className="top-bar-logo-img" />
-            <span className="top-bar-logo-text">exiaCamer</span>
-          </button>
-
-          {/* Center: Dashboard */}
-          <button
-            className={`top-bar-parents ${screen === 'parent_dashboard' ? 'active' : ''}`}
-            onClick={() => handleNavigate('parent_dashboard')}
-            aria-label={t.dashboardLabel}
-          >
-            <ShieldCheck size={18} />
-            <span className="top-bar-parents-label">{t.dashboardLabel}</span>
-          </button>
-
-          {/* Right: Avatar */}
-          {user?.name ? (
+        <header className="top-bar">
+          <div className="top-bar-inner">
+            {/* Left: Logo */}
             <button
-              className="top-bar-avatar"
+              className="top-bar-logo"
               onClick={() => handleNavigate('home')}
-              aria-label="Go to home"
+              aria-label="LexiaCamer home"
             >
-              <AvatarIcon size={20} style={{ color: 'var(--green-700)' }} />
+              <img src="/pwa-192x192.png" alt="L" className="top-bar-logo-img" />
+              <span className="top-bar-logo-text">exiaCamer</span>
             </button>
-          ) : (
-            <span className="top-bar-avatar-placeholder" aria-hidden="true" />
-          )}
-        </div>
-      </header>
+
+            {/* Center: Dashboard */}
+            <button
+              className={`top-bar-parents ${screen === 'parent_dashboard' ? 'active' : ''}`}
+              onClick={() => handleNavigate('parent_dashboard')}
+              aria-label={t.dashboardLabel}
+            >
+              <ShieldCheck size={18} />
+              <span className="top-bar-parents-label">{t.dashboardLabel}</span>
+            </button>
+
+            {/* Right: Avatar */}
+            {user?.name ? (
+              <button
+                className="top-bar-avatar"
+                onClick={() => handleNavigate('home')}
+                aria-label="Go to home"
+              >
+                <AvatarIcon size={20} style={{ color: 'var(--green-700)' }} />
+              </button>
+            ) : (
+              <span className="top-bar-avatar-placeholder" aria-hidden="true" />
+            )}
+          </div>
+        </header>
       )}
+
+      {/* Reachable everywhere: a tester who has to leave the app to report
+          something mostly will not. */}
+      <FeedbackButton screen={screen} />
 
       {/* Offline Banner */}
       {isOffline && (
@@ -357,33 +369,33 @@ export default function App() {
 
       {/* Bottom Navigation: hidden during onboarding */}
       {!isFocusedFlow && (
-      <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
-        <button
-          className={`bottom-nav-item ${screen === 'home' ? 'active' : ''}`}
-          onClick={() => handleNavigate('home')}
-          id="nav-home"
-        >
-          <div className="nav-icon-bg"><Home size={22} /></div>
-          <span>{t.navHome}</span>
-        </button>
-        <button
-          className={`bottom-nav-item ${screen === 'phonics' ? 'active' : ''}`}
-          onClick={() => handleNavigate('phonics')}
-          id="nav-phonics"
-        >
-          <div className="nav-icon-bg"><Type size={22} /></div>
-          <span>{t.navPhonics}</span>
-        </button>
+        <nav className="bottom-nav" role="navigation" aria-label="Main navigation">
+          <button
+            className={`bottom-nav-item ${screen === 'home' ? 'active' : ''}`}
+            onClick={() => handleNavigate('home')}
+            id="nav-home"
+          >
+            <div className="nav-icon-bg"><Home size={22} /></div>
+            <span>{t.navHome}</span>
+          </button>
+          <button
+            className={`bottom-nav-item ${screen === 'phonics' ? 'active' : ''}`}
+            onClick={() => handleNavigate('phonics')}
+            id="nav-phonics"
+          >
+            <div className="nav-icon-bg"><Type size={22} /></div>
+            <span>{t.navPhonics}</span>
+          </button>
 
-        <button
-          className={`bottom-nav-item ${screen === 'forge' ? 'active' : ''}`}
-          onClick={() => handleNavigate('forge')}
-          id="nav-forge"
-        >
-          <div className="nav-icon-bg"><Hammer size={22} /></div>
-          <span>{t.navSpelling}</span>
-        </button>
-      </nav>
+          <button
+            className={`bottom-nav-item ${screen === 'forge' ? 'active' : ''}`}
+            onClick={() => handleNavigate('forge')}
+            id="nav-forge"
+          >
+            <div className="nav-icon-bg"><Hammer size={22} /></div>
+            <span>{t.navSpelling}</span>
+          </button>
+        </nav>
       )}
     </>
   );

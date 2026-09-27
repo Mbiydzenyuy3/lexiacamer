@@ -1,13 +1,122 @@
+# Theme — LexiaCamer
+
+Framework: React 18 + Vite 7 (no meta-framework). CSS: **vanilla CSS, one file** (`src/index.css`), custom-property driven. No Tailwind, no CSS modules, no component library. Icons: `lucide-react`.
+
+## Part 1 — Token summary
+
+### Fonts
+- Body/UI: `'Outfit'` (Google Fonts, weights 300-900), fallback `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif`
+- Dyslexia mode (`body.dyslexia-mode`): `'Comic Neue', cursive`, `letter-spacing: 0.12em`, `word-spacing: 0.25em`
+- Root font-size 16px, `line-height: 1.6`
+
+### Color palette
+| Token | Value |
+|---|---|
+| `--green-50` | `#ecfdf5` |
+| `--green-100` | `#d1fae5` |
+| `--green-200` | `#a7f3d0` |
+| `--green-400` | `#34d399` |
+| `--green-500` | `#10b981` |
+| `--green-600` | `#059669` |
+| `--green-700` | `#047857` |
+| `--green-800` | `#065f46` |
+| `--green-900` | `#064e3b` |
+| `--amber-50` | `#fffbeb` |
+| `--amber-100` | `#fef3c7` |
+| `--amber-200` | `#fde68a` |
+| `--amber-300` | `#fcd34d` |
+| `--amber-400` | `#fbbf24` |
+| `--amber-500` | `#f59e0b` |
+| `--amber-600` | `#d97706` |
+| `--indigo-50` | `#eef2ff` |
+| `--indigo-100` | `#e0e7ff` |
+| `--indigo-200` | `#c7d2fe` |
+| `--indigo-400` | `#818cf8` |
+| `--indigo-500` | `#6366f1` |
+| `--indigo-600` | `#4f46e5` |
+| `--indigo-700` | `#4338ca` |
+| `--rose-50` | `#fff1f2` |
+| `--rose-100` | `#ffe4e6` |
+| `--rose-400` | `#fb7185` |
+| `--rose-500` | `#f43f5e` |
+| `--rose-600` | `#e11d48` |
+| `--sky-50` | `#f0f9ff` |
+| `--sky-400` | `#38bdf8` |
+| `--sky-500` | `#0ea5e9` |
+
+### Semantic tokens
+| Token | Maps to |
+|---|---|
+| `--color-primary` | `--green-600` `#059669` |
+| `--color-primary-hover` | `--green-700` `#047857` |
+| `--color-primary-light` | `--green-100` `#d1fae5` |
+| `--color-secondary` | `--amber-500` `#f59e0b` |
+| `--color-secondary-hover` | `--amber-600` `#d97706` |
+| `--color-accent` | `--indigo-500` `#6366f1` |
+| `--color-accent-light` | `--indigo-100` `#e0e7ff` |
+| `--color-danger` | `--rose-500` `#f43f5e` |
+| `--color-success` | `--green-500` `#10b981` |
+| `--bg-body` | `#f0f5eb` (warm off-green, NOT white) |
+| `--bg-card` | `#ffffff` |
+| `--bg-card-hover` | `#f8fdf5` |
+| `--bg-elevated` | `rgba(255,255,255,0.92)` |
+| `--text-primary` | `#1a2e05` (near-black green) |
+| `--text-secondary` | `#4a6741` |
+| `--text-muted` | `#7c9a6e` |
+| `--text-inverse` | `#ffffff` |
+| `--border-light` | `#e2edda` |
+| `--border-medium` | `#c6d8bc` |
+
+### Radius
+`--radius-sm: 0.625rem` · `--radius-md: 1rem` · `--radius-lg: 1.25rem` · `--radius-xl: 1.5rem` · `--radius-2xl: 2rem` · `--radius-full: 9999px`
+
+Radii are large throughout — this is a children's product; nothing is sharp-cornered.
+
+### Shadows
+- `--shadow-xs: 0 1px 2px rgba(16,48,0,.04)`
+- `--shadow-sm: 0 1px 3px rgba(16,48,0,.06), 0 1px 2px rgba(16,48,0,.04)`
+- `--shadow-md: 0 4px 12px rgba(16,48,0,.08)`
+- `--shadow-lg: 0 10px 30px rgba(16,48,0,.10)`
+- `--shadow-xl: 0 16px 48px rgba(16,48,0,.12)`
+- `--shadow-glow: 0 0 20px rgba(5,150,105,.25)`
+
+All shadows are tinted green-black (`rgba(16,48,0,…)`), never neutral grey.
+
+### Spacing
+`--space-xs: .25rem` · `--space-sm: .5rem` · `--space-md: 1rem` · `--space-lg: 1.5rem` · `--space-xl: 2rem` · `--space-2xl: 3rem`
+
+### Motion
+`--ease-out: cubic-bezier(.16,1,.3,1)` · `--ease-spring: cubic-bezier(.34,1.56,.64,1)`
+`--duration-fast: 150ms` · `--duration-normal: 250ms` · `--duration-slow: 400ms`
+Global `prefers-reduced-motion` block collapses all durations to `0.01ms`.
+
+### Z-index scale
+`--z-dropdown: 100` · `--z-sticky: 200` · `--z-overlay: 500` · `--z-modal: 1000` · `--z-toast: 1500`
+
+### Layout constants
+- `--bottom-nav-height: calc(4.75rem + env(safe-area-inset-bottom))`
+- Breakpoints used in the stylesheet: `420px`, `640px`, `768px`, `1024px`
+
+### Design character (for reproducing the look)
+Warm green-and-cream, high contrast, built for low-end Android and bright outdoor daylight. Big rounded cards on a tinted body background, generous touch targets, emoji and lucide icons, amber for reward/streak, indigo for secondary actions and stickers. Nothing grey, nothing corporate, no thin hairlines.
+
+---
+
+## Part 2 — Raw source
+
+### `src/index.css`
+
+```css
 /* ================================================================
-   LEXIA CAMEROON - Design System
+   LEXIA CAMEROON — Design System
    High-contrast, accessible, optimized for low-end Android devices
    ================================================================ */
 
 @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
 
-/* --- Design Tokens --- */
+/* ——— Design Tokens ——— */
 :root {
-  /* Primary palette: warm, inviting, high-contrast */
+  /* Primary palette — warm, inviting, high-contrast */
   --green-50: #ecfdf5;
   --green-100: #d1fae5;
   --green-200: #a7f3d0;
@@ -76,7 +185,7 @@
   --radius-2xl: 2rem;
   --radius-full: 9999px;
 
-  /* Shadows: subtle, light */
+  /* Shadows — subtle, light */
   --shadow-xs: 0 1px 2px rgba(16, 48, 0, 0.04);
   --shadow-sm: 0 1px 3px rgba(16, 48, 0, 0.06), 0 1px 2px rgba(16, 48, 0, 0.04);
   --shadow-md: 0 4px 12px rgba(16, 48, 0, 0.08);
@@ -106,13 +215,13 @@
   --z-modal: 1000;
   --z-toast: 1500;
 
-  /* Bottom nav height: reserves scroll space so content clears the fixed nav,
+  /* Bottom nav height — reserves scroll space so content clears the fixed nav,
      and positions the offline banner above it. Grows with the safe-area inset
      on notched phones. */
   --bottom-nav-height: calc(4.75rem + env(safe-area-inset-bottom));
 }
 
-/* --- Reset --- */
+/* ——— Reset ——— */
 *,
 *::before,
 *::after {
@@ -203,7 +312,7 @@ a {
   color: inherit;
 }
 
-/* --- Typography --- */
+/* ——— Typography ——— */
 h1 {
   font-size: 2rem;
   font-weight: 800;
@@ -300,7 +409,7 @@ p {
   font-style: italic;
 }
 
-/* --- Spacing Utilities --- */
+/* ——— Spacing Utilities ——— */
 .mx-auto {
   margin-left: auto;
   margin-right: auto;
@@ -376,7 +485,7 @@ p {
   transition: all var(--duration-normal) var(--ease-out);
 }
 
-/* --- Layout --- */
+/* ——— Layout ——— */
 .container {
   max-width: 640px;
   margin: 0 auto;
@@ -436,7 +545,7 @@ p {
   width: 100%;
 }
 
-/* --- Cards --- */
+/* ——— Cards ——— */
 .card {
   background: var(--bg-card);
   border-radius: var(--radius-xl);
@@ -474,7 +583,7 @@ p {
   box-shadow: var(--shadow-md);
 }
 
-/* --- Buttons --- */
+/* ——— Buttons ——— */
 .btn {
   display: inline-flex;
   align-items: center;
@@ -587,7 +696,7 @@ p {
   font-size: 1.25rem;
 }
 
-/* --- Badges / Chips --- */
+/* ——— Badges / Chips ——— */
 .badge {
   display: inline-flex;
   align-items: center;
@@ -618,7 +727,7 @@ p {
   color: var(--rose-600);
 }
 
-/* --- Progress Bar --- */
+/* ——— Progress Bar ——— */
 .progress-bar {
   width: 100%;
   height: 10px;
@@ -634,7 +743,7 @@ p {
   transition: width var(--duration-slow) var(--ease-out);
 }
 
-/* --- Top Bar --- */
+/* ——— Top Bar ——— */
 .top-bar {
   position: sticky;
   top: 0;
@@ -743,7 +852,7 @@ p {
 }
 
 
-/* --- Offline Banner --- */
+/* ——— Offline Banner ——— */
 .offline-banner {
   background: linear-gradient(90deg, var(--amber-400), var(--amber-500));
   color: #1a1a1a;
@@ -763,7 +872,7 @@ p {
   animation: slideUp 0.3s var(--ease-out);
 }
 
-/* --- Bottom Navigation --- */
+/* ——— Bottom Navigation ——— */
 .bottom-nav {
   position: fixed;
   bottom: 0;
@@ -815,7 +924,7 @@ p {
   transition: background var(--duration-fast);
 }
 
-/* --- Phonics Grid --- */
+/* ——— Phonics Grid ——— */
 .phonics-grid {
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(5rem, 1fr));
@@ -886,7 +995,7 @@ p {
   border-color: var(--sky-400);
 }
 
-/* --- Word Forge --- */
+/* ——— Word Forge ——— */
 .letter-slot {
   width: 3.2rem;
   height: 3.8rem;
@@ -961,14 +1070,14 @@ p {
   pointer-events: none;
 }
 
-/* --- Image / Illustration Wrapper --- */
+/* ——— Image / Illustration Wrapper ——— */
 .illustration-wrapper {
   width: 100%;
   max-width: 180px;
   margin: 0 auto;
 }
 
-/* --- Streak / Score Display --- */
+/* ——— Streak / Score Display ——— */
 .score-display {
   display: flex;
   align-items: center;
@@ -987,7 +1096,7 @@ p {
   animation: flameDance 0.8s ease infinite alternate;
 }
 
-/* --- Modal / Overlay --- */
+/* ——— Modal / Overlay ——— */
 .overlay {
   position: fixed;
   inset: 0;
@@ -1011,7 +1120,7 @@ p {
   box-shadow: var(--shadow-xl);
 }
 
-/* --- Celebration / Confetti --- */
+/* ——— Celebration / Confetti ——— */
 .celebration-container {
   position: fixed;
   inset: 0;
@@ -1028,7 +1137,7 @@ p {
   animation: confettiFall 2.5s ease forwards;
 }
 
-/* --- Screen Layout --- */
+/* ——— Screen Layout ——— */
 .screen {
   flex: 1;
   /* Always clear the fixed bottom nav plus a comfortable gap, so no button or
@@ -1062,7 +1171,7 @@ p {
   }
 }
 
-/* --- Language Toggle --- */
+/* ——— Language Toggle ——— */
 .lang-toggle {
   display: flex;
   border-radius: var(--radius-full);
@@ -1085,7 +1194,7 @@ p {
   color: var(--text-inverse);
 }
 
-/* --- Module Card (Home Screen) --- */
+/* ——— Module Card (Home Screen) ——— */
 .module-card {
   display: flex;
   align-items: center;
@@ -1141,7 +1250,7 @@ p {
   flex-shrink: 0;
 }
 
-/* --- Category Tabs --- */
+/* ——— Category Tabs ——— */
 .category-tabs {
   display: flex;
   gap: 0.5rem;
@@ -1174,7 +1283,7 @@ p {
   box-shadow: 0 2px 8px rgba(5, 150, 105, 0.3);
 }
 
-/* --- Word Card (WordForge Prompt) --- */
+/* ——— Word Card (WordForge Prompt) ——— */
 .word-prompt-card {
   background: linear-gradient(145deg, var(--green-50), var(--amber-50));
   border-radius: var(--radius-2xl);
@@ -1196,7 +1305,7 @@ p {
   margin-top: 0.5rem;
 }
 
-/* --- Hero Section --- */
+/* ——— Hero Section ——— */
 .hero {
   padding: var(--space-xl) var(--space-lg);
   padding-bottom: var(--space-md);
@@ -1226,7 +1335,7 @@ p {
   max-width: 320px;
 }
 
-/* --- Stats Row --- */
+/* ——— Stats Row ——— */
 .stats-row {
   display: flex;
   gap: var(--space-sm);
@@ -1257,7 +1366,7 @@ p {
   letter-spacing: 0.05em;
 }
 
-/* --- Hint Box --- */
+/* ——— Hint Box ——— */
 .hint-box {
   display: flex;
   align-items: flex-start;
@@ -1275,7 +1384,7 @@ p {
   flex-shrink: 0;
 }
 
-/* --- Color Utility Classes --- */
+/* ——— Color Utility Classes ——— */
 .text-green-600 {
   color: var(--green-600);
 }
@@ -1376,7 +1485,7 @@ p {
   opacity: 0.7;
 }
 
-/* --- Animations --- */
+/* ——— Animations ——— */
 @keyframes fadeIn {
   from {
     opacity: 0;
@@ -1533,7 +1642,7 @@ p {
   animation: fadeIn 0.4s var(--ease-out) 0.3s forwards;
 }
 
-/* --- Responsive --- */
+/* ——— Responsive ——— */
 @media (max-width: 480px) {
   html {
     font-size: 15px;
@@ -1602,8 +1711,8 @@ p {
 
   /* On tablet/desktop the nav is a centered pill so the three items don't
      sprawl across the whole viewport. It's DOCKED to the bottom edge (not
-     floating with a gap) so page content scrolls cleanly under it - the same
-     behaviour as the mobile bar - instead of peeking around a floating pill. */
+     floating with a gap) so page content scrolls cleanly under it — the same
+     behaviour as the mobile bar — instead of peeking around a floating pill. */
   .bottom-nav {
     max-width: 480px;
     margin: 0 auto;
@@ -1632,21 +1741,16 @@ p {
     transition-duration: 0.01ms !important;
   }
 }
-
 /* ================================================================
    EARLY TESTER GATE + FEEDBACK
    ================================================================ */
 
 .et-screen {
   min-height: 100vh;
-  min-height: 100dvh;
   display: flex;
-  /* Column, not row: this screen holds a wordmark, the card and a back link,
-     stacked. It centres them horizontally and vertically as a group. */
-  flex-direction: column;
   align-items: center;
   justify-content: center;
-  padding: 1.75rem 1.25rem;
+  padding: 1.25rem;
   background: var(--bg-body);
 }
 
@@ -1676,15 +1780,8 @@ p {
   border-radius: var(--radius-full);
 }
 
-.et-title {
-  margin: 0 0 0.6rem;
-  font-size: 1.6rem;
-  line-height: 1.25;
-}
-
-.et-title-sm {
-  font-size: 1.3rem;
-}
+.et-title { margin: 0 0 0.6rem; font-size: 1.6rem; line-height: 1.25; }
+.et-title-sm { font-size: 1.3rem; }
 
 .et-lead {
   margin: 0 0 1.1rem;
@@ -1704,9 +1801,7 @@ p {
   color: var(--text-secondary);
 }
 
-.et-known p {
-  margin: 0 0 0.6rem;
-}
+.et-known p { margin: 0 0 0.6rem; }
 
 .et-known-title {
   display: flex;
@@ -1717,11 +1812,7 @@ p {
   color: var(--text-primary);
 }
 
-.et-field {
-  border: 0;
-  padding: 0;
-  margin: 0 0 1rem;
-}
+.et-field { border: 0; padding: 0; margin: 0 0 1rem; }
 
 .et-label {
   display: block;
@@ -1731,16 +1822,9 @@ p {
   color: var(--text-primary);
 }
 
-.et-optional {
-  font-weight: 400;
-  color: var(--text-muted);
-}
+.et-optional { font-weight: 400; color: var(--text-muted); }
 
-.et-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
+.et-chips { display: flex; flex-wrap: wrap; gap: 0.45rem; }
 
 .et-chip {
   padding: 0.5rem 0.85rem;
@@ -1798,15 +1882,8 @@ p {
   cursor: pointer;
 }
 
-.et-btn-primary {
-  color: var(--text-inverse);
-  background: var(--color-primary);
-}
-
-.et-btn-primary:disabled {
-  background: var(--border-medium);
-  cursor: not-allowed;
-}
+.et-btn-primary { color: var(--text-inverse); background: var(--color-primary); }
+.et-btn-primary:disabled { background: var(--border-medium); cursor: not-allowed; }
 
 .et-foot {
   margin: 0.8rem 0 0;
@@ -1878,26 +1955,17 @@ p {
   cursor: pointer;
 }
 
-.fb-fab.is-behind {
-  opacity: 0;
-  pointer-events: none;
-}
+.fb-fab.is-behind { opacity: 0; pointer-events: none; }
 
 .fb-fab:focus-visible {
   outline: 3px solid var(--color-primary);
   outline-offset: 3px;
 }
 
-.fb-fab-label {
-  font-size: 0.85rem;
-}
+.fb-fab-label { font-size: 0.85rem; }
 
 @media (max-width: 420px) {
-  .fb-fab-label {
-    display: none;
-  }
-
-  /* icon only where space is tight */
+  .fb-fab-label { display: none; }   /* icon only where space is tight */
 }
 
 .fb-backdrop {
@@ -1905,8 +1973,7 @@ p {
   inset: 0;
   z-index: var(--z-modal);
   display: flex;
-  align-items: flex-end;
-  /* a sheet on phones, centred on desktop */
+  align-items: flex-end;      /* a sheet on phones, centred on desktop */
   justify-content: center;
   padding-top: env(safe-area-inset-top, 0px);
   background: rgba(16, 48, 0, 0.45);
@@ -1922,23 +1989,17 @@ p {
   max-width: 30rem;
   max-height: calc(100vh - 2.5rem);
   max-height: calc(100dvh - 2.5rem);
-  overflow: hidden;
-  /* so head and foot clip to the rounded corners */
+  overflow: hidden;           /* so head and foot clip to the rounded corners */
   background: var(--bg-card);
   border-radius: var(--radius-xl) var(--radius-xl) 0 0;
   box-shadow: var(--shadow-xl);
   animation: slideUp 0.22s ease-out;
 }
 
-.fb-panel:focus {
-  outline: none;
-}
+.fb-panel:focus { outline: none; }
 
 @media (min-width: 640px) {
-  .fb-backdrop {
-    align-items: center;
-    padding: 1.5rem;
-  }
+  .fb-backdrop { align-items: center; padding: 1.5rem; }
 
   .fb-panel {
     max-height: calc(100dvh - 3rem);
@@ -1980,10 +2041,7 @@ p {
   cursor: pointer;
 }
 
-.fb-close:hover {
-  color: var(--text-primary);
-  background: var(--bg-card-hover);
-}
+.fb-close:hover { color: var(--text-primary); background: var(--bg-card-hover); }
 
 /* The form is the flex column's stretchy middle; the scroll lives one level
    further in, so the footer below it stays put. */
@@ -2003,9 +2061,7 @@ p {
   padding: 1.15rem 1.25rem 1.25rem;
 }
 
-.fb-sublabel {
-  margin-top: 1.15rem;
-}
+.fb-sublabel { margin-top: 1.15rem; }
 
 .fb-foot {
   flex-shrink: 0;
@@ -2017,15 +2073,10 @@ p {
 }
 
 @media (min-width: 640px) {
-  .fb-foot {
-    padding-bottom: 0.9rem;
-  }
+  .fb-foot { padding-bottom: 0.9rem; }
 }
 
-.fb-ratings {
-  display: flex;
-  gap: 0.5rem;
-}
+.fb-ratings { display: flex; gap: 0.5rem; }
 
 .fb-rating {
   flex: 1;
@@ -2047,11 +2098,7 @@ p {
   color: var(--text-primary);
 }
 
-.fb-emoji {
-  display: block;
-  font-size: 1.5rem;
-  margin-bottom: 0.2rem;
-}
+.fb-emoji { display: block; font-size: 1.5rem; margin-bottom: 0.2rem; }
 
 .fb-textarea {
   margin-bottom: 0;
@@ -2065,1666 +2112,5 @@ p {
   color: var(--text-secondary);
 }
 
-.fb-done p {
-  margin: 0;
-}
-
-/* ================================================================
-   LANDING PAGE (/)
-   Phone-first. Everything here is prefixed .lp- so it can never
-   collide with the app shell, which shares the same stylesheet.
-   ================================================================ */
-
-.lp {
-  min-height: 100vh;
-  background: var(--bg-body);
-  color: var(--text-primary);
-}
-
-.lp-wrap {
-  width: 100%;
-  max-width: 68rem;
-  margin: 0 auto;
-  padding-inline: 1.25rem;
-}
-
-.lp-section {
-  padding-block: 3rem;
-}
-
-.lp-center {
-  text-align: center;
-}
-
-/* ——— Header ——— */
-.lp-header {
-  position: sticky;
-  top: 0;
-  z-index: var(--z-sticky);
-  background: rgba(240, 245, 235, 0.88);
-  backdrop-filter: blur(10px);
-  border-bottom: 1px solid var(--border-light);
-  padding-top: env(safe-area-inset-top, 0px);
-}
-
-.lp-header-inner {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 1rem;
-  max-width: 68rem;
-  margin: 0 auto;
-  padding: 0.7rem 1.25rem;
-}
-
-.lp-logo {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.1rem;
-  text-decoration: none;
-  color: var(--text-primary);
-}
-
-.lp-logo-img {
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: 0.5rem;
-}
-
-.lp-logo-text {
-  font-weight: 800;
-  font-size: 1.15rem;
-  letter-spacing: -0.01em;
-}
-
-.lp-header-right {
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-}
-
-.lp-lang {
-  display: inline-flex;
-  padding: 0.15rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-full);
-}
-
-.lp-lang button {
-  padding: 0.3rem 0.65rem;
-  font: inherit;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  background: none;
-  border: 0;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-}
-
-.lp-lang button.is-on {
-  color: var(--text-primary);
-  background: var(--green-100);
-}
-
-/* ——— Buttons ——— */
-.lp-btn {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  padding: 0.9rem 1.6rem;
-  font: inherit;
-  font-size: 1rem;
-  font-weight: 700;
-  text-decoration: none;
-  border: 0;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-  transition: transform var(--duration-fast) var(--ease-out),
-    background-color var(--duration-fast) var(--ease-out);
-}
-
-.lp-btn:active {
-  transform: scale(0.97);
-}
-
-.lp-btn-sm {
-  padding: 0.55rem 1rem;
-  font-size: 0.87rem;
-  white-space: nowrap;
-}
-
-/* On a phone the header CTA is redundant: the hero button sits right below it,
-   visible without scrolling, and squeezing both onto one 390px row makes the
-   label wrap and crowd the logo. The header CTA earns its place only once
-   there is room for it. */
-@media (max-width: 560px) {
-  .lp-header-right .lp-btn-sm {
-    display: none;
-  }
-}
-
-.lp-btn-primary {
-  color: var(--text-inverse);
-  background: var(--color-primary);
-  box-shadow: var(--shadow-md);
-}
-
-.lp-btn-primary:hover {
-  background: var(--color-primary-hover);
-}
-
-.lp-btn-quiet {
-  color: var(--text-secondary);
-  background: none;
-  text-decoration: underline;
-  text-underline-offset: 4px;
-}
-
-.lp-btn-invert {
-  color: var(--color-primary);
-  background: var(--bg-card);
-  box-shadow: var(--shadow-lg);
-}
-
-.lp-btn:focus-visible {
-  outline: 3px solid var(--color-primary);
-  outline-offset: 3px;
-}
-
-.lp-btn-invert:focus-visible {
-  outline-color: var(--bg-card);
-}
-
-/* ——— Type ——— */
-.lp-h1 {
-  margin: 0 0 0.9rem;
-  font-size: clamp(2rem, 7vw, 3.1rem);
-  font-weight: 900;
-  line-height: 1.1;
-  letter-spacing: -0.02em;
-}
-
-.lp-h2 {
-  margin: 0 0 1.5rem;
-  font-size: clamp(1.4rem, 4vw, 1.9rem);
-  font-weight: 800;
-  text-align: center;
-}
-
-.lp-h2-left {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  text-align: left;
-  color: var(--color-primary);
-}
-
-.lp-h3 {
-  margin: 0 0 0.35rem;
-  font-size: 1.05rem;
-  font-weight: 700;
-}
-
-.lp-lead {
-  margin: 0 0 1.4rem;
-  font-size: 1.05rem;
-  color: var(--text-secondary);
-  max-width: 34rem;
-}
-
-.lp-badge {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  margin-bottom: 1rem;
-  padding: 0.35rem 0.8rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--amber-600);
-  background: var(--amber-50);
-  border: 1px solid var(--amber-200);
-  border-radius: var(--radius-full);
-}
-
-.lp-note {
-  font-size: 0.87rem;
-  color: var(--text-muted);
-  text-align: center;
-}
-
-/* ——— Hero ——— */
-.lp-hero {
-  padding-block: 2.5rem 1rem;
-}
-
-.lp-hero-grid {
-  display: grid;
-  gap: 2.5rem;
-}
-
-.lp-hero-actions {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.75rem;
-}
-
-.lp-reassure {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem 1.25rem;
-  margin: 1.5rem 0 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.85rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.lp-reassure li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-}
-
-.lp-reassure svg {
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
-
-/* ——— The drawn phone ——— */
-.lp-phone {
-  justify-self: center;
-  width: min(17rem, 78vw);
-  padding: 0.55rem;
-  background: #10240a;
-  border-radius: 2.2rem;
-  box-shadow: var(--shadow-xl);
-}
-
-.lp-phone-screen {
-  padding: 1.1rem 0.9rem;
-  background: linear-gradient(to bottom, var(--green-50), var(--bg-card));
-  border-radius: 1.8rem;
-}
-
-.lp-mock-greet {
-  font-size: 1.1rem;
-  font-weight: 800;
-  text-align: center;
-  color: var(--green-800);
-}
-
-.lp-mock-sub {
-  margin-bottom: 0.9rem;
-  font-size: 0.7rem;
-  text-align: center;
-  color: var(--text-muted);
-}
-
-.lp-mock-stats {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 0.4rem;
-  margin-bottom: 0.7rem;
-}
-
-.lp-mock-stat {
-  padding: 0.5rem 0.2rem;
-  text-align: center;
-  background: var(--bg-card);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-xs);
-}
-
-.lp-mock-stat-v {
-  font-size: 1rem;
-  font-weight: 800;
-  color: var(--green-700);
-}
-
-.lp-mock-stat-l {
-  font-size: 0.55rem;
-  font-weight: 700;
-  letter-spacing: 0.05em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.lp-mock-grid {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 0.4rem;
-}
-
-.lp-mock-tile {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.7rem 0.3rem;
-  background: var(--bg-card);
-  border-radius: var(--radius-sm);
-  box-shadow: var(--shadow-xs);
-}
-
-.lp-mock-puck {
-  display: inline-flex;
-  padding: 0.4rem;
-  border-radius: var(--radius-sm);
-}
-
-.lp-mock-tile.t0 .lp-mock-puck {
-  color: var(--green-700);
-  background: var(--green-100);
-}
-
-.lp-mock-tile.t1 .lp-mock-puck {
-  color: var(--amber-600);
-  background: var(--amber-100);
-}
-
-.lp-mock-tile.t2 .lp-mock-puck {
-  color: var(--indigo-600);
-  background: var(--indigo-100);
-}
-
-.lp-mock-tile.t3 .lp-mock-puck {
-  color: var(--text-secondary);
-  background: var(--border-light);
-}
-
-.lp-mock-tile-label {
-  font-size: 0.6rem;
-  font-weight: 700;
-  text-align: center;
-}
-
-/* ——— The honest panel ——— */
-.lp-honest {
-  padding: 1.4rem;
-  background: var(--amber-50);
-  border: 1px solid var(--amber-200);
-  border-radius: var(--radius-xl);
-}
-
-.lp-honest-title {
-  display: flex;
-  align-items: center;
-  gap: 0.5rem;
-  margin: 0 0 0.7rem;
-  font-weight: 800;
-  color: var(--amber-600);
-}
-
-.lp-honest p {
-  margin: 0 0 0.7rem;
-  color: var(--text-secondary);
-}
-
-.lp-honest-last {
-  margin-bottom: 0 !important;
-}
-
-/* ——— How it works ——— */
-.lp-steps {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 1rem;
-}
-
-.lp-step {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.9rem;
-  padding: 1.25rem;
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-sm);
-}
-
-.lp-step-n {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 2rem;
-  height: 2rem;
-  font-weight: 800;
-  color: var(--text-inverse);
-  background: var(--color-primary);
-  border-radius: var(--radius-full);
-}
-
-.lp-step-body {
-  flex: 1;
-  min-width: 0;
-}
-
-.lp-step-body p {
-  margin: 0;
-  font-size: 0.93rem;
-  color: var(--text-secondary);
-}
-
-.lp-step-icon {
-  display: none;
-  flex-shrink: 0;
-  padding: 0.9rem;
-  color: var(--color-primary);
-  background: var(--green-50);
-  border-radius: var(--radius-lg);
-}
-
-/* ——— Feature cards ——— */
-.lp-cards {
-  display: grid;
-  gap: 1rem;
-}
-
-.lp-card {
-  padding: 1.4rem;
-  background: var(--bg-card);
-  border-radius: var(--radius-xl);
-  box-shadow: var(--shadow-sm);
-}
-
-.lp-card p {
-  margin: 0;
-  font-size: 0.93rem;
-  color: var(--text-secondary);
-}
-
-.lp-puck {
-  display: inline-flex;
-  margin-bottom: 0.8rem;
-  padding: 0.7rem;
-  border-radius: var(--radius-md);
-}
-
-.lp-card.c0 .lp-puck {
-  color: var(--green-700);
-  background: var(--green-100);
-}
-
-.lp-card.c1 .lp-puck {
-  color: var(--amber-600);
-  background: var(--amber-100);
-}
-
-.lp-card.c2 .lp-puck {
-  color: var(--indigo-600);
-  background: var(--indigo-100);
-}
-
-.lp-card.c3 .lp-puck {
-  color: var(--sky-500);
-  background: var(--sky-50);
-}
-
-/* ——— Built for Cameroon ——— */
-.lp-band {
-  padding-block: 3rem;
-  background: var(--green-100);
-}
-
-.lp-band-grid {
-  display: grid;
-  gap: 2rem;
-  align-items: center;
-}
-
-.lp-band .lp-h2 {
-  text-align: left;
-}
-
-.lp-facts {
-  margin: 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 1rem;
-}
-
-.lp-facts li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.75rem;
-}
-
-.lp-facts p {
-  margin: 0;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.lp-fact-icon {
-  display: inline-flex;
-  flex-shrink: 0;
-  padding: 0.5rem;
-  color: var(--green-700);
-  background: var(--bg-card);
-  border-radius: var(--radius-sm);
-}
-
-.lp-bignum {
-  padding: 2rem 1.25rem;
-  text-align: center;
-  background: var(--bg-card);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-md);
-}
-
-.lp-bignum-v {
-  font-size: clamp(2.5rem, 10vw, 3.5rem);
-  font-weight: 900;
-  line-height: 1;
-  color: var(--color-primary);
-}
-
-.lp-bignum-l {
-  margin-top: 0.4rem;
-  font-weight: 700;
-}
-
-.lp-bignum-s {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-/* ——— Who sees what ——— */
-.lp-aud {
-  display: grid;
-  gap: 1.5rem;
-  margin-bottom: 1.5rem;
-}
-
-.lp-aud-col p {
-  margin: 0;
-  font-size: 0.93rem;
-  color: var(--text-secondary);
-}
-
-/* ——— Privacy ——— */
-.lp-privacy {
-  padding: 1.75rem 1.5rem;
-  background: var(--bg-card);
-  border-radius: var(--radius-2xl);
-  box-shadow: var(--shadow-sm);
-}
-
-.lp-privacy-lead {
-  margin: 0 0 1rem;
-  font-size: 1.15rem;
-  font-weight: 800;
-}
-
-.lp-privacy-cols {
-  display: grid;
-  gap: 0.9rem;
-}
-
-.lp-privacy-cols p {
-  margin: 0;
-  font-size: 0.93rem;
-  color: var(--text-secondary);
-}
-
-.lp-contact-body {
-  max-width: 34rem;
-  margin: 1.25rem auto 0.5rem;
-  color: var(--text-secondary);
-}
-
-/* ——— Final CTA ——— */
-.lp-final {
-  padding-block: 3.5rem;
-  background: var(--color-primary);
-  color: var(--text-inverse);
-}
-
-.lp-final-title {
-  margin: 0 0 1.5rem;
-  font-size: clamp(1.5rem, 5vw, 2.4rem);
-  font-weight: 900;
-  line-height: 1.15;
-}
-
-.lp-final-note {
-  margin: 1rem 0 0;
-  font-size: 0.87rem;
-  opacity: 0.85;
-}
-
-/* ——— Footer ——— */
-.lp-footer {
-  padding-block: 2.5rem 1.5rem;
-  background: var(--bg-card);
-  border-top: 1px solid var(--border-light);
-  padding-bottom: calc(1.5rem + env(safe-area-inset-bottom, 0px));
-}
-
-.lp-footer-grid {
-  display: grid;
-  gap: 1.75rem;
-}
-
-.lp-footer-blurb {
-  max-width: 22rem;
-  margin: 0.75rem 0 0;
-  font-size: 0.87rem;
-  color: var(--text-secondary);
-}
-
-.lp-footer-h {
-  margin: 0 0 0.6rem;
-  font-size: 0.72rem;
-  font-weight: 800;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.lp-footer-link {
-  display: block;
-  margin-bottom: 0.4rem;
-  padding: 0;
-  font: inherit;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-  background: none;
-  border: 0;
-  text-align: left;
-  text-decoration: none;
-  cursor: pointer;
-}
-
-.lp-footer-link:hover {
-  color: var(--color-primary);
-  text-decoration: underline;
-}
-
-.lp-footer-base {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.5rem;
-  margin-top: 2rem;
-  padding-top: 1.25rem;
-  border-top: 1px solid var(--border-light);
-  font-size: 0.8rem;
-  color: var(--text-muted);
-}
-
-/* ——— Reveal on scroll ———
-   Scoped to .lp-animate, which only appears once JS has confirmed it can
-   actually reveal these again. Without it the content is simply visible. */
-.lp-animate .lp-reveal {
-  opacity: 0;
-  transform: translateY(14px);
-  transition: opacity var(--duration-slow) var(--ease-out),
-    transform var(--duration-slow) var(--ease-out);
-}
-
-.lp-animate .lp-reveal.is-in {
-  opacity: 1;
-  transform: none;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .lp-animate .lp-reveal {
-    opacity: 1;
-    transform: none;
-  }
-}
-
-/* ——— Wider screens ——— */
-@media (min-width: 640px) {
-  .lp-section {
-    padding-block: 4rem;
-  }
-
-  .lp-cards {
-    grid-template-columns: 1fr 1fr;
-  }
-
-  .lp-aud {
-    grid-template-columns: repeat(3, 1fr);
-  }
-
-  .lp-privacy-cols {
-    grid-template-columns: 1fr 1fr;
-    gap: 1.25rem;
-  }
-
-  .lp-privacy {
-    padding: 2.25rem;
-  }
-
-  .lp-step-icon {
-    display: inline-flex;
-  }
-}
-
-@media (min-width: 900px) {
-  .lp-hero {
-    padding-block: 4rem 2rem;
-  }
-
-  .lp-hero-grid {
-    grid-template-columns: 1.15fr 0.85fr;
-    align-items: center;
-    gap: 3rem;
-  }
-
-  .lp-band-grid {
-    grid-template-columns: 1.2fr 0.8fr;
-    gap: 3rem;
-  }
-
-  .lp-footer-grid {
-    grid-template-columns: 2fr 1fr 1fr;
-  }
-
-  .lp-section {
-    padding-block: 5rem;
-  }
-}
-
-/* ——— Early tester: additions for the redesigned 3-step flow ——— */
-
-.et-wordmark {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.1rem;
-  margin-bottom: 1.1rem;
-}
-
-.et-wordmark-img {
-  width: 1.7rem;
-  height: 1.7rem;
-  border-radius: 0.45rem;
-}
-
-.et-wordmark-text {
-  font-weight: 800;
-  font-size: 1.05rem;
-  letter-spacing: -0.01em;
-}
-
-.et-progress {
-  margin-bottom: 1.25rem;
-  text-align: center;
-}
-
-.et-dots {
-  display: flex;
-  justify-content: center;
-  gap: 0.4rem;
-  margin-bottom: 0.4rem;
-}
-
-.et-dot {
-  width: 0.5rem;
-  height: 0.5rem;
-  background: var(--border-medium);
-  border-radius: var(--radius-full);
-  transition: background-color var(--duration-normal) var(--ease-out);
-}
-
-.et-dot.is-done {
-  background: var(--green-400);
-}
-
-.et-dot.is-on {
-  background: var(--color-primary);
-}
-
-.et-stepcount {
-  margin: 0;
-  font-size: 0.7rem;
-  font-weight: 800;
-  letter-spacing: 0.08em;
-  text-transform: uppercase;
-  color: var(--text-muted);
-}
-
-.et-center {
-  text-align: center;
-}
-
-.et-lead-sm {
-  font-size: 0.95rem;
-}
-
-.et-input-tight {
-  margin-bottom: 0.6rem;
-}
-
-.et-reassure {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  gap: 0.5rem 1rem;
-  margin: 1.25rem 0;
-  padding: 0;
-  list-style: none;
-  font-size: 0.8rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-}
-
-.et-reassure li {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-}
-
-.et-reassure svg {
-  color: var(--color-primary);
-  flex-shrink: 0;
-}
-
-/* The answer to "what happens to my number", directly under the field that
-   asks for it. Green, not amber: this is reassurance, not a warning. */
-.et-promise {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.6rem;
-  margin-bottom: 1.25rem;
-  padding: 0.85rem 1rem;
-  background: var(--green-50);
-  border: 1px solid var(--green-200);
-  border-radius: var(--radius-md);
-}
-
-.et-promise svg {
-  flex-shrink: 0;
-  margin-top: 0.1rem;
-  color: var(--green-700);
-}
-
-.et-promise p {
-  margin: 0;
-  font-size: 0.85rem;
-  line-height: 1.5;
-  color: var(--text-secondary);
-}
-
-.et-tasks {
-  margin: 1.25rem 0;
-  padding: 0;
-  list-style: none;
-  display: grid;
-  gap: 0.9rem;
-}
-
-.et-tasks li {
-  display: flex;
-  align-items: flex-start;
-  gap: 0.7rem;
-}
-
-.et-tasks strong {
-  display: block;
-  font-size: 0.95rem;
-}
-
-.et-tasks p {
-  margin: 0.1rem 0 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.et-task-n {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-  width: 1.6rem;
-  height: 1.6rem;
-  font-size: 0.78rem;
-  font-weight: 800;
-  color: var(--green-800);
-  background: var(--green-100);
-  border-radius: var(--radius-full);
-}
-
-/* Indigo so it reads as information, clearly separate from the amber
-   "not finished" warning on step 1. */
-.et-fbnote {
-  margin-bottom: 1.25rem;
-  padding: 1rem 1.1rem;
-  background: var(--indigo-50);
-  border: 1px solid var(--indigo-200);
-  border-radius: var(--radius-md);
-}
-
-.et-fbnote-title {
-  display: flex;
-  align-items: center;
-  gap: 0.4rem;
-  margin: 0 0 0.4rem;
-  font-weight: 700;
-  color: var(--indigo-700);
-}
-
-.et-fbnote p {
-  margin: 0;
-  font-size: 0.87rem;
-  color: var(--text-secondary);
-}
-
-.et-fbnote-demo {
-  display: flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.5rem;
-  margin-top: 0.75rem !important;
-}
-
-.et-fbnote-label {
-  font-size: 0.78rem;
-  color: var(--text-muted);
-}
-
-.et-fbnote-pill {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.3rem;
-  padding: 0.3rem 0.7rem;
-  font-size: 0.78rem;
-  font-weight: 700;
-  color: var(--text-inverse);
-  background: var(--color-accent);
-  border-radius: var(--radius-full);
-}
-
-.et-back {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.25rem;
-  margin-top: 1rem;
-  padding: 0.5rem 0.75rem;
-  font: inherit;
-  font-size: 0.87rem;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: none;
-  border: 0;
-  border-radius: var(--radius-full);
-  cursor: pointer;
-}
-
-.et-back:hover {
-  color: var(--color-primary);
-}
-
-/* ——— Boot splash: shown only while a lazy chunk is in flight ——— */
-
-.boot {
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 1.1rem;
-  min-height: 100vh;
-  min-height: 100dvh;
-  background: var(--bg-body);
-}
-
-.boot-logo {
-  width: 3.5rem;
-  height: 3.5rem;
-  border-radius: var(--radius-md);
-}
-
-.boot-dots {
-  display: flex;
-  gap: 0.35rem;
-}
-
-.boot-dots i {
-  width: 0.45rem;
-  height: 0.45rem;
-  background: var(--green-400);
-  border-radius: var(--radius-full);
-  animation: bootPulse 1.1s var(--ease-out) infinite;
-}
-
-.boot-dots i:nth-child(2) {
-  animation-delay: 0.15s;
-}
-
-.boot-dots i:nth-child(3) {
-  animation-delay: 0.3s;
-}
-
-@keyframes bootPulse {
-
-  0%,
-  100% {
-    opacity: 0.3;
-    transform: scale(0.8);
-  }
-
-  50% {
-    opacity: 1;
-    transform: scale(1);
-  }
-}
-
-/* Reserves height while a screen chunk loads, so the page does not jump. */
-.screen-loading {
-  min-height: 60vh;
-}
-
-/* ================================================================
-   AUTH: sign-in and one-time-code entry
-   Adults only. Deliberately calmer than the child-facing screens,
-   with large touch targets for a parent on a phone.
-   ================================================================ */
-
-.auth-card {
-  max-width: 26rem;
-  margin: 0 auto;
-  padding: 1.5rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-lg);
-  box-shadow: var(--shadow-sm);
-}
-
-.auth-intro {
-  display: flex;
-  gap: 0.625rem;
-  align-items: flex-start;
-  margin: 0 0 1.25rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-.auth-label {
-  display: block;
-  margin-bottom: 0.4rem;
-  font-weight: 600;
-  color: var(--text-primary);
-}
-
-.auth-input {
-  width: 100%;
-  padding: 0.85rem 1rem;
-  font-size: 1rem;
-  font-family: inherit;
-  color: var(--text-primary);
-  background: var(--bg-card);
-  border: 2px solid var(--border-medium);
-  border-radius: var(--radius-sm);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
-}
-
-.auth-input::placeholder {
-  color: var(--text-muted);
-}
-
-.auth-input:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
-}
-
-/* One box per digit. */
-.otp-row {
-  display: flex;
-  gap: 0.4rem;
-  justify-content: center;
-}
-
-.otp-box {
-  width: 100%;
-  /* Sized so a longer code (Supabase's OTP length is configurable) still fits
-     a narrow phone without the row wrapping. */
-  max-width: 3.25rem;
-  min-width: 0;
-  aspect-ratio: 3 / 4;
-  padding: 0;
-  text-align: center;
-  /* Scales down so a longer code still fits a narrow phone without wrapping. */
-  font-size: clamp(1rem, 5.5vw, 1.6rem);
-  font-weight: 800;
-  font-family: inherit;
-  color: var(--text-primary);
-  background: var(--bg-card);
-  border: 2px solid var(--border-medium);
-  border-radius: var(--radius-sm);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.1s ease;
-}
-
-.otp-box:focus {
-  outline: none;
-  border-color: var(--color-primary);
-  box-shadow: 0 0 0 3px var(--color-primary-light);
-  transform: translateY(-1px);
-}
-
-/* A filled box reads as done, so progress through the code is visible. */
-.otp-box:not(:placeholder-shown) {
-  border-color: var(--color-primary);
-  background: var(--green-50);
-}
-
-.otp-box:disabled {
-  background: var(--border-light);
-  color: var(--text-muted);
-}
-
-.otp-row.is-error .otp-box {
-  border-color: var(--color-danger);
-  background: var(--rose-50);
-}
-
-/* Resend, with its cooldown. */
-.auth-resend {
-  margin-top: 1.25rem;
-  padding: 1rem;
-  text-align: center;
-  background: var(--green-50);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-}
-
-.auth-resend-hint {
-  margin: 0 0 0.75rem;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.btn-resend {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 0.5rem;
-  width: 100%;
-  padding: 0.75rem 1rem;
-  font-size: 1rem;
-  font-weight: 700;
-  font-family: inherit;
-  color: var(--color-primary-hover);
-  background: var(--bg-card);
-  border: 2px solid var(--color-primary);
-  border-radius: var(--radius-sm);
-  cursor: pointer;
-  transition: background 0.15s ease, color 0.15s ease;
-}
-
-.btn-resend:hover:not(:disabled) {
-  background: var(--color-primary);
-  color: var(--text-inverse);
-}
-
-.btn-resend:disabled {
-  color: var(--text-muted);
-  border-color: var(--border-medium);
-  background: transparent;
-  cursor: not-allowed;
-}
-
-.auth-status {
-  margin: 0.85rem 0 0;
-  min-height: 1.4rem;
-  text-align: center;
-  font-size: 0.9rem;
-  color: var(--text-secondary);
-}
-
-.auth-error {
-  margin-top: 0.85rem;
-  padding: 0.7rem 0.9rem;
-  font-size: 0.9rem;
-  color: var(--rose-600);
-  background: var(--rose-50);
-  border: 1px solid var(--rose-100);
-  border-radius: var(--radius-sm);
-}
-
-.auth-footnote {
-  margin-top: 1.5rem;
-  font-size: 0.85rem;
-  text-align: center;
-  color: var(--text-muted);
-}
-
-/* ================================================================
-   PARENT ONBOARDING: three steps after sign-in
-   ================================================================ */
-
-.onb-steps {
-  display: flex;
-  gap: 0.5rem;
-  justify-content: center;
-  margin-bottom: 1.25rem;
-}
-
-.onb-dot {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  width: 1.9rem;
-  height: 1.9rem;
-  border-radius: var(--radius-full);
-  font-size: 0.85rem;
-  font-weight: 700;
-  color: var(--text-muted);
-  background: var(--border-light);
-}
-
-.onb-dot.is-active {
-  color: var(--text-inverse);
-  background: var(--color-primary);
-}
-
-.onb-dot.is-done {
-  color: var(--text-inverse);
-  background: var(--green-400);
-}
-
-.onb-title {
-  margin: 0 0 0.35rem;
-}
-
-.onb-sub {
-  margin: 0 0 1.25rem;
-  color: var(--text-secondary);
-  line-height: 1.5;
-}
-
-/* Says on the screen where we ask that the school will not see it. */
-.onb-private {
-  display: flex;
-  gap: 0.5rem;
-  align-items: flex-start;
-  padding: 0.75rem;
-  background: var(--green-50);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-}
-
-.onb-fieldset {
-  border: 0;
-  padding: 0;
-  margin: 1rem 0 0;
-}
-
-.onb-chips {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.5rem;
-}
-
-.onb-chip {
-  padding: 0.5rem 0.9rem;
-  font: inherit;
-  font-weight: 600;
-  color: var(--text-secondary);
-  background: var(--bg-card);
-  border: 2px solid var(--border-medium);
-  border-radius: var(--radius-full);
-  cursor: pointer;
-}
-
-.onb-chip.is-selected {
-  color: var(--text-inverse);
-  background: var(--color-primary);
-  border-color: var(--color-primary);
-}
-
-.onb-search {
-  position: relative;
-}
-
-.onb-search svg {
-  position: absolute;
-  left: 0.85rem;
-  top: 50%;
-  transform: translateY(-50%);
-  color: var(--text-muted);
-  pointer-events: none;
-}
-
-.onb-search .auth-input {
-  padding-left: 2.4rem;
-}
-
-.onb-results {
-  list-style: none;
-  margin: 0.5rem 0 0;
-  padding: 0;
-  max-height: 14rem;
-  overflow-y: auto;
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-}
-
-.onb-results li+li {
-  border-top: 1px solid var(--border-light);
-}
-
-.onb-results button {
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-  width: 100%;
-  padding: 0.7rem 0.85rem;
-  font: inherit;
-  text-align: left;
-  background: none;
-  border: 0;
-  cursor: pointer;
-}
-
-.onb-results button:hover {
-  background: var(--green-50);
-}
-
-/* Town alongside the name: Cameroonian school names repeat heavily, and a
-   name on its own is not enough to pick the right one. */
-.onb-town {
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.onb-picked {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 0.5rem;
-  padding: 0.7rem 0.85rem;
-  background: var(--green-50);
-  border: 1px solid var(--color-primary);
-  border-radius: var(--radius-sm);
-}
-
-.onb-hint {
-  margin: 0.5rem 0 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.onb-optional {
-  font-weight: 400;
-  color: var(--text-muted);
-}
-
-.onb-next {
-  width: 100%;
-  margin-top: 1.5rem;
-}
-
-.onb-actions {
-  display: flex;
-  gap: 0.5rem;
-  margin-top: 1.5rem;
-}
-
-.onb-actions .btn {
-  flex: 1;
-}
-
-/* ================================================================
-   SCHOOL DASHBOARD: teacher and director
-   ================================================================ */
-
-.sch-wrap {
-  max-width: 60rem;
-  margin: 0 auto;
-  padding: 0 1rem 2rem;
-}
-
-.sch-role {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  margin: 0 0 1rem;
-  color: var(--text-secondary);
-  font-size: 0.9rem;
-}
-
-.sch-bar {
-  display: flex;
-  gap: 0.6rem;
-  align-items: flex-end;
-  flex-wrap: wrap;
-}
-
-.sch-select {
-  flex: 1;
-  min-width: 12rem;
-}
-
-.sch-refresh {
-  width: auto;
-  padding: 0.75rem 0.9rem;
-}
-
-.sch-asof {
-  display: flex;
-  gap: 0.35rem;
-  align-items: center;
-  margin: 0.6rem 0 0;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-.sch-asof.is-stale {
-  color: var(--amber-600);
-}
-
-.sch-summary {
-  display: flex;
-  gap: 0.75rem;
-  flex-wrap: wrap;
-  margin: 1.25rem 0;
-}
-
-.sch-stat {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex: 1;
-  min-width: 12rem;
-  padding: 0.9rem 1rem;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-}
-
-.sch-stat-n {
-  font-size: 1.4rem;
-  font-weight: 800;
-  color: var(--text-primary);
-}
-
-.sch-stat-l {
-  font-size: 0.85rem;
-  color: var(--text-secondary);
-}
-
-.sch-h3 {
-  margin: 1.5rem 0 0.75rem;
-}
-
-.sch-scroll {
-  overflow-x: auto;
-}
-
-.sch-table {
-  width: 100%;
-  border-collapse: collapse;
-  background: var(--bg-card);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-md);
-  overflow: hidden;
-}
-
-.sch-table th,
-.sch-table td {
-  padding: 0.7rem 0.9rem;
-  text-align: left;
-  border-bottom: 1px solid var(--border-light);
-}
-
-.sch-table th {
-  font-size: 0.8rem;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--text-muted);
-  background: var(--green-50);
-}
-
-.sch-table tr:last-child td {
-  border-bottom: 0;
-}
-
-.sch-phoneme {
-  display: inline-block;
-  padding: 0.15rem 0.5rem;
-  font-weight: 700;
-  color: var(--amber-600);
-  background: var(--amber-50);
-  border-radius: var(--radius-full);
-}
-
-.sch-muted {
-  color: var(--text-muted);
-}
-
-.sch-empty {
-  padding: 1.25rem;
-  color: var(--text-secondary);
-  background: var(--bg-card);
-  border: 1px dashed var(--border-medium);
-  border-radius: var(--radius-md);
-}
-
-.sch-note {
-  margin-top: 1rem;
-  font-size: 0.85rem;
-  color: var(--text-muted);
-}
-
-/* On a phone the table becomes stacked cards: a director checking between
-   lessons is on a phone, not at a desk. */
-@media (max-width: 640px) {
-  .sch-table thead {
-    display: none;
-  }
-
-  .sch-table,
-  .sch-table tbody,
-  .sch-table tr,
-  .sch-table td {
-    display: block;
-    width: 100%;
-  }
-
-  .sch-table tr {
-    margin-bottom: 0.75rem;
-    border: 1px solid var(--border-light);
-    border-radius: var(--radius-md);
-    background: var(--bg-card);
-  }
-
-  .sch-table td {
-    display: flex;
-    justify-content: space-between;
-    gap: 1rem;
-    border-bottom: 1px solid var(--border-light);
-  }
-
-  .sch-table td::before {
-    content: attr(data-label);
-    font-size: 0.8rem;
-    color: var(--text-muted);
-  }
-}
-
-.onb-noresult {
-  margin-top: 0.6rem;
-  padding: 0.9rem;
-  background: var(--amber-50);
-  border: 1px solid var(--amber-200);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-}
-
-.onb-thanks {
-  padding: 0.75rem;
-  background: var(--green-50);
-  border: 1px solid var(--border-light);
-  border-radius: var(--radius-sm);
-  color: var(--text-secondary);
-}
-
-/* A focused flow (sign-in, onboarding) hides the app chrome, so its back
-   arrow is the only way out and needs room of its own. */
-.focus-back {
-  display: flex;
-  align-items: center;
-  max-width: 26rem;
-  margin: 0 auto;
-  padding: 1rem 0 0.25rem;
-}
-
-.onb-result-row {
-  display: flex;
-  gap: 0.5rem;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.onb-badge {
-  padding: 0.1rem 0.45rem;
-  font-size: 0.7rem;
-  font-weight: 700;
-  text-transform: uppercase;
-  letter-spacing: 0.03em;
-  color: var(--text-inverse);
-  background: var(--color-primary);
-  border-radius: var(--radius-full);
-}
-
-.onb-notjoined {
-  display: block;
-  margin-top: 0.35rem;
-  font-size: 0.8rem;
-  font-style: normal;
-  color: var(--text-muted);
-}
-
-.invite-icon {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  width: 4rem;
-  height: 4rem;
-  margin: 0 auto 1rem;
-  border-radius: var(--radius-full);
-}
-
-.invite-icon.is-ok {
-  color: var(--green-700);
-  background: var(--green-100);
-}
-
-.invite-icon.is-bad {
-  color: var(--rose-600);
-  background: var(--rose-100);
-}
+.fb-done p { margin: 0; }
+```

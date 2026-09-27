@@ -13,5 +13,11 @@ dist
 
 .gstack/
 
-# Service-role key. Never committed, never in the browser bundle.
 .env.admin
+.superdesign/tmp/
+
+# Generated Facebook posts. Regenerate with: npm run posts
+content/
+
+/.ai
+/.superdesign
