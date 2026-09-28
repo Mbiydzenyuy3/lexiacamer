@@ -154,7 +154,6 @@ if (has('prune')) {
   let gone = 0;
   for (const o of orphans) {
     try {
-      // eslint-disable-next-line no-await-in-loop
       await api(o.id, { method: 'DELETE' });
       console.log(`  \x1b[32m✓\x1b[0m deleted ${when2(o.scheduled_publish_time)}`);
       gone += 1;
@@ -185,7 +184,6 @@ if (has('cancel-all')) {
   let gone = 0;
   for (const it of items) {
     try {
-      // eslint-disable-next-line no-await-in-loop
       await api(it.id, { method: 'DELETE' });
       console.log(`  \x1b[32m✓\x1b[0m deleted ${(it.message || it.id).split('\n')[0].slice(0, 46)}`);
       gone += 1;
@@ -321,7 +319,6 @@ if (has('update')) {
   let changed = 0;
   for (const p of edited) {
     try {
-      // eslint-disable-next-line no-await-in-loop
       await api(ledger[p.key].postId, { method: 'POST', params: { message: p.message } });
       console.log(`  \x1b[32m✓\x1b[0m ${p.key}`);
       changed += 1;
@@ -363,9 +360,7 @@ let done = 0;
 for (let i = 0; i < pending.length; i += 1) {
   const p = pending[i];
   try {
-    // eslint-disable-next-line no-await-in-loop
     const photoId = await upload(p.image);
-    // eslint-disable-next-line no-await-in-loop
     const postId = await schedulePost(p.message, photoId, when[i]);
     ledger[p.key] = { postId, at: when[i].toISOString(), lang: LANG };
     writeFileSync(ledgerPath, JSON.stringify(ledger, null, 2));

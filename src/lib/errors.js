@@ -35,7 +35,6 @@ export function describeError(error, fallback = 'Something went wrong. Please tr
   // for, which is the difference between diagnosing it in a minute and
   // guessing for an hour.
   if (typeof console !== 'undefined') {
-    // eslint-disable-next-line no-console
     console.error('[lexia] server error:', {
       code: error.code, message: error.message,
       details: error.details, hint: error.hint,

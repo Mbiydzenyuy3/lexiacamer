@@ -48,7 +48,6 @@ export function getSupabase() {
 export function warmSupabase() {}
 
 if (!isBackendConfigured && import.meta.env?.DEV) {
-  // eslint-disable-next-line no-console
   console.info(
     '[lexia] No VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY: running fully offline.'
   );
@@ -185,7 +184,6 @@ export async function retryPendingFeedback() {
     // duplicate from a previous partial send, which would strand the rest.
     let allDone = true;
     for (const { savedAt, ...row } of fresh) {
-      // eslint-disable-next-line no-await-in-loop
       const { error } = await sb.from('feedback').insert(row);
       if (!alreadySaved(error)) allDone = false;
     }
