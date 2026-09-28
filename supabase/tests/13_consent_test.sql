@@ -61,4 +61,35 @@ select test_as('00000000-0000-0000-0000-00000000c052');
 select expect_count('C11 a stranger sees none of it',
        (select count(*) from consents where student_id = :'amina'), 0);
 
+-- --- school sharing needs its own consent ------------------------------------
+set role authenticated;
+select test_as('00000000-0000-0000-0000-00000000c052');
+select expect_denied('C12 a stranger cannot give school consent for this child', $sql$
+  select give_consent('$sql$ || :'amina' || $sql$', 'school_share', '2026-09-29') $sql$);
+
+select test_as('00000000-0000-0000-0000-00000000c051');
+select expect_denied('C13 no school consent: no enrolment', $sql$
+  select claim_school_place('$sql$ || :'amina' || $sql$',
+                            '20000000-0000-0000-0000-0000000000a1') $sql$);
+select expect_denied('C14 no school consent: no directory interest', $sql$
+  select note_school_interest('80000000-0000-0000-0000-000000000001',
+                              '$sql$ || :'amina' || $sql$') $sql$);
+select expect_denied('C15 progress_sync cannot be given through give_consent', $sql$
+  select give_consent('$sql$ || :'amina' || $sql$', 'progress_sync', '2026-09-29') $sql$);
+select expect_denied('C15b a null purpose is refused', $sql$
+  select give_consent('$sql$ || :'amina' || $sql$', null, '2026-09-29') $sql$);
+
+select give_consent(:'amina', 'school_share', '2026-09-29');
+select give_consent(:'amina', 'school_share', '2026-09-29');
+select expect_count('C16 giving school consent twice keeps one live row',
+       (select count(*) from consents
+         where student_id = :'amina' and purpose = 'school_share'
+           and withdrawn_at is null), 1);
+
+select claim_school_place(:'amina', '20000000-0000-0000-0000-0000000000a1') as amina_e \gset
+select note_school_interest('80000000-0000-0000-0000-000000000001', :'amina');
+select test_as('00000000-0000-0000-0000-0000000000a1');
+select expect_count('C17 with consent, the class teacher sees the child',
+       (select count(*) from students where id = :'amina'), 1);
+
 reset role;

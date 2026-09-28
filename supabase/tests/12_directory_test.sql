@@ -38,6 +38,7 @@ select expect_count('Y04 a joined school is not also listed as unjoined',
          where on_platform = false), 0);
 
 -- --- finding a school grants NOTHING -----------------------------------------
+select give_consent('30000000-0000-0000-0000-000000000001', 'school_share', 'test');
 select note_school_interest('80000000-0000-0000-0000-000000000001',
                             '30000000-0000-0000-0000-000000000001');
 

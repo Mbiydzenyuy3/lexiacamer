@@ -106,3 +106,85 @@ $$;
 revoke execute on function has_live_consent(uuid, text) from public;
 revoke execute on function create_student(text, text, text, boolean) from public;
 grant  execute on function create_student(text, text, text, boolean) to authenticated;
+
+-- ----------------------------------------------------------------------------
+-- School sharing: the parent's separate, optional decision.
+-- ----------------------------------------------------------------------------
+create or replace function give_consent(p_student_id uuid,
+                                        p_purpose    text,
+                                        p_version    text)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+begin
+  -- `is distinct from`, not `<>`: a null purpose must be refused, and
+  -- `null <> 'school_share'` is null, which an IF treats as false.
+  if p_purpose is distinct from 'school_share' then
+    raise exception 'only school_share is given here; progress_sync comes with create_student'
+      using errcode = '22023';
+  end if;
+
+  if not exists (select 1 from guardianships g
+                  where g.student_id = p_student_id
+                    and g.profile_id = v_uid
+                    and g.ended_at is null) then
+    raise exception 'not a guardian of this student' using errcode = '42501';
+  end if;
+
+  if has_live_consent(p_student_id, 'school_share') then
+    return;                                   -- idempotent
+  end if;
+
+  insert into consents (profile_id, student_id, purpose, wording_version)
+       values (v_uid, p_student_id, 'school_share', trim(p_version));
+end;
+$$;
+
+-- Enforced on the rows, not in claim_school_place / note_school_interest.
+-- The live database runs a newer claim_school_place (schools migration 0014)
+-- than this branch defines; redefining it here would create a second,
+-- conflicting overload. A trigger holds whichever version is live.
+--
+-- Only app requests are checked. PostgREST sets `role` to `authenticated` for a
+-- signed-in user, and a security definer function does not change that
+-- setting, so going through a function does not bypass this. Maintainer
+-- scripts (service_role) and migrations are not app requests.
+create or replace function require_school_share()
+returns trigger
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+begin
+  if coalesce(current_setting('role', true), 'none')
+       not in ('authenticated', 'anon') then
+    return new;
+  end if;
+
+  -- Interest noted without naming a child carries no child data.
+  if new.student_id is null then
+    return new;
+  end if;
+
+  if not has_live_consent(new.student_id, 'school_share') then
+    raise exception 'school sharing consent required' using errcode = '42501';
+  end if;
+
+  return new;
+end;
+$$;
+
+create trigger enrolments_require_school_share
+  before insert on enrolments
+  for each row execute function require_school_share();
+
+create trigger directory_interest_require_school_share
+  before insert on directory_interest
+  for each row execute function require_school_share();
+
+revoke execute on function give_consent(uuid, text, text) from public;
+grant  execute on function give_consent(uuid, text, text) to authenticated;

@@ -400,6 +400,7 @@ update schools set status = 'active'
 -- A parent claims a school place for their OWN child during onboarding.
 set role authenticated;
 select test_as('00000000-0000-0000-0000-000000000001');
+select give_consent('30000000-0000-0000-0000-000000000001', 'school_share', 'test');
 select claim_school_place('30000000-0000-0000-0000-000000000001',
                           '20000000-0000-0000-0000-0000000000a2') as e \gset
 select expect_count('50 parent can claim a place for their own child',
@@ -433,6 +434,7 @@ select expect_count('54 ended enrolment still yields the taught period',
 -- A school can repudiate a claim it disagrees with ("not our pupil").
 select test_as('00000000-0000-0000-0000-000000000002');
 select create_student('Claim Test', 'lion', 'test', true) as s2 \gset
+select give_consent(:'s2', 'school_share', 'test');
 select claim_school_place(:'s2', '20000000-0000-0000-0000-0000000000a1') as e2 \gset
 select test_as('00000000-0000-0000-0000-00000000000a');
 select cancel_enrolment(:'e2', 'not our pupil');
@@ -459,6 +461,7 @@ select expect_count('60 raw schools table still not readable by a parent',
 
 select test_as('00000000-0000-0000-0000-000000000002');
 select create_student('Mover', 'lion', 'test', true) as sm \gset
+select give_consent(:'sm', 'school_share', 'test');
 select claim_school_place(:'sm', '20000000-0000-0000-0000-0000000000a1') as em \gset
 
 -- A second school while the first is still active must be refused.
@@ -478,6 +481,8 @@ select expect_count('63 transfer ends the old enrolment (school keeps period)',
 -- A PARENT may still have two children at two different schools.
 select create_student('Sibling One', 'lion', 'test', true) as k1 \gset
 select create_student('Sibling Two', 'lion', 'test', true) as k2 \gset
+select give_consent(:'k1', 'school_share', 'test');
+select give_consent(:'k2', 'school_share', 'test');
 select claim_school_place(:'k1', '20000000-0000-0000-0000-0000000000a1');
 do $$
 begin
