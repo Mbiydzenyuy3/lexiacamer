@@ -39,6 +39,10 @@ export function defaultState() {
     // When the parent finished the three onboarding steps. Null means they
     // have not, so the dashboard shows onboarding first.
     onboardedAt: null,
+    // The parent's consent and the child's own OK, for THIS phone's child.
+    // Null until asked. Nothing is linked to the server until childAssent is
+    // true; the server refuses too (0021), this just avoids the round trip.
+    consent: null,
   };
 }
 
@@ -196,6 +200,9 @@ export function progressFromEvents(events) {
  * call on every sign-in.
  */
 export async function linkChild(state) {
+  // No child is created on the server without the parent's consent AND the
+  // child's own OK (Cameroon Law 2024/017; enforced again in create_student).
+  if (!state.consent?.childAssent) return state;
   if (!isBackendConfigured || !supabase) return state;
   if (!state.user?.name) return state;           // no child set up yet
   if (state.studentId && state.deviceToken) return state;
@@ -207,6 +214,8 @@ export async function linkChild(state) {
       const { data, error } = await supabase.rpc('create_student', {
         p_name: state.user.name,
         p_avatar: state.user.avatar || 'lion',
+        p_consent_version: state.consent.version,
+        p_child_assent: true,
       });
       if (error) return state;
       studentId = data;
@@ -223,6 +232,23 @@ export async function linkChild(state) {
   } catch {
     return state;
   }
+}
+
+/**
+ * Drop everything that ties this phone to a server record, after the parent
+ * deleted it. The child's stars and history on the phone stay: deleting the
+ * server copy must never look like punishing the child.
+ */
+export function forgetServerLink(state) {
+  return {
+    ...state,
+    studentId: null,
+    deviceToken: null,
+    outbox: [],
+    lastSyncedAt: null,
+    onboardedAt: null,
+    consent: null,
+  };
 }
 
 /** Read the server's authoritative progress for this device's child. */

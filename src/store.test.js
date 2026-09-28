@@ -1,6 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   defaultState, migrateLegacy, queueEvent, pruneOutbox, reconcile,
+  linkChild, forgetServerLink,
 } from './store';
 
 describe('queueEvent', () => {
@@ -118,5 +119,31 @@ describe('pruneOutbox reference stability', () => {
     const old = new Date(Date.now() - 200 * 86_400_000).toISOString();
     const outbox = [{ id: '1', occurred_at: old }];
     expect(pruneOutbox(outbox)).not.toBe(outbox);
+  });
+});
+
+describe('consent gate', () => {
+  it('a fresh state has no consent', () => {
+    expect(defaultState().consent).toBeNull();
+  });
+
+  it('linkChild does nothing without the child\'s OK', async () => {
+    const s = { ...defaultState(), user: { name: 'Amina', avatar: 'lion' },
+                consent: { version: '2026-09-29', childAssent: false } };
+    expect(await linkChild(s)).toBe(s);
+  });
+
+  it('forgetting the server link keeps the stars', () => {
+    const s = { ...defaultState(), studentId: 's1', deviceToken: 't',
+                outbox: [{ id: 'e' }], consent: { version: 'v', childAssent: true },
+                onboardedAt: 'x',
+                progress: { ...defaultState().progress, stars: 12 } };
+    const f = forgetServerLink(s);
+    expect(f.studentId).toBeNull();
+    expect(f.deviceToken).toBeNull();
+    expect(f.outbox).toEqual([]);
+    expect(f.consent).toBeNull();
+    expect(f.onboardedAt).toBeNull();
+    expect(f.progress.stars).toBe(12);
   });
 });
