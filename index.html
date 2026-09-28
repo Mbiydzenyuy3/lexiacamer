@@ -11,9 +11,13 @@
        parents this page has to convince. -->
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
   <meta name="theme-color" content="#059669" />
-  <title>LexiaCamer — a reading app for children in Cameroon</title>
+  <title>LexiaCamer | Lexia Cameroon, a children's learning app</title>
+  <!-- Search results show roughly the first 155 characters. The brand names
+       people type ("Lexia Cameroon", "LexiaCamer") and the category ("children's
+       learning app") come first so they are never cut off. -->
   <meta name="description"
-        content="LexiaCamer teaches children to read in English — letter sounds and spelling. The app is in English and French so a parent can help. Free, works offline, no account. An early prototype, and we say plainly what is not finished yet." />
+        content="Lexia Cameroon (LexiaCamer) is a free children's learning app that teaches reading: English letter sounds and spelling. Works offline, English and French." />
+  <link rel="canonical" href="https://lexiacamer.vercel.app/" />
 
   <!-- Open Graph. This is what a parent sees when the link is pasted into a
        Facebook post or a WhatsApp message, which is how almost everyone
@@ -50,6 +54,7 @@
       "@context": "https://schema.org",
       "@type": "SoftwareApplication",
       "name": "LexiaCamer",
+      "alternateName": ["Lexia Cameroon", "Lexia"],
       "applicationCategory": "EducationalApplication",
       "operatingSystem": "Any, via a web browser",
       "url": "https://lexiacamer.vercel.app/",
@@ -58,10 +63,29 @@
       "offers": { "@type": "Offer", "price": "0", "priceCurrency": "XAF" }
     }
   </script>
+  <!-- WebSite with alternateName is what Google reads for the site name shown
+       above a result, and lets "Lexia Cameroon" match the same site. -->
+  <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "WebSite",
+      "name": "LexiaCamer",
+      "alternateName": ["Lexia Cameroon", "Lexia"],
+      "url": "https://lexiacamer.vercel.app/"
+    }
+  </script>
 </head>
 
 <body>
   <div id="root"></div>
+  <!-- For crawlers and browsers that do not run JavaScript: without this the
+       page body is empty for them. -->
+  <noscript>
+    <h1>LexiaCamer (Lexia Cameroon): a children's learning app</h1>
+    <p>A free app that teaches children in Cameroon to read in English: letter
+       sounds and spelling, with the app itself in English and French. It works
+       offline. Please turn on JavaScript to use it.</p>
+  </noscript>
   <script type="module" src="/src/main.jsx"></script>
 </body>
 
