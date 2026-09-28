@@ -253,7 +253,7 @@ select expect_count('26 parent sees own child''s full history',
 
 -- --- 10. create_student links caller and nobody else ------------------------
 select test_as('00000000-0000-0000-0000-000000000002');
-select create_student('Parent2 Child') as new_child \gset
+select create_student('Parent2 Child', 'lion', 'test', true) as new_child \gset
 select expect_count('27 parent2 sees the child they created',
        (select count(*) from students), 1);
 select test_as('00000000-0000-0000-0000-000000000001');
@@ -432,7 +432,7 @@ select expect_count('54 ended enrolment still yields the taught period',
 
 -- A school can repudiate a claim it disagrees with ("not our pupil").
 select test_as('00000000-0000-0000-0000-000000000002');
-select create_student('Claim Test') as s2 \gset
+select create_student('Claim Test', 'lion', 'test', true) as s2 \gset
 select claim_school_place(:'s2', '20000000-0000-0000-0000-0000000000a1') as e2 \gset
 select test_as('00000000-0000-0000-0000-00000000000a');
 select cancel_enrolment(:'e2', 'not our pupil');
@@ -458,7 +458,7 @@ select expect_count('60 raw schools table still not readable by a parent',
 -- --- 15. One active enrolment per STUDENT (not per parent email) ------------
 
 select test_as('00000000-0000-0000-0000-000000000002');
-select create_student('Mover') as sm \gset
+select create_student('Mover', 'lion', 'test', true) as sm \gset
 select claim_school_place(:'sm', '20000000-0000-0000-0000-0000000000a1') as em \gset
 
 -- A second school while the first is still active must be refused.
@@ -476,8 +476,8 @@ select expect_count('63 transfer ends the old enrolment (school keeps period)',
          where student_id = :'sm' and status = 'ended'), 1);
 
 -- A PARENT may still have two children at two different schools.
-select create_student('Sibling One') as k1 \gset
-select create_student('Sibling Two') as k2 \gset
+select create_student('Sibling One', 'lion', 'test', true) as k1 \gset
+select create_student('Sibling Two', 'lion', 'test', true) as k2 \gset
 select claim_school_place(:'k1', '20000000-0000-0000-0000-0000000000a1');
 do $$
 begin

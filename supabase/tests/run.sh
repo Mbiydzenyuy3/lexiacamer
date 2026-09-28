@@ -37,6 +37,7 @@ $PSQL -q -f supabase/migrations/0009_school_views.sql
 $PSQL -q -f supabase/migrations/0010_school_leads.sql
 $PSQL -q -f supabase/migrations/0011_school_directory.sql
 $PSQL -q -f supabase/migrations/0018_pgcrypto_search_path.sql
+$PSQL -q -f supabase/migrations/0021_consents.sql
 $PSQL -q -f supabase/tests/01_grants.sql
 $PSQL -q -f supabase/tests/02_rls_test.sql
 $PSQL -q -f supabase/tests/03_sync_test.sql
@@ -49,4 +50,5 @@ $PSQL -q -f supabase/tests/09_insights_test.sql
 $PSQL -q -f supabase/tests/10_school_views_test.sql
 $PSQL -q -f supabase/tests/11_school_leads_test.sql
 $PSQL -q -f supabase/tests/12_directory_test.sql
+$PSQL -q -f supabase/tests/13_consent_test.sql
 $PSQL -f supabase/tests/99_summary.sql
