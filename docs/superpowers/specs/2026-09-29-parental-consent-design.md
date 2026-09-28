@@ -127,9 +127,14 @@ the copy repeats the child's name instead.
 > our server. Here is exactly what that means.
 >
 > **What we store**
-> • Amina's first name and avatar
+> • Amina's first name and avatar and, if you give them on the next screen,
+>   Amina's birth date and gender
 > • What Amina does in the app: words spelled, sounds practised, stars earned
-> • Your email, which you used to sign in
+> • Your email, which you used to sign in, and your name and phone number if
+>   you give them on the next screen
+> • Anonymous totals for research, like which sounds children of Amina's age
+>   find hard. They never name Amina, and only count groups too big to pick
+>   anyone out.
 >
 > **What we never do**
 > • Sell it, or use it for advertising
@@ -158,9 +163,14 @@ the copy repeats the child's name instead.
 > conserver une partie sur notre serveur. Voici exactement ce que cela signifie.
 >
 > **Ce que nous conservons**
-> • Le prénom et l'avatar d'Amina
+> • Le prénom et l'avatar d'Amina et, si vous les indiquez à l'écran suivant,
+>   sa date de naissance et son genre
 > • Ce que fait Amina dans l'application : mots épelés, sons pratiqués, étoiles gagnées
-> • Votre adresse e-mail, utilisée pour vous connecter
+> • Votre adresse e-mail, utilisée pour vous connecter, et votre nom et votre
+>   numéro de téléphone si vous les indiquez à l'écran suivant
+> • Des totaux anonymes pour la recherche, par exemple les sons difficiles pour
+>   les enfants de l'âge d'Amina. Ils ne nomment jamais Amina et ne comptent que
+>   des groupes trop grands pour reconnaître quelqu'un.
 >
 > **Ce que nous ne faisons jamais**
 > • Vendre ces informations ou les utiliser pour de la publicité
@@ -198,9 +208,11 @@ processed.
 
 ### School sharing (onboarding step 1, unticked by default)
 
-> ☐ Let Amina's school see Amina's progress once the school joins LexiaCamer:
+> ☐ Let Amina's school see Amina's progress, and your name and phone number,
+> once the school joins LexiaCamer:
 > only Amina's teachers and head teacher. You can turn this off at any time.
-> ☐ Autoriser l'école d'Amina à voir ses progrès une fois que l'école aura
+> ☐ Autoriser l'école d'Amina à voir ses progrès, ainsi que votre nom et votre
+> numéro de téléphone, une fois que l'école aura
 > rejoint LexiaCamer : seulement ses enseignants et le directeur. Vous pouvez
 > désactiver cela à tout moment.
 

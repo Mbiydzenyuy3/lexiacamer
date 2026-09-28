@@ -19,9 +19,10 @@ const en = {
   intro: (n) => `To show you ${n}'s progress on your account, we need to store some of it on our server. Here is exactly what that means.`,
   storeTitle: 'What we store',
   store: (n) => [
-    `${n}'s first name and avatar`,
+    `${n}'s first name and avatar and, if you give them on the next screen, ${n}'s birth date and gender`,
     `What ${n} does in the app: words spelled, sounds practised, stars earned`,
-    'Your email, which you used to sign in',
+    'Your email, which you used to sign in, and your name and phone number if you give them on the next screen',
+    `Anonymous totals for research, like which sounds children of ${n}'s age find hard. They never name ${n}, and only count groups too big to pick anyone out.`,
   ],
   neverTitle: 'What we never do',
   never: [
@@ -45,7 +46,7 @@ const en = {
   childNo: 'No thanks',
   childSaidNo: (n) => `${n} said not yet. Nothing has been saved.`,
   askAgain: 'Ask again',
-  schoolBox: (n) => `Let ${n}'s school see ${n}'s progress once the school joins LexiaCamer: only ${n}'s teachers and head teacher. You can turn this off at any time.`,
+  schoolBox: (n) => `Let ${n}'s school see ${n}'s progress, and your name and phone number, once the school joins LexiaCamer: only ${n}'s teachers and head teacher. You can turn this off at any time.`,
   dataTitle: 'Your data',
   download: (n) => `Download a copy of ${n}'s data`,
   stopSchool: (n) => `Stop sharing with ${n}'s school`,
@@ -65,11 +66,12 @@ const fr = {
   intro: (n) => `Pour vous montrer les progrès ${de(n)} sur votre compte, nous devons en conserver une partie sur notre serveur. Voici exactement ce que cela signifie.`,
   storeTitle: 'Ce que nous conservons',
   store: (n) => [
-    `Le prénom et l'avatar ${de(n)}`,
+    `Le prénom et l'avatar ${de(n)} et, si vous les indiquez à l'écran suivant, sa date de naissance et son genre`,
     // "Ce que fait Amina", not "Ce que Amina fait": inversion is correct French
     // for every name, where "que" before a vowel would need eliding.
     `Ce que fait ${n} dans l'application : mots épelés, sons pratiqués, étoiles gagnées`,
-    'Votre adresse e-mail, utilisée pour vous connecter',
+    "Votre adresse e-mail, utilisée pour vous connecter, et votre nom et votre numéro de téléphone si vous les indiquez à l'écran suivant",
+    `Des totaux anonymes pour la recherche, par exemple les sons difficiles pour les enfants de l'âge ${de(n)}. Ils ne nomment jamais ${n} et ne comptent que des groupes trop grands pour reconnaître quelqu'un.`,
   ],
   neverTitle: 'Ce que nous ne faisons jamais',
   never: [
@@ -93,7 +95,7 @@ const fr = {
   childNo: 'Non merci',
   childSaidNo: (n) => `${n} a dit pas encore. Rien n'a été enregistré.`,
   askAgain: 'Demander à nouveau',
-  schoolBox: (n) => `Autoriser l'école ${de(n)} à voir ses progrès une fois que l'école aura rejoint LexiaCamer : seulement ses enseignants et le directeur. Vous pouvez désactiver cela à tout moment.`,
+  schoolBox: (n) => `Autoriser l'école ${de(n)} à voir ses progrès, ainsi que votre nom et votre numéro de téléphone, une fois que l'école aura rejoint LexiaCamer : seulement ses enseignants et le directeur. Vous pouvez désactiver cela à tout moment.`,
   dataTitle: 'Vos données',
   download: (n) => `Télécharger une copie des données ${de(n)}`,
   stopSchool: (n) => `Arrêter le partage avec l'école ${de(n)}`,

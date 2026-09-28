@@ -35,4 +35,25 @@ describe('consentCopy', () => {
                  fr.schoolBox('Amina'), fr.deleteConfirm('Amina')].join(' ');
     expect(all).not.toMatch(/\b(que|de|le|la) [AEIOUYH]/);
   });
+
+  it('lists everything onboarding stores, in both languages', () => {
+    const en = copyFor('en').store('Amina').join(' ');
+    expect(en).toMatch(/birth date/);
+    expect(en).toMatch(/gender/);
+    expect(en).toMatch(/your name and phone/i);
+    const fr = copyFor('fr').store('Amina').join(' ');
+    expect(fr).toMatch(/date de naissance/);
+    expect(fr).toMatch(/genre/);
+    expect(fr).toMatch(/votre nom et votre numéro/i);
+  });
+
+  it('tells the parent the school would see their name and phone', () => {
+    expect(copyFor('en').schoolBox('Amina')).toMatch(/your name and phone/i);
+    expect(copyFor('fr').schoolBox('Amina')).toMatch(/votre nom et votre numéro/i);
+  });
+
+  it('discloses the anonymous research totals', () => {
+    expect(copyFor('en').store('Amina').join(' ')).toMatch(/anonymous/i);
+    expect(copyFor('fr').store('Amina').join(' ')).toMatch(/anonymes/i);
+  });
 });
