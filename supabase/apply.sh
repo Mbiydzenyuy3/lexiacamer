@@ -188,7 +188,9 @@ echo "$count migration(s) applied."
 
 echo
 echo "Verifying the security spine is on:"
-psql "$DB_URL" -q -c "
+# -P pager=off: ~25 rows overflow a terminal, psql opens a pager, and quitting
+# it wipes the report from the screen, which looks exactly like "no output".
+psql "$DB_URL" -q -P pager=off -c "
   select tablename,
          case when rowsecurity then 'RLS on' else '*** RLS OFF ***' end as status
     from pg_tables
