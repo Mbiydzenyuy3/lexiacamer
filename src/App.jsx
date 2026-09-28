@@ -297,6 +297,7 @@ export default function App() {
         if (auth.session && state.studentId && !state.onboardedAt) {
           return (
             <ParentOnboarding
+              lang={lang}
               studentId={state.studentId}
               initialChildName={user.name}
               onBack={() => setScreen('home')}
