@@ -1,7 +1,7 @@
 import React, { useMemo } from 'react';
 import { BookOpen, Flame, Star, Type, ChevronRight, Hammer, Lightbulb, Settings, ShieldCheck, Cat, Bird, Snail, Dog } from 'lucide-react';
 
-export default function HomeScreen({ t, lang, user, onNavigate, stats }) {
+export default function HomeScreen({ t, user, onNavigate, stats }) {
   const todayTip = useMemo(() => {
     const tips = t.tips;
     const dayIdx = new Date().getDate() % tips.length;

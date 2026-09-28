@@ -38,13 +38,13 @@ export default function Landing({ onStart }) {
   // they just render, immediately and visibly. Hiding content in CSS and
   // relying on JS to bring it back is how a marketing page ends up empty for
   // the people least able to debug it.
-  const [animate, setAnimate] = useState(false);
+  const [animate] = useState(() =>
+    !window.matchMedia?.('(prefers-reduced-motion: reduce)').matches
+    && typeof IntersectionObserver !== 'undefined');
   const t = landing[lang];
 
   useEffect(() => {
-    const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-    if (reduced || typeof IntersectionObserver === 'undefined') return undefined;
-    setAnimate(true);
+    if (!animate) return undefined;
     const io = new IntersectionObserver((entries) => {
       entries.forEach((e) => {
         if (e.isIntersecting) { e.target.classList.add('is-in'); io.unobserve(e.target); }
@@ -53,7 +53,7 @@ export default function Landing({ onStart }) {
     const els = document.querySelectorAll('.lp-reveal');
     els.forEach((el) => io.observe(el));
     return () => io.disconnect();
-  }, [lang]);
+  }, [lang, animate]);
 
   const scrollTo = (id) => {
     const reduced = window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;

@@ -8,7 +8,7 @@
  * looked for their school and did not find it. Service-role only, from your
  * machine.
  */
-import { adminClient, env } from './lib/admin-client.mjs';
+import { adminClient } from './lib/admin-client.mjs';
 
 const db = adminClient();
 

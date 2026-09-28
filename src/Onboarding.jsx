@@ -3,6 +3,24 @@ import { User, ChevronRight, CheckCircle2, Sparkles } from 'lucide-react';
 import Confetti from './Confetti';
 import { AVATARS as avatars } from './avatars';
 
+// Step indicator dots. Defined outside Onboarding so React keeps the same dots
+// between renders and their width transition actually animates.
+function StepDots({ step }) {
+  return (
+    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '2rem' }}>
+      {[1, 2, 3].map(s => (
+        <div key={s} style={{
+          width: s === step ? '2rem' : '0.5rem',
+          height: '0.5rem',
+          borderRadius: '9999px',
+          background: s === step ? 'var(--color-primary)' : 'var(--border-medium)',
+          transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
+        }} />
+      ))}
+    </div>
+  );
+}
+
 export default function Onboarding({ t, onComplete }) {
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
@@ -17,21 +35,6 @@ export default function Onboarding({ t, onComplete }) {
       onComplete({ name: name.trim(), avatar });
     }
   };
-
-  // Step indicator dots
-  const StepDots = () => (
-    <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', marginBottom: '2rem' }}>
-      {[1, 2, 3].map(s => (
-        <div key={s} style={{
-          width: s === step ? '2rem' : '0.5rem',
-          height: '0.5rem',
-          borderRadius: '9999px',
-          background: s === step ? 'var(--color-primary)' : 'var(--border-medium)',
-          transition: 'all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1)'
-        }} />
-      ))}
-    </div>
-  );
 
   return (
     <div className="screen" style={{
@@ -50,7 +53,7 @@ export default function Onboarding({ t, onComplete }) {
         border: '1px solid var(--border-light)',
       }}>
 
-        <StepDots />
+        <StepDots step={step} />
 
         {step === 1 && (
           <div className="animate-fade-in">

@@ -178,12 +178,6 @@ export default function WordForge({ t, lang, stats, onWordCorrect, onWordMissed,
     setUsedKeys(prev => prev.slice(0, -1));
   }, [result, selected.length]);
 
-  const handleClearAll = useCallback(() => {
-    if (result) return;
-    setSelected([]);
-    setUsedKeys([]);
-  }, [result]);
-
   const handlePlayAgain = useCallback(() => {
     setProgress(p => ({ ...p, wordIndex: 0, score: 0 }));
     setCompleted(false);

@@ -1,10 +1,10 @@
-import React, { useState, useCallback, useMemo, useEffect } from 'react';
+import React, { useState, useCallback, useMemo } from 'react';
 import { Lightbulb, Play, RotateCcw, CheckCircle2 } from 'lucide-react';
 import { phonicsData } from './i18n';
 import speechEngine from './speech';
 import Confetti from './Confetti';
 
-export default function PhonicsLab({ t, lang, stats, onPhonemeAttempt }) {
+export default function PhonicsLab({ t, lang, onPhonemeAttempt }) {
   const [activeCategory, setActiveCategory] = useState('all');
   const [playingTile, setPlayingTile] = useState(null);
   

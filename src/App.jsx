@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck, VolumeX, X } from 'lucide-react';
 import { getAvatarIcon } from './avatars';
 import speechEngine from './speech';
@@ -41,6 +41,13 @@ export default function App() {
   // DERIVED from the child's events rather than mutated directly, which is what
   // lets the device and the server compute the same numbers independently.
   const [state, setState] = useState(() => loadState());
+  // Latest state for async work that must not start inside a state updater.
+  const stateRef = useRef(state);
+  useEffect(() => { stateRef.current = state; }, [state]);
+  // One linkChild at a time. StrictMode mounts effects twice and a token
+  // refresh re-runs the effect; two parallel calls would both see no
+  // studentId and create the child twice.
+  const linkingRef = useRef(null);
   const { progress, settings, user, lang } = state;
 
   // The screens read {words, streak, stars} - the same shape progress already
@@ -88,12 +95,10 @@ export default function App() {
     }
   }, [settings.dyslexiaMode]);
 
-  // Check Onboarding
-  useEffect(() => {
-    if (!user.name && screen !== 'onboarding') {
-      setScreen('onboarding');
-    }
-  }, [user.name, screen]);
+  // Check Onboarding. Adjusted during render, so the wrong screen never paints.
+  if (!user.name && screen !== 'onboarding') {
+    setScreen('onboarding');
+  }
 
   // Persist state
   useEffect(() => { saveState(state); }, [state]);
@@ -125,16 +130,26 @@ export default function App() {
   useEffect(() => {
     if (!auth.session || isOffline) return;
     let cancelled = false;
-    setState(current => {
-      linkChild(current).then(async linked => {
-        if (cancelled) return;
-        const server = await fetchServerProgress(linked.studentId);
-        if (cancelled) return;
-        // The server is authoritative, but anything still queued is re-applied
-        // so the child does not watch their most recent stars disappear.
-        setState(server ? reconcile(linked, server) : linked);
+    if (!linkingRef.current) {
+      linkingRef.current = linkChild(stateRef.current)
+        .finally(() => { linkingRef.current = null; });
+    }
+    linkingRef.current.then(async linked => {
+      if (cancelled) return;
+      const server = await fetchServerProgress(linked.studentId);
+      if (cancelled) return;
+      // Merge into the CURRENT state, not the snapshot linkChild started
+      // from: the child may have earned stars while this was in flight. The
+      // server is authoritative, but anything still queued is re-applied so
+      // the child does not watch their most recent stars disappear.
+      setState(current => {
+        const withIds = {
+          ...current,
+          studentId: linked.studentId,
+          deviceToken: linked.deviceToken,
+        };
+        return server ? reconcile(withIds, server) : withIds;
       });
-      return current;
     });
     return () => { cancelled = true; };
   }, [auth.session, isOffline]);
@@ -290,7 +305,6 @@ export default function App() {
     }
   };
 
-  const AvatarIcon = getAvatarIcon(user?.avatar, BookOpen);
 
   return (
     <>
@@ -325,7 +339,7 @@ export default function App() {
                 onClick={() => handleNavigate('home')}
                 aria-label="Go to home"
               >
-                <AvatarIcon size={20} style={{ color: 'var(--green-700)' }} />
+                {React.createElement(getAvatarIcon(user?.avatar, BookOpen), { size: 20, style: { color: 'var(--green-700)' } })}
               </button>
             ) : (
               <span className="top-bar-avatar-placeholder" aria-hidden="true" />

@@ -16,6 +16,7 @@ const db = adminClient();
  * straight to a terminal. ANSI escapes in a message can clear the screen or
  * overwrite lines above -- hiding other testers' reports, or faking output.
  */
+// eslint-disable-next-line no-control-regex -- stripping control characters is the point
 const safe = (v) => String(v ?? '').replace(/[\u0000-\u001F\u007F-\u009F]/g, ' ');
 
 const bail = (what, error) => {
