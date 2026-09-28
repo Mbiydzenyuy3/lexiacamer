@@ -3,7 +3,67 @@
    High-contrast, accessible, optimized for low-end Android devices
    ================================================================ */
 
-@import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800;900&display=swap');
+/* --- Fonts, served from this origin ---
+
+   Self-hosted rather than pulled from Google Fonts, for two reasons that both
+   matter here:
+
+   1. OFFLINE. This app promises to work with no internet. A cross-origin font
+      is not precached by the service worker, so before this change an offline
+      visitor silently fell back to the system sans-serif and the app looked
+      wrong. These files are precached with everything else, so the app looks
+      identical on the fifth offline visit as on the first.
+
+   2. WEAK NETWORKS. The old setup made TWO render-blocking stylesheet requests
+      (a <link> here and an @import in this file, which a browser cannot even
+      discover until this stylesheet has arrived, so they ran one after the
+      other), to two further origins needing their own DNS and TLS, before any
+      font byte was requested. That is several round trips on a connection
+      where a round trip is expensive.
+
+   Outfit is a VARIABLE font: one file covers every weight from 400 to 900,
+   instead of the six separate files the old static request downloaded.
+
+   Comic Neue is declared but not fetched until something actually uses it,
+   which only happens in dyslexia mode. Nobody pays for it otherwise. */
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('/fonts/outfit-latin.woff2') format('woff2');
+  unicode-range: U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA,
+                 U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122,
+                 U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD;
+}
+
+@font-face {
+  font-family: 'Outfit';
+  font-style: normal;
+  font-weight: 400 900;
+  font-display: swap;
+  src: url('/fonts/outfit-latin-ext.woff2') format('woff2');
+  unicode-range: U+0100-02BA, U+02BD-02C5, U+02C7-02CC, U+02CE-02D7, U+02DD-02FF,
+                 U+0304, U+0308, U+0329, U+1D00-1DBF, U+1E00-1E9F, U+1EF2-1EFF,
+                 U+2020, U+20A0-20AB, U+20AD-20C0, U+2113, U+2C60-2C7F, U+A720-A7FF;
+}
+
+@font-face {
+  font-family: 'Comic Neue';
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+  src: url('/fonts/comic-neue-400.woff2') format('woff2');
+}
+
+@font-face {
+  font-family: 'Comic Neue';
+  font-style: normal;
+  font-weight: 700;
+  font-display: swap;
+  src: url('/fonts/comic-neue-700.woff2') format('woff2');
+}
 
 /* --- Design Tokens --- */
 :root {

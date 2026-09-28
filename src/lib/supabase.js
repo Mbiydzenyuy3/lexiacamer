@@ -1,4 +1,3 @@
-<<<<<<< HEAD
 import { createClient } from '@supabase/supabase-js';
 
 /**
@@ -8,23 +7,12 @@ import { createClient } from '@supabase/supabase-js';
  * it is what a child on a school tablet with no account still gets. So every
  * caller must handle `supabase === null`, and the offline path is the default
  * rather than a fallback bolted on later.
-=======
-/**
- * The Supabase client — loaded on demand, never at startup.
  *
- * The app has to run with NO backend at all: that is how it works today, and
- * it is what a child on a school tablet with no account still gets. So every
- * caller must handle a null client, and the offline path is the default rather
- * than a fallback bolted on later.
- *
- * WHY THIS IS A DYNAMIC IMPORT. @supabase/supabase-js is around 35KB gzipped.
- * Someone who opens the landing page over a weak connection in a rural area
- * needs exactly none of it: they are reading a page. They need it only if they
- * fill in the tester form or send feedback, by which point the page is already
- * up and the download is invisible. Paying 35KB before first paint, on a
- * connection where that is measured in seconds, to support an action most
- * visitors never take, is the wrong trade.
->>>>>>> 6e8aa654b2bd6a374259d9b74740ac05ce978866
+ * main made this client a lazy import so the landing page would not pay ~35KB
+ * for it. This branch signs parents in at startup (AuthProvider), so the client
+ * has to exist up front here. getSupabase() and warmSupabase() are kept for the
+ * callers written against the lazy API, and resolve to this same instance: two
+ * clients would each hold their own auth session.
  *
  * Only the ANON key belongs here. It ships in the browser bundle and is public
  * by design; RLS is what protects the data. The service-role key must never
@@ -41,7 +29,6 @@ const anonKey =
 
 export const isBackendConfigured = Boolean(url && anonKey);
 
-<<<<<<< HEAD
 export const supabase = isBackendConfigured
   ? createClient(url, anonKey, {
       auth: {
@@ -51,43 +38,14 @@ export const supabase = isBackendConfigured
       },
     })
   : null;
-=======
-let clientPromise = null;
 
-/**
- * Resolves to the client, or to null when there is no backend configured.
- * The module is fetched once and cached; later calls are instant.
- */
+/** Resolves to the client, or to null when there is no backend configured. */
 export function getSupabase() {
-  if (!isBackendConfigured) return Promise.resolve(null);
-  if (!clientPromise) {
-    clientPromise = import('@supabase/supabase-js')
-      .then(({ createClient }) =>
-        createClient(url, anonKey, {
-          auth: {
-            persistSession: true,
-            autoRefreshToken: true,
-            detectSessionInUrl: true,
-          },
-        }))
-      // A failed chunk fetch (flaky network, cache miss offline) must not throw
-      // into a caller that is mid-submit. It behaves exactly like "no backend".
-      .catch(() => { clientPromise = null; return null; });
-  }
-  return clientPromise;
+  return Promise.resolve(supabase);
 }
 
-/**
- * Warm the client in the background, without blocking anything.
- *
- * Called when a visitor reaches the tester form, so the module is usually
- * already there by the time they press the button. Idle time on a slow
- * connection is the cheapest time to spend.
- */
-export function warmSupabase() {
-  if (isBackendConfigured) getSupabase();
-}
->>>>>>> 6e8aa654b2bd6a374259d9b74740ac05ce978866
+/** Kept for callers of the lazy API; the client is already loaded here. */
+export function warmSupabase() {}
 
 if (!isBackendConfigured && import.meta.env?.DEV) {
   // eslint-disable-next-line no-console
@@ -95,8 +53,6 @@ if (!isBackendConfigured && import.meta.env?.DEV) {
     '[lexia] No VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY: running fully offline.'
   );
 }
-<<<<<<< HEAD
-=======
 
 /**
  * Re-send a signup that could not be stored when it was made.
@@ -132,7 +88,7 @@ function bumpTries(record) {
 }
 
 export async function retryPendingTester() {
-  let record = null;
+  let record;
   try {
     const raw = localStorage.getItem('lexia_tester_pending');
     if (!raw) return;
@@ -202,7 +158,7 @@ export function unqueueFeedback(id) {
 }
 
 export async function retryPendingFeedback() {
-  let queue = [];
+  let queue;
   try {
     const raw = localStorage.getItem(FEEDBACK_KEY);
     if (!raw) return;
@@ -236,4 +192,3 @@ export async function retryPendingFeedback() {
     if (allDone) localStorage.removeItem(FEEDBACK_KEY);
   } catch { /* still unreachable; try again next load */ }
 }
->>>>>>> 6e8aa654b2bd6a374259d9b74740ac05ce978866

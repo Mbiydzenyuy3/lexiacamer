@@ -12,7 +12,9 @@ export default defineConfig({
         // The default glob omits woff2, so the fonts were never precached and
         // an offline visitor silently dropped to the system font. Without this
         // line, self-hosting them fixes nothing for the offline case.
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}'],
+        // mp3 precaches the recorded phonics clips so Phonics Lab has audio
+        // offline.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,mp3}'],
       },
       // favicon.ico does not exist in public/; listing it achieved nothing.
       includeAssets: ['apple-touch-icon.png', 'masked-icon.svg'],
