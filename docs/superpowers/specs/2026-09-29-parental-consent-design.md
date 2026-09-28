@@ -207,6 +207,9 @@ processed.
 The school picker appears only when ticked. Ticking calls `give_consent` before
 `claim_school_place` / `note_school_interest`.
 
+School sharing needs the parent's consent only, no separate child assent
+(owner decision, 2026-09-29). The child's assent covers saving progress.
+
 ### Address step
 
 Removed from `ParentOnboarding.jsx`. Onboarding becomes two steps.
@@ -283,8 +286,5 @@ arguments.
 - **Cross-border transfer**: prior authorisation from Cameroon's data
   protection authority for Supabase (Ireland) and Vercel. Operational status of
   the authority unverified.
-- **Child assent for school sharing**: the child agrees to their grown-up
-  seeing progress, not explicitly to their school. Decide whether the school
-  box needs its own child-assent line.
 - **The rest of sign-in and onboarding are English-only.**
 - **No breach-response process** (required "without delay" by the law).
