@@ -9,7 +9,18 @@
 --             -> 01_grants.sql -> 02_rls_test.sql
 -- ============================================================================
 
-create extension if not exists pgcrypto;
+-- Supabase installs extensions into an `extensions` schema, NOT public. Doing
+-- the same here means a function whose search_path omits it fails in the tests
+-- exactly as it does in production. Installing pgcrypto into public, which is
+-- the local default, hid a real bug: every invite and device token was broken
+-- on the live project while 294 tests passed.
+create schema if not exists extensions;
+create extension if not exists pgcrypto with schema extensions;
+
+-- Ad-hoc psql sessions get extensions on the path, as a Supabase superuser
+-- session does. Functions still carry their OWN explicit search_path, which is
+-- the thing under test: this only affects queries the suite writes directly.
+alter database lexia set search_path = public, extensions;
 
 create schema if not exists auth;
 
