@@ -10,6 +10,8 @@ import {
 import { useAuth } from './auth/AuthProvider';
 import SignIn from './auth/SignIn';
 import ParentOnboarding from './auth/ParentOnboarding';
+import ParentConsent from './auth/ParentConsent';
+import { CONSENT_VERSION } from './consentCopy';
 import InviteRedeem from './auth/InviteRedeem';
 import SchoolDashboard from './school/SchoolDashboard';
 import { useSchoolContext } from './school/useSchool';
@@ -128,7 +130,7 @@ export default function App() {
   // mint the device grant that lets the outbox drain. Idempotent, so it is
   // safe to run on every sign-in.
   useEffect(() => {
-    if (!auth.session || isOffline) return;
+    if (!auth.session || isOffline || !state.consent?.childAssent) return;
     let cancelled = false;
     if (!linkingRef.current) {
       linkingRef.current = linkChild(stateRef.current)
@@ -152,7 +154,7 @@ export default function App() {
       });
     });
     return () => { cancelled = true; };
-  }, [auth.session, isOffline]);
+  }, [auth.session, isOffline, state.consent?.childAssent]);
 
   // Offline detection
   useEffect(() => {
@@ -222,7 +224,10 @@ export default function App() {
   const needsParentOnboarding =
     screen === 'parent_dashboard' && Boolean(auth.session) && !school.isSchoolUser
     && Boolean(state.studentId) && !state.onboardedAt;
-  const isFocusedFlow = screen === 'onboarding' || needsSignIn
+  const needsConsent =
+    screen === 'parent_dashboard' && Boolean(auth.session) && !school.isSchoolUser
+    && !state.consent?.childAssent;
+  const isFocusedFlow = screen === 'onboarding' || needsSignIn || needsConsent
     || needsParentOnboarding || Boolean(inviteToken);
 
   const finishInvite = useCallback(() => {
@@ -268,6 +273,21 @@ export default function App() {
             <SchoolDashboard
               schools={school.schools}
               classes={school.classes}
+              onBack={() => setScreen('home')}
+            />
+          );
+        }
+        // Nothing about the child goes to the server until the parent has
+        // agreed and the child has said yes. Saying no keeps the whole app.
+        if (auth.session && !state.consent?.childAssent) {
+          return (
+            <ParentConsent
+              lang={lang}
+              childName={user.name}
+              childDeclined={state.consent?.childAssent === false}
+              onAgree={(childAssent) => setState(s2 => ({
+                ...s2, consent: { version: CONSENT_VERSION, childAssent },
+              }))}
               onBack={() => setScreen('home')}
             />
           );
