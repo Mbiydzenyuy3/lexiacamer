@@ -219,9 +219,12 @@ begin
        and withdrawn_at is null;
 
     -- cancelled, not ended: "turn it off" means the school keeps nothing,
-    -- and 0001 defines cancelled as producing no window at all.
+    -- and 0001 defines cancelled as producing no window at all. That includes
+    -- ENDED enrolments: after a transfer, the old class still sees the period
+    -- it taught, and a parent who stops sharing means that class too.
     for v_e in select id from enrolments
-                where student_id = p_student_id and status = 'active' loop
+                where student_id = p_student_id
+                  and status in ('active', 'ended') loop
       perform cancel_enrolment(v_e, 'parent withdrew school consent');
     end loop;
 

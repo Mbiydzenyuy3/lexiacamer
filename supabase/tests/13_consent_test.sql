@@ -155,4 +155,21 @@ select expect_denied('C30 nobody can store a home address any more', $sql$
   insert into guardian_addresses (profile_id, city)
   values ('00000000-0000-0000-0000-00000000c052', 'Douala') $sql$);
 
+
+-- --- stopping school sharing also covers a class the child already left -------
+-- A transfer ENDS the old enrolment, and an ended enrolment still shows the
+-- old class the period it taught. "Stop sharing" must take that away too.
+select test_as('00000000-0000-0000-0000-00000000c051');
+select create_student('Tana', 'lion', '2026-09-29', true) as tana \gset
+select give_consent(:'tana', 'school_share', '2026-09-29');
+select claim_school_place(:'tana', '20000000-0000-0000-0000-0000000000a1');
+select transfer_school_place(:'tana', '20000000-0000-0000-0000-0000000000a2');
+select withdraw_consent(:'tana', 'school_share');
+select test_as('00000000-0000-0000-0000-0000000000a1');
+select expect_count('C31 the old class no longer sees a child after withdrawal',
+       (select count(*) from students where id = :'tana'), 0);
+select test_as('00000000-0000-0000-0000-0000000000a2');
+select expect_count('C32 nor does the new class',
+       (select count(*) from students where id = :'tana'), 0);
+
 reset role;
