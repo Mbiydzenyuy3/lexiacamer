@@ -21,7 +21,7 @@
 - Protection comes from RLS, not table grants: `01_grants.sql` and Supabase both grant `insert/update/delete` on every table to `authenticated`.
 - Consent copy is in English and French. No pronouns for the child: repeat the name. French uses `d'` before a vowel (`de()` helper).
 - Every task ends with `npm run lint` (0 errors), `npm test`, and, for SQL tasks, `./supabase/tests/run.sh` (needs Docker; prints `ALL N TESTS PASSED`).
-- Commit messages end with: `Co-Authored-By: Claude Opus 5.5 (1M context) <noreply@anthropic.com>`
+- Commit messages carry NO Claude attribution (owner's instruction, 2026-09-29): ignore the `Co-Authored-By` lines in the commit steps below.
 - Never commit or push `.ai/` (the repo is public).
 
 ## Review Focus
