@@ -4,14 +4,16 @@ import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck, VolumeX, X } from '
 import { getAvatarIcon } from './avatars';
 import speechEngine from './speech';
 import {
-  loadState, saveState, queueEvent, syncOutbox, defaultState,
-  linkChild, fetchServerProgress, reconcile,
+  loadState, saveState, queueEvent, syncOutbox,
+  linkChild, fetchServerProgress, reconcile, forgetServerLink, eraseChild,
 } from './store';
 import { useAuth } from './auth/AuthProvider';
 import SignIn from './auth/SignIn';
 import ParentOnboarding from './auth/ParentOnboarding';
 import ParentConsent from './auth/ParentConsent';
-import { CONSENT_VERSION } from './consentCopy';
+import { CONSENT_VERSION, copyFor } from './consentCopy';
+import YourData from './auth/YourData';
+import { deleteChildData } from './lib/dataRights';
 import InviteRedeem from './auth/InviteRedeem';
 import SchoolDashboard from './school/SchoolDashboard';
 import { useSchoolContext } from './school/useSchool';
@@ -211,10 +213,21 @@ export default function App() {
    * way to clear it is to delete the record. Locally that is everything we
    * hold; once accounts exist this becomes delete_student() on the server.
    */
-  const handleEraseChild = useCallback(() => {
-    setState({ ...defaultState(), lang, settings });
-    setScreen('onboarding');
-  }, [lang, settings]);
+  // When this phone is linked, erasing deletes the server copy first: resetting
+  // only the phone would strand a record the parent can no longer reach.
+  const handleEraseChild = useCallback(async () => {
+    try {
+      const next = await eraseChild(stateRef.current, {
+        online: !isOffline,
+        deleteServer: deleteChildData,
+      });
+      setState(next);
+      setScreen('onboarding');
+    } catch {
+      // The reset card has no message slot, and silently not erasing is worse.
+      window.alert(copyFor(lang).eraseNeedsInternet);
+    }
+  }, [isOffline, lang]);
 
   // Screens that own the whole viewport: child onboarding, adult sign-in, and
   // parent onboarding. These are focused one-task flows, so the app chrome
@@ -305,7 +318,26 @@ export default function App() {
             />
           );
         }
-        return <ParentDashboard t={t} stats={stats} missedPhonemes={missedPhonemes} onResetProgress={handleEraseChild} onBack={() => setScreen('home')} />;
+        return (
+          <ParentDashboard
+            t={t} stats={stats} missedPhonemes={missedPhonemes}
+            onResetProgress={handleEraseChild} onBack={() => setScreen('home')}
+            yourData={
+              <YourData
+                lang={lang}
+                studentId={state.studentId}
+                childName={user.name}
+                isOffline={isOffline}
+                onChildDeleted={() => setState(s2 => forgetServerLink(s2))}
+                onAccountDeleted={async () => {
+                  setState(s2 => forgetServerLink(s2));
+                  await auth.signOut();
+                  setScreen('home');
+                }}
+              />
+            }
+          />
+        );
       case 'sticker_book':
         return <StickerBook t={t} stats={stats} unlockedStickers={unlockedStickers} onUnlockSticker={handleUnlockSticker} onBack={() => setScreen('home')} />;
       case 'phonics':

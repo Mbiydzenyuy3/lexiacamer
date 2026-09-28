@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   defaultState, migrateLegacy, queueEvent, pruneOutbox, reconcile,
-  linkChild, forgetServerLink,
+  linkChild, forgetServerLink, eraseChild,
 } from './store';
 
 describe('queueEvent', () => {
@@ -145,5 +145,27 @@ describe('consent gate', () => {
     expect(f.consent).toBeNull();
     expect(f.onboardedAt).toBeNull();
     expect(f.progress.stars).toBe(12);
+  });
+});
+
+describe('erasing a linked child', () => {
+  it('deletes the server copy before resetting the phone', async () => {
+    const calls = [];
+    const s = { ...defaultState(), studentId: 's1', consent: { version: 'v', childAssent: true } };
+    const next = await eraseChild(s, { online: true, deleteServer: async (id) => calls.push(id) });
+    expect(calls).toEqual(['s1']);
+    expect(next.studentId).toBeNull();
+  });
+
+  it('refuses offline rather than stranding the server copy', async () => {
+    const s = { ...defaultState(), studentId: 's1' };
+    await expect(eraseChild(s, { online: false, deleteServer: async () => {} }))
+      .rejects.toThrow('offline');
+  });
+
+  it('an unlinked phone erases without the network', async () => {
+    const s = { ...defaultState(), user: { name: 'Amina', avatar: 'lion' } };
+    const next = await eraseChild(s, { online: false, deleteServer: async () => { throw new Error('no'); } });
+    expect(next.user.name).toBe('');
   });
 });

@@ -9,7 +9,7 @@ import { ArrowLeft, ShieldCheck, Activity, AlertTriangle, Star, Lightbulb } from
  * screen now requires a real signed-in session, and the data behind it is
  * protected by row-level security rather than by hiding the view.
  */
-export default function ParentDashboard({ t, stats, missedPhonemes, onResetProgress, onBack }) {
+export default function ParentDashboard({ t, stats, missedPhonemes, onResetProgress, onBack, yourData }) {
   const [confirmingReset, setConfirmingReset] = useState(false);
 
   // Calculate most missed
@@ -131,6 +131,7 @@ export default function ParentDashboard({ t, stats, missedPhonemes, onResetProgr
           )}
         </div>
       </div>
+      {yourData}
     </div>
   );
 }

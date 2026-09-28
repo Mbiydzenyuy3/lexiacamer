@@ -251,6 +251,19 @@ export function forgetServerLink(state) {
   };
 }
 
+/**
+ * Erase this phone's child. When the phone is linked, the server copy goes
+ * first: resetting only the phone would strand a record the parent can no
+ * longer reach from here. Keeps language and settings, like before.
+ */
+export async function eraseChild(state, { online, deleteServer }) {
+  if (state.studentId) {
+    if (!online) throw new Error('offline');
+    await deleteServer(state.studentId);
+  }
+  return { ...defaultState(), lang: state.lang, settings: state.settings };
+}
+
 /** Read the server's authoritative progress for this device's child. */
 export async function fetchServerProgress(studentId) {
   if (!isBackendConfigured || !supabase || !studentId) return null;
