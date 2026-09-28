@@ -25,6 +25,16 @@ const OUTBOX_MAX_AGE_DAYS = 60;
 /** Matches the server's per-call cap in sync_activity(). */
 export const SYNC_BATCH_LIMIT = 500;
 
+/**
+ * The server says this parent no longer has this child: it was deleted, from
+ * this phone or another. Distinct from "not authenticated" (an expired
+ * session), which must NOT drop the link: re-consenting after that would
+ * create the same child a second time.
+ */
+export const isGoneOnServer = (err) =>
+  err?.code === '42501'
+  && /not a guardian|no current access/i.test(err?.message || '');
+
 export function defaultState() {
   return {
     version: 2,
@@ -149,6 +159,11 @@ export async function syncOutbox(state) {
       p_token: state.deviceToken,
       p_events: batch,
     });
+    // A dead token (child deleted, or grant expired): drop it and keep the
+    // events. The next link re-issues a grant, or learns the child is gone.
+    if (error?.code === '42501' && /invalid device token/i.test(error.message || '')) {
+      return { ...state, deviceToken: null, outbox: pending };
+    }
     if (error) return pending === state.outbox ? state : { ...state, outbox: pending };
 
     const sent = new Set(batch.map(e => e.id));
@@ -166,8 +181,15 @@ export async function syncOutbox(state) {
 }
 
 /**
- * Adopt the server's progress as authoritative, then re-apply anything still
- * queued so the child does not briefly see their most recent stars vanish.
+ * Merge the server's progress into the phone's.
+ *
+ * The phone is where every event starts, and the server never sees events from
+ * before consent (0002 drops anything older than the device grant). So after
+ * linking or re-consenting the server knows LESS than the phone, and adopting
+ * it outright would take stars away from a child: the consent screen promises
+ * the opposite. Each total is the larger of the two; stickers and missed
+ * sounds are combined. The server still wins on a phone that lost its data
+ * (a reinstall), because there the phone has less.
  */
 export function reconcile(state, serverProgress) {
   if (!serverProgress) return state;
@@ -181,7 +203,23 @@ export function reconcile(state, serverProgress) {
     _rounds: 0,
     _lastMissAt: null,
   };
-  return { ...state, progress: state.outbox.reduce(applyEvent, base) };
+  const server = state.outbox.reduce(applyEvent, base);
+  const local = state.progress;
+  const missed = { ...server.missedPhonemes };
+  for (const [k, v] of Object.entries(local.missedPhonemes || {})) {
+    missed[k] = Math.max(missed[k] || 0, v);
+  }
+  return {
+    ...state,
+    progress: {
+      ...server,
+      words: Math.max(server.words, local.words || 0),
+      stars: Math.max(server.stars, local.stars || 0),
+      streak: Math.max(server.streak, local.streak || 0),
+      unlockedStickers: [...new Set([...(local.unlockedStickers || []), ...server.unlockedStickers])],
+      missedPhonemes: missed,
+    },
+  };
 }
 
 /** Re-derive from a full event list. Used after an export/restore. */
@@ -224,8 +262,11 @@ export async function linkChild(state) {
     const { data: token, error: tokenError } = await supabase.rpc(
       'issue_device_grant', { p_student_id: studentId }
     );
-    // Keep the student id even if the token failed: the next attempt reuses
-    // it rather than creating a duplicate child.
+    // The child is gone on the server (deleted here or elsewhere): forget the
+    // link so the phone stops retrying and the parent can be asked again.
+    if (isGoneOnServer(tokenError)) return forgetServerLink(state);
+    // Otherwise keep the student id even if the token failed: the next attempt
+    // reuses it rather than creating a duplicate child.
     if (tokenError) return { ...state, studentId };
 
     return { ...state, studentId, deviceToken: token };
@@ -259,9 +300,40 @@ export function forgetServerLink(state) {
 export async function eraseChild(state, { online, deleteServer }) {
   if (state.studentId) {
     if (!online) throw new Error('offline');
-    await deleteServer(state.studentId);
+    try {
+      await deleteServer(state.studentId);
+    } catch (err) {
+      // Already deleted (from another phone, say): nothing left to strand.
+      if (!isGoneOnServer(err)) throw err;
+    }
   }
   return { ...defaultState(), lang: state.lang, settings: state.settings };
+}
+
+/**
+ * Run linkChild once at a time, and record its result at once.
+ *
+ * The ids are written to stateRef and to state as soon as linkChild resolves,
+ * before anything else awaits. Otherwise an effect re-run in that gap (a
+ * token refresh, the network flapping) would start from a state with no
+ * studentId and create the child a second time.
+ */
+export function startLink(ctx, link = linkChild) {
+  if (!ctx.linkingRef.current) {
+    ctx.linkingRef.current = link(ctx.stateRef.current)
+      .then((linked) => {
+        ctx.stateRef.current = {
+          ...ctx.stateRef.current,
+          studentId: linked.studentId,
+          deviceToken: linked.deviceToken,
+          consent: linked.consent,
+        };
+        ctx.write(linked);
+        return linked;
+      })
+      .finally(() => { ctx.linkingRef.current = null; });
+  }
+  return ctx.linkingRef.current;
 }
 
 /** Read the server's authoritative progress for this device's child. */

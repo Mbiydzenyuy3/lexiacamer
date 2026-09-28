@@ -5,7 +5,7 @@ import { getAvatarIcon } from './avatars';
 import speechEngine from './speech';
 import {
   loadState, saveState, queueEvent, syncOutbox,
-  linkChild, fetchServerProgress, reconcile, forgetServerLink, eraseChild,
+  fetchServerProgress, reconcile, forgetServerLink, eraseChild, startLink,
 } from './store';
 import { useAuth } from './auth/AuthProvider';
 import SignIn from './auth/SignIn';
@@ -134,26 +134,25 @@ export default function App() {
   useEffect(() => {
     if (!auth.session || isOffline || !state.consent?.childAssent) return;
     let cancelled = false;
-    if (!linkingRef.current) {
-      linkingRef.current = linkChild(stateRef.current)
-        .finally(() => { linkingRef.current = null; });
-    }
-    linkingRef.current.then(async linked => {
-      if (cancelled) return;
+    startLink({
+      stateRef,
+      linkingRef,
+      // Ids and consent land in state the moment linkChild answers (see
+      // startLink). A forgotten link clears consent, which brings the parent
+      // back to the consent screen instead of retrying forever.
+      write: (linked) => setState(current => ({
+        ...current,
+        studentId: linked.studentId,
+        deviceToken: linked.deviceToken,
+        consent: linked.consent,
+      })),
+    }).then(async linked => {
+      if (cancelled || !linked.studentId) return;
       const server = await fetchServerProgress(linked.studentId);
       if (cancelled) return;
-      // Merge into the CURRENT state, not the snapshot linkChild started
-      // from: the child may have earned stars while this was in flight. The
-      // server is authoritative, but anything still queued is re-applied so
-      // the child does not watch their most recent stars disappear.
-      setState(current => {
-        const withIds = {
-          ...current,
-          studentId: linked.studentId,
-          deviceToken: linked.deviceToken,
-        };
-        return server ? reconcile(withIds, server) : withIds;
-      });
+      // Merged, never adopted outright: the server knows less than the phone
+      // about anything from before consent (see reconcile).
+      setState(current => (server ? reconcile(current, server) : current));
     });
     return () => { cancelled = true; };
   }, [auth.session, isOffline, state.consent?.childAssent]);
@@ -223,9 +222,11 @@ export default function App() {
       });
       setState(next);
       setScreen('onboarding');
-    } catch {
+    } catch (err) {
       // The reset card has no message slot, and silently not erasing is worse.
-      window.alert(copyFor(lang).eraseNeedsInternet);
+      // "Connect to the internet" only when that is actually the problem.
+      const copy = copyFor(lang);
+      window.alert(err?.message === 'offline' ? copy.eraseNeedsInternet : copy.failed);
     }
   }, [isOffline, lang]);
 

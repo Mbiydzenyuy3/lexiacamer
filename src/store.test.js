@@ -169,3 +169,34 @@ describe('erasing a linked child', () => {
     expect(next.user.name).toBe('');
   });
 });
+
+describe('reconcile never takes stars off the phone', () => {
+  it('keeps the phone\'s totals when they are higher than the server\'s', () => {
+    // The server never sees events from before consent, so after linking or
+    // re-consenting it knows LESS than the phone. The phone must not shrink.
+    const s = { ...defaultState(), progress: { ...defaultState().progress,
+      words: 8, stars: 40, streak: 3, unlockedStickers: ['cat'], missedPhonemes: { A: 2 } } };
+    const next = reconcile(s, { words: 2, streak: 1, stars: 10,
+      unlocked_stickers: ['dog'], missed_phonemes: { A: 1, B: 1 } });
+    expect(next.progress.words).toBe(8);
+    expect(next.progress.stars).toBe(40);
+    expect(next.progress.streak).toBe(3);
+    expect(next.progress.unlockedStickers.sort()).toEqual(['cat', 'dog']);
+    expect(next.progress.missedPhonemes).toEqual({ A: 2, B: 1 });
+  });
+});
+
+describe('a server copy that is already gone', () => {
+  it('erasing still resets the phone when the server says the child is not theirs any more', async () => {
+    const s = { ...defaultState(), studentId: 's1' };
+    const gone = Object.assign(new Error('not a guardian of this student'), { code: '42501' });
+    const next = await eraseChild(s, { online: true, deleteServer: async () => { throw gone; } });
+    expect(next.studentId).toBeNull();
+  });
+
+  it('erasing still fails loudly on any other server error', async () => {
+    const s = { ...defaultState(), studentId: 's1' };
+    await expect(eraseChild(s, { online: true, deleteServer: async () => { throw new Error('boom'); } }))
+      .rejects.toThrow('boom');
+  });
+});
