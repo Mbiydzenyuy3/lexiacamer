@@ -127,11 +127,10 @@ the copy repeats the child's name instead.
 > our server. Here is exactly what that means.
 >
 > **What we store**
-> • Amina's first name and avatar and, if you give them on the next screen,
->   Amina's birth date and gender
+> • Amina's first name, avatar, age and gender
 > • What Amina does in the app: words spelled, sounds practised, stars earned
-> • Your email, which you used to sign in, and your name and phone number if
->   you give them on the next screen
+> • Your email, which you used to sign in, your name, and your phone number if
+>   you give it
 > • Anonymous totals for research, like which sounds children of Amina's age
 >   find hard. They never name Amina, and only count groups too big to pick
 >   anyone out.
@@ -163,11 +162,10 @@ the copy repeats the child's name instead.
 > conserver une partie sur notre serveur. Voici exactement ce que cela signifie.
 >
 > **Ce que nous conservons**
-> • Le prénom et l'avatar d'Amina et, si vous les indiquez à l'écran suivant,
->   sa date de naissance et son genre
+> • Le prénom, l'avatar, l'âge et le genre d'Amina
 > • Ce que fait Amina dans l'application : mots épelés, sons pratiqués, étoiles gagnées
-> • Votre adresse e-mail, utilisée pour vous connecter, et votre nom et votre
->   numéro de téléphone si vous les indiquez à l'écran suivant
+> • Votre adresse e-mail, utilisée pour vous connecter, votre nom, et votre
+>   numéro de téléphone si vous l'indiquez
 > • Des totaux anonymes pour la recherche, par exemple les sons difficiles pour
 >   les enfants de l'âge d'Amina. Ils ne nomment jamais Amina et ne comptent que
 >   des groupes trop grands pour reconnaître quelqu'un.
@@ -221,6 +219,13 @@ The school picker appears only when ticked. Ticking calls `give_consent` before
 
 School sharing needs the parent's consent only, no separate child assent
 (owner decision, 2026-09-29). The child's assent covers saving progress.
+
+### Onboarding fields (owner decision, 2026-09-29)
+
+Required: child's name, age (a number, 3–17; stored as an estimated
+`date_of_birth` because existing school views and age bands compute age from
+it), gender (an explicit tap; "Prefer not to say" is a valid answer), parent's
+name. Optional: phone.
 
 ### Address step
 

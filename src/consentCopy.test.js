@@ -38,13 +38,17 @@ describe('consentCopy', () => {
 
   it('lists everything onboarding stores, in both languages', () => {
     const en = copyFor('en').store('Amina').join(' ');
-    expect(en).toMatch(/birth date/);
+    expect(en).toMatch(/\bage\b/);
     expect(en).toMatch(/gender/);
-    expect(en).toMatch(/your name and phone/i);
+    expect(en).toMatch(/your name/i);
+    expect(en).toMatch(/phone number if you give it/i);
+    expect(en).not.toMatch(/birth date|if you give them/);
     const fr = copyFor('fr').store('Amina').join(' ');
-    expect(fr).toMatch(/date de naissance/);
+    expect(fr).toMatch(/l'âge/);
     expect(fr).toMatch(/genre/);
-    expect(fr).toMatch(/votre nom et votre numéro/i);
+    expect(fr).toMatch(/votre nom/i);
+    expect(fr).toMatch(/numéro de téléphone si vous l'indiquez/i);
+    expect(fr).not.toMatch(/date de naissance|si vous les indiquez/);
   });
 
   it('tells the parent the school would see their name and phone', () => {

@@ -19,9 +19,9 @@ const en = {
   intro: (n) => `To show you ${n}'s progress on your account, we need to store some of it on our server. Here is exactly what that means.`,
   storeTitle: 'What we store',
   store: (n) => [
-    `${n}'s first name and avatar and, if you give them on the next screen, ${n}'s birth date and gender`,
+    `${n}'s first name, avatar, age and gender`,
     `What ${n} does in the app: words spelled, sounds practised, stars earned`,
-    'Your email, which you used to sign in, and your name and phone number if you give them on the next screen',
+    'Your email, which you used to sign in, your name, and your phone number if you give it',
     `Anonymous totals for research, like which sounds children of ${n}'s age find hard. They never name ${n}, and only count groups too big to pick anyone out.`,
   ],
   neverTitle: 'What we never do',
@@ -66,11 +66,11 @@ const fr = {
   intro: (n) => `Pour vous montrer les progrès ${de(n)} sur votre compte, nous devons en conserver une partie sur notre serveur. Voici exactement ce que cela signifie.`,
   storeTitle: 'Ce que nous conservons',
   store: (n) => [
-    `Le prénom et l'avatar ${de(n)} et, si vous les indiquez à l'écran suivant, sa date de naissance et son genre`,
+    `Le prénom, l'avatar, l'âge et le genre ${de(n)}`,
     // "Ce que fait Amina", not "Ce que Amina fait": inversion is correct French
     // for every name, where "que" before a vowel would need eliding.
     `Ce que fait ${n} dans l'application : mots épelés, sons pratiqués, étoiles gagnées`,
-    "Votre adresse e-mail, utilisée pour vous connecter, et votre nom et votre numéro de téléphone si vous les indiquez à l'écran suivant",
+    "Votre adresse e-mail, utilisée pour vous connecter, votre nom, et votre numéro de téléphone si vous l'indiquez",
     `Des totaux anonymes pour la recherche, par exemple les sons difficiles pour les enfants de l'âge ${de(n)}. Ils ne nomment jamais ${n} et ne comptent que des groupes trop grands pour reconnaître quelqu'un.`,
   ],
   neverTitle: 'Ce que nous ne faisons jamais',

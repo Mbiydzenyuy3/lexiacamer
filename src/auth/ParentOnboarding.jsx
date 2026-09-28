@@ -2,7 +2,8 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { ArrowLeft, ArrowRight, Check, Search } from 'lucide-react';
 import { supabase } from '../lib/supabase';
 import { copyFor } from '../consentCopy';
-import { giveSchoolConsent } from '../lib/dataRights';
+import { giveSchoolConsent, stopSchoolSharing } from '../lib/dataRights';
+import { estimatedBirthDate } from '../lib/age';
 
 /**
  * ParentOnboarding: the three things we ask a parent after they sign in.
@@ -19,6 +20,10 @@ import { giveSchoolConsent } from '../lib/dataRights';
  * the landing page promises we never ask for one. (0021 also drops the write
  * policies on guardian_addresses, so no old copy of the app can store one.)
  */
+
+// Ages we accept: every learner is a child. Out of range reads as a typo.
+const MIN_AGE = 3;
+const MAX_AGE = 17;
 
 const GENDERS = [
   { value: 'female', label: 'Girl' },
@@ -37,8 +42,12 @@ export default function ParentOnboarding({ lang, studentId, initialChildName, on
 
   // Step 1
   const [childName, setChildName] = useState(initialChildName || '');
-  const [dob, setDob] = useState('');
-  const [gender, setGender] = useState('unspecified');
+  const [age, setAge] = useState('');
+  // No default: the parent picks one, and "Prefer not to say" is a valid pick.
+  const [gender, setGender] = useState('');
+  // Whether this screen already recorded a school consent, so unticking the box
+  // after going Back actually withdraws it.
+  const [schoolConsentGiven, setSchoolConsentGiven] = useState(false);
   const [schoolQuery, setSchoolQuery] = useState('');
   const [schools, setSchools] = useState([]);
   const [school, setSchool] = useState(null);
@@ -111,13 +120,18 @@ export default function ParentOnboarding({ lang, studentId, initialChildName, on
       await supabase.rpc('update_student_details', {
         p_student_id: studentId,
         p_name: childName,
-        p_dob: dob || null,
+        p_dob: estimatedBirthDate(Number(age)),
         p_gender: gender,
       });
       // A school sees nothing unless the parent ticked the box. The consent
       // is recorded first: the database refuses the school rows without it.
+      if (!shareWithSchool && schoolConsentGiven) {
+        await stopSchoolSharing(studentId);
+        setSchoolConsentGiven(false);
+      }
       if (shareWithSchool && school) {
         await giveSchoolConsent(studentId);
+        setSchoolConsentGiven(true);
         if (!school.on_platform && school.directory_id) {
           await supabase.rpc('note_school_interest', {
             p_directory_id: school.directory_id,
@@ -160,7 +174,10 @@ export default function ParentOnboarding({ lang, studentId, initialChildName, on
     }
   };
 
-  const canContinueChild = childName.trim().length > 0;
+  const ageNumber = Number(age);
+  const ageValid = Number.isInteger(ageNumber) && ageNumber >= MIN_AGE && ageNumber <= MAX_AGE;
+  const canContinueChild = childName.trim().length > 0 && ageValid && Boolean(gender);
+  const canContinueParent = parentName.trim().length > 0;
 
   return (
     <div className="screen">
@@ -190,11 +207,12 @@ export default function ParentOnboarding({ lang, studentId, initialChildName, on
                    onChange={(e) => setChildName(e.target.value)} maxLength={40}
                    placeholder="Ada" />
 
-            <label className="auth-label" htmlFor="onb-dob" style={{ marginTop: '1rem' }}>
-              Date of birth
+            <label className="auth-label" htmlFor="onb-age" style={{ marginTop: '1rem' }}>
+              Age
             </label>
-            <input id="onb-dob" type="date" className="auth-input" value={dob}
-                   onChange={(e) => setDob(e.target.value)} />
+            <input id="onb-age" type="number" inputMode="numeric" className="auth-input"
+                   min={MIN_AGE} max={MAX_AGE} value={age} placeholder="8"
+                   onChange={(e) => setAge(e.target.value)} />
 
             <fieldset className="onb-fieldset">
               <legend className="auth-label">Gender</legend>
@@ -345,7 +363,7 @@ export default function ParentOnboarding({ lang, studentId, initialChildName, on
                    placeholder="Ngozi Mbeki" />
 
             <label className="auth-label" htmlFor="onb-phone" style={{ marginTop: '1rem' }}>
-              Phone number
+              Phone number <span className="onb-optional">(optional)</span>
             </label>
             <input id="onb-phone" type="tel" inputMode="tel" className="auth-input"
                    value={phone} onChange={(e) => setPhone(e.target.value)}
@@ -355,7 +373,8 @@ export default function ParentOnboarding({ lang, studentId, initialChildName, on
               <button className="btn btn-ghost" onClick={() => setStep(1)} disabled={busy}>
                 <ArrowLeft size={18} /> Back
               </button>
-              <button className="btn btn-primary" onClick={saveParent} disabled={busy}>
+              <button className="btn btn-primary" onClick={saveParent}
+                      disabled={busy || !canContinueParent}>
                 {busy ? 'Saving...' : 'Continue'} <ArrowRight size={18} />
               </button>
             </div>
