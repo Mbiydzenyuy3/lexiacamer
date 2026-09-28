@@ -4,6 +4,7 @@ import { copyFor } from '../consentCopy';
 import {
   exportChild, stopSchoolSharing, deleteChildData, deleteMyAccount, hasSchoolSharing,
 } from '../lib/dataRights';
+import { isGoneOnServer } from '../store';
 
 /**
  * A parent's rights over the server copy, on the page they already use.
@@ -42,7 +43,9 @@ export default function YourData({ lang, studentId, childName, isOffline, onChil
     a.href = url;
     a.download = `lexiacamer-${n.replace(/[^\p{L}\p{N}_-]+/gu, '-')}.json`;
     a.click();
-    URL.revokeObjectURL(url);
+    // Not straight away: some Android browsers read the file after click()
+    // returns, and a revoked link makes the download silently fail.
+    setTimeout(() => URL.revokeObjectURL(url), 1000);
   });
 
   const stopSharing = () => run(async () => {
@@ -52,13 +55,20 @@ export default function YourData({ lang, studentId, childName, isOffline, onChil
   });
 
   const remove = () => run(async () => {
-    await deleteChildData(studentId);
     if (alsoAccount) {
+      // One server step: deleting the account deletes the child with it. If it
+      // fails, nothing has changed and the parent can simply try again.
       await deleteMyAccount();
       onAccountDeleted();
-    } else {
-      onChildDeleted();
+      return;
     }
+    try {
+      await deleteChildData(studentId);
+    } catch (err) {
+      // Already deleted, from another phone say: the result the parent wanted.
+      if (!isGoneOnServer(err)) throw err;
+    }
+    onChildDeleted();
   });
 
   return (
