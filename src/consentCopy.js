@@ -66,7 +66,9 @@ const fr = {
   storeTitle: 'Ce que nous conservons',
   store: (n) => [
     `Le prénom et l'avatar ${de(n)}`,
-    `Ce que ${n} fait dans l'application : mots épelés, sons pratiqués, étoiles gagnées`,
+    // "Ce que fait Amina", not "Ce que Amina fait": inversion is correct French
+    // for every name, where "que" before a vowel would need eliding.
+    `Ce que fait ${n} dans l'application : mots épelés, sons pratiqués, étoiles gagnées`,
     'Votre adresse e-mail, utilisée pour vous connecter',
   ],
   neverTitle: 'Ce que nous ne faisons jamais',

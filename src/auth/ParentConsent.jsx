@@ -64,9 +64,11 @@ export default function ParentConsent({ lang, childName, childDeclined, onAgree,
             <p className="consent-hand">{c.handPhone(n)}</p>
             <h2 className="onb-title consent-child-ask">{c.childAsk}</h2>
             <div className="onb-actions">
-              {/* App keeps this screen mounted after a no, so switch the step
+              {/* Same style for both answers: a child's OK only counts if saying
+                  no looks as easy as saying yes.
+                  App keeps this screen mounted after a no, so switch the step
                   here: the childDeclined prop only sets the FIRST step. */}
-              <button type="button" className="btn btn-ghost"
+              <button type="button" className="btn btn-primary"
                       onClick={() => { setStep('declined'); onAgree(false); }}>
                 {c.childNo}
               </button>

@@ -64,4 +64,11 @@ describe('ParentConsent', () => {
     render({ lang: 'fr' });
     expect(host.textContent).toContain("tuteur légal d'Amina");
   });
+
+  it('gives the child a yes and a no that look equally easy to choose', () => {
+    render();
+    click(host.querySelector('input[type="checkbox"]'));
+    click(button('Agree and continue'));
+    expect(button('No thanks').className).toBe(button('Yes!').className);
+  });
 });

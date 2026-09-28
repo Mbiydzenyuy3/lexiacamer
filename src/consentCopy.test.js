@@ -27,4 +27,12 @@ describe('consentCopy', () => {
     expect(CONSENT_VERSION.length).toBeGreaterThan(0);
     expect(CONSENT_VERSION.length).toBeLessThanOrEqual(20);
   });
+
+  it('never leaves "que" unelided before a vowel-initial name in French', () => {
+    const fr = copyFor('fr');
+    const all = [fr.intro('Amina'), ...fr.store('Amina'), fr.control('Amina'),
+                 fr.no('Amina'), fr.checkbox('Amina'), fr.childSaidNo('Amina'),
+                 fr.schoolBox('Amina'), fr.deleteConfirm('Amina')].join(' ');
+    expect(all).not.toMatch(/\b(que|de|le|la) [AEIOUYH]/);
+  });
 });

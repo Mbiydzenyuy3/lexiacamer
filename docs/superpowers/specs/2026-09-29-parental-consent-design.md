@@ -159,7 +159,7 @@ the copy repeats the child's name instead.
 >
 > **Ce que nous conservons**
 > • Le prénom et l'avatar d'Amina
-> • Ce qu'Amina fait dans l'application : mots épelés, sons pratiqués, étoiles gagnées
+> • Ce que fait Amina dans l'application : mots épelés, sons pratiqués, étoiles gagnées
 > • Votre adresse e-mail, utilisée pour vous connecter
 >
 > **Ce que nous ne faisons jamais**
