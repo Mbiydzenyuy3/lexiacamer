@@ -188,3 +188,91 @@ create trigger directory_interest_require_school_share
 
 revoke execute on function give_consent(uuid, text, text) from public;
 grant  execute on function give_consent(uuid, text, text) to authenticated;
+
+-- ----------------------------------------------------------------------------
+-- Withdrawal. It takes effect, not just gets noted.
+-- ----------------------------------------------------------------------------
+create or replace function withdraw_consent(p_student_id uuid, p_purpose text)
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+  v_e   uuid;
+begin
+  if p_purpose is null or p_purpose not in ('progress_sync', 'school_share') then
+    raise exception 'unknown purpose' using errcode = '22023';
+  end if;
+
+  if not exists (select 1 from guardianships g
+                  where g.student_id = p_student_id
+                    and g.profile_id = v_uid
+                    and g.ended_at is null) then
+    raise exception 'not a guardian of this student' using errcode = '42501';
+  end if;
+
+  if p_purpose = 'school_share' then
+    update consents set withdrawn_at = now()
+     where student_id = p_student_id and purpose = 'school_share'
+       and withdrawn_at is null;
+
+    -- cancelled, not ended: "turn it off" means the school keeps nothing,
+    -- and 0001 defines cancelled as producing no window at all.
+    for v_e in select id from enrolments
+                where student_id = p_student_id and status = 'active' loop
+      perform cancel_enrolment(v_e, 'parent withdrew school consent');
+    end loop;
+
+    delete from directory_interest where student_id = p_student_id;
+    return;
+  end if;
+
+  -- progress_sync: withdraw both purposes, then delete through the one audited
+  -- path (0005), which keeps only an anonymous billing count.
+  update consents set withdrawn_at = now()
+   where student_id = p_student_id and withdrawn_at is null;
+  perform delete_student(p_student_id);
+end;
+$$;
+
+-- ----------------------------------------------------------------------------
+-- Delete my account: the consent screen promises "delete all of it", and that
+-- includes the email. profiles cascades from auth.users, guardianships from
+-- profiles, and the 0005 orphan trigger deletes a child left with no guardian
+-- (a child with another live guardian is kept, for them).
+-- ----------------------------------------------------------------------------
+create or replace function delete_my_account()
+returns void
+language plpgsql
+security definer
+set search_path = public, pg_temp
+as $$
+declare
+  v_uid uuid := (select auth.uid());
+begin
+  if v_uid is null then
+    raise exception 'not authenticated' using errcode = '42501';
+  end if;
+
+  update consents set withdrawn_at = now()
+   where profile_id = v_uid and withdrawn_at is null;
+
+  delete from auth.users where id = v_uid;
+end;
+$$;
+
+revoke execute on function withdraw_consent(uuid, text) from public;
+revoke execute on function delete_my_account()          from public;
+grant  execute on function withdraw_consent(uuid, text) to authenticated;
+grant  execute on function delete_my_account()          to authenticated;
+
+-- ----------------------------------------------------------------------------
+-- No more home addresses. Dropping the write policies (not revoking grants,
+-- which Supabase re-grants by default) makes RLS refuse every write, from any
+-- version of the app. The table stays: the paused schools branch shares this
+-- database, and reading your own row still works.
+-- ----------------------------------------------------------------------------
+drop policy if exists own_address_insert on guardian_addresses;
+drop policy if exists own_address_update on guardian_addresses;
