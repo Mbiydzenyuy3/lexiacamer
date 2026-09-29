@@ -1,0 +1,2 @@
+# Window in recordings/letter-N.aac (a breath before it is left out).
+n 0.80 1.25

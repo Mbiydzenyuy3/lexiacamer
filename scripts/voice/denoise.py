@@ -1,7 +1,11 @@
 """Remove steady background noise from a whole recording, before cutting.
 
     ~/.local/share/lexia-voicelab/.venv/bin/python scripts/voice/denoise.py \
-        <recording> <noise start s> <noise end s> <out.wav>
+        <recording> <noise start s> <noise end s> <out.wav> [--adaptive]
+
+--adaptive: for noise that changes during the recording (traffic, a fan
+speeding up, the phone being moved). Follows the noise over time instead of
+assuming it is constant.
 
 Learns the room's noise "fingerprint" from a stretch where nothing is said,
 and subtracts it everywhere (noisereduce, MIT licence). Cleaning before the
@@ -21,8 +25,12 @@ pcm = subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-i", src, "-a
                       "-ar", str(SR), "-f", "f32le", "-"], capture_output=True, check=True).stdout
 y = np.frombuffer(pcm, dtype=np.float32).copy()
 noise = y[int(n0 * SR):int(n1 * SR)]
-clean = nr.reduce_noise(y=y, sr=SR, y_noise=noise, stationary=True, prop_decrease=1.0,
-                        n_fft=2048)
+if "--adaptive" in sys.argv:
+    clean = nr.reduce_noise(y=y, sr=SR, stationary=False, prop_decrease=0.95, n_fft=2048,
+                            time_constant_s=1.0)
+else:
+    clean = nr.reduce_noise(y=y, sr=SR, y_noise=noise, stationary=True, prop_decrease=1.0,
+                            n_fft=2048)
 
 
 def level(sig):

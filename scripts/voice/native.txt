@@ -1,0 +1,25 @@
+# Native pronunciation, from recordings/thirdvoice-native.aac. The owner chose
+# each clip by ear; E, K and W come from native-corrections.txt instead.
+a 0.59 1.56
+b 2.57 3.12
+c 3.80 4.91
+d 5.58 6.13
+f 8.52 8.95
+g 9.93 10.39
+h 11.54 11.92
+i 13.00 13.38
+j 14.32 14.64
+l 16.87 17.66
+m 18.35 19.10
+n 21.14 21.80
+o 19.76 20.24
+p 22.52 22.88
+q 23.99 24.32
+r 25.36 26.05
+s 26.56 27.20
+t 28.06 28.43
+u 29.45 29.82
+v 30.64 31.20
+x 33.70 34.31
+y 36.34 36.90
+z 37.53 37.98

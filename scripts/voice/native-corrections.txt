@@ -1,0 +1,6 @@
+# Windows in recordings/correctionforletters-i-k-w-z.aac: re-recorded native
+# sounds. Despite the file name, the owner kept these for E, K and W (the first
+# sound is E); the first-take I and Z in native.txt were kept.
+e 0.70 1.60
+k 4.60 5.20
+w 6.60 7.85
