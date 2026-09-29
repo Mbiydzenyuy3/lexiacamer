@@ -101,6 +101,18 @@ const i18n = {
     phonicsQuit: "Quit",
     phonicsListenPrompt: "Listen carefully! Find the letter that makes the sound.",
 
+    // Sound It Out
+    blendTitle: "Sound It Out",
+    blendTapLetters: "Tap each letter to hear its sound.",
+    blendSayItFast: "Say it fast",
+    blendFindPicture: "Which picture is it?",
+    blendChoice: "Picture",
+    blendNext: "Next",
+    blendFinish: "Finish",
+    blendRoundDone: "Well done! You read {n} words on the first try.",
+    blendPlayAgain: "Play again",
+    blendLevel: "Level",
+
     // Settings
     settingsTitle: "Settings",
     settingsDyslexiaTitle: "Dyslexia-Friendly Mode",
@@ -240,6 +252,18 @@ const i18n = {
     phonicsRepeatSound: "Répéter le son",
     phonicsQuit: "Quitter",
     phonicsListenPrompt: "Écoute bien ! Trouve la lettre qui fait ce son.",
+
+    // Sound It Out
+    blendTitle: "Lis les sons",
+    blendTapLetters: "Touche chaque lettre pour entendre son son.",
+    blendSayItFast: "Dis-le vite",
+    blendFindPicture: "Quelle image est-ce ?",
+    blendChoice: "Image",
+    blendNext: "Suivant",
+    blendFinish: "Terminer",
+    blendRoundDone: "Bravo ! Tu as lu {n} mots du premier coup.",
+    blendPlayAgain: "Rejouer",
+    blendLevel: "Niveau",
 
     // Settings
     settingsTitle: "Réglages",
