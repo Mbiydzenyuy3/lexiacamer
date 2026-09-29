@@ -3823,7 +3823,7 @@ p {
 /* --- Sound It Out --- */
 .blend .screen-header { display: flex; justify-content: space-between; align-items: center; }
 .blend-progress { font-weight: 600; color: var(--text-secondary); }
-.blend-instruction { text-align: center; margin: 1rem 0 0.5rem; font-weight: 600; }
+.blend-instruction { text-align: center; margin: 0.5rem 0; font-weight: 600; }
 .blend-tiles { display: flex; justify-content: center; gap: 0.6rem; flex-wrap: wrap; }
 .blend-tile {
   min-width: 64px; height: 72px; padding: 0 0.75rem; font-size: 2rem; font-weight: 800;

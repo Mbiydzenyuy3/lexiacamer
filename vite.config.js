@@ -16,9 +16,11 @@ export default defineConfig({
         // install (140 KB). Other voices (src/letterSounds.js) download when a
         // child picks one, and are kept by the runtime cache below, so most
         // phones never pay for a voice they do not use.
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}', 'audio/phonics/standard/*.mp3'],
+        // Sound It Out pictures are svg (already matched); the owner's word and
+        // praise clips are small and used offline in Word Forge and Sound It Out.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}', 'audio/phonics/standard/*.mp3', 'audio/words/*.mp3'],
         runtimeCaching: [{
-          urlPattern: ({ url }) => url.pathname.startsWith('/audio/phonics/'),
+          urlPattern: ({ url }) => url.pathname.startsWith('/audio/'),
           handler: 'CacheFirst',
           options: {
             cacheName: 'letter-voices',

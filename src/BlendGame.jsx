@@ -103,6 +103,7 @@ export default function BlendGame({ t, lang, onWordCorrect, onWordMissed, onRoun
         <span className="blend-progress">{t.blendLevel} {level.level} · {index + 1}/{round.length}</span>
       </div>
 
+      <div className="screen-body">
       <p className="blend-instruction">{t.blendTapLetters}</p>
       <div className="blend-tiles">
         {word.sounds.map((sound, i) => (
@@ -140,6 +141,7 @@ export default function BlendGame({ t, lang, onWordCorrect, onWordMissed, onRoun
           {index + 1 < round.length ? t.blendNext : t.blendFinish} <ArrowRight size={18} />
         </button>
       )}
+      </div>
     </div>
   );
 }
