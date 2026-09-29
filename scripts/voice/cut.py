@@ -1,7 +1,10 @@
 """Cut a recording into one clean clip per phonics sound.
 
     ~/.local/share/lexia-voicelab/.venv/bin/python scripts/voice/cut.py \
-        <recording> <clip list> <out dir>
+        <recording> <clip list> <out dir> [--soft-ends]
+
+--soft-ends: for generated word takes (silent pauses): keep soft starts and
+endings like the "ff" in "puff" that the 30 dB rule would cut off.
 
 The clip list has one line per clip, `<label> <start s> <end s>`: a window that
 contains the sound. A child should hear ONLY the sound, so inside each window:
@@ -27,6 +30,7 @@ SR, HOP = 16000, 160                          # 10 ms analysis frames
 TARGET_RMS = -20.0                            # every clip's loudness, dB
 
 src, clip_list, out = sys.argv[1:4]
+SOFT_ENDS = "--soft-ends" in sys.argv    # generated words: keep soft "ff"/"sh" ends
 os.makedirs(out, exist_ok=True)
 
 pcm = subprocess.run(["ffmpeg", "-nostdin", "-loglevel", "error", "-i", src, "-ac", "1",
@@ -71,6 +75,16 @@ def main_sound(start, end):
             hi = r[1]
         else:
             break
+    if SOFT_ENDS:
+        # Generated takes have truly silent pauses, so follow a soft start or
+        # ending ("ff", "sh", "s") much further down than 30 dB: cutting it
+        # turns "puff" into "puh". Only for generated words, not recordings
+        # with room noise.
+        floor = max(seg.max() - 45, -70)
+        while lo > 0 and seg[lo - 1] > floor:
+            lo -= 1
+        while hi < len(seg) and seg[hi] > floor:
+            hi += 1
     return (a + lo) / 100, (a + hi) / 100
 
 
