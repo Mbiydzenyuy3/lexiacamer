@@ -26,7 +26,8 @@ import './index.css'
  */
 
 const EarlyTester = lazy(() => import('./EarlyTester'))
-const App = lazy(() => import('./App'))
+// AppRoot, not App: it wraps the app in parent sign-in (see AppRoot.jsx).
+const App = lazy(() => import('./AppRoot'))
 
 /** Shown only while a chunk is in flight. Deliberately tiny and instant. */
 function Splash() {
@@ -90,7 +91,7 @@ function Root() {
     const warm = () => {
       if (cancelled) return
       import('./EarlyTester').catch(() => { })
-      import('./App').catch(() => { })
+      import('./AppRoot').catch(() => { })
     }
     const ric = window.requestIdleCallback && window.cancelIdleCallback
       ? window.requestIdleCallback : null
