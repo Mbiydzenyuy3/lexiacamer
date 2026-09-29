@@ -1,6 +1,7 @@
 import React from 'react';
 import { Settings as SettingsIcon, Type, ArrowLeft, Info, Volume2 } from 'lucide-react';
 import { LETTER_VOICES, DEFAULT_VOICE, voiceLabel } from './letterSounds';
+import { PICTURE_CREDIT } from './blendWords';
 
 export default function Settings({ t, lang, settings, setSettings, onBack }) {
   const letterVoice = settings.letterVoice || DEFAULT_VOICE;
@@ -107,6 +108,7 @@ export default function Settings({ t, lang, settings, setSettings, onBack }) {
           <div>
             <strong style={{ display: 'block', marginBottom: '0.25rem' }}>{t.settingsAboutTitle}</strong>
             {t.settingsAboutDesc}
+            <div style={{ marginTop: '0.5rem', opacity: 0.8 }}>{PICTURE_CREDIT}</div>
           </div>
         </div>
       </div>

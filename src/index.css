@@ -3849,3 +3849,12 @@ p {
 @media (prefers-reduced-motion: reduce) {
   .blend-picture.is-wrong, .blend-picture.is-hint { animation: none; }
 }
+
+/* --- Settings gear in the top bar --- */
+.top-bar-settings {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 44px; height: 44px; margin-left: 0.25rem; border-radius: 12px;
+  color: var(--color-primary); background: var(--green-50);
+}
+.top-bar-settings.active { background: var(--green-100); }
+.top-bar-right { justify-self: end; display: flex; align-items: center; gap: 0.35rem; }

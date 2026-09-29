@@ -1,6 +1,6 @@
 
 import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react';
-import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck, VolumeX, X } from 'lucide-react';
+import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck, VolumeX, X, AudioLines, Settings as SettingsIcon } from 'lucide-react';
 import { getAvatarIcon } from './avatars';
 import speechEngine from './speech';
 import { warmVoice } from './letterSounds';
@@ -23,6 +23,7 @@ import HomeScreen from './HomeScreen';
 import PhonicsLab from './PhonicsLab';
 import WordForge from './WordForge';
 import Settings from './Settings';
+import BlendGame from './BlendGame';
 import ParentDashboard from './ParentDashboard';
 import StickerBook from './StickerBook';
 import Onboarding from './Onboarding';
@@ -351,6 +352,16 @@ export default function App() {
         return <StickerBook t={t} stats={stats} unlockedStickers={unlockedStickers} onUnlockSticker={handleUnlockSticker} onBack={() => setScreen('home')} />;
       case 'phonics':
         return <PhonicsLab t={t} lang={lang} stats={stats} onPhonemeAttempt={handlePhonemeAttempt} />;
+      case 'blend':
+        return (
+          <BlendGame
+            t={t}
+            lang={lang}
+            onWordCorrect={(word) => record('word_completed', { source: 'blend', word })}
+            onWordMissed={(letters) => record('word_missed', { source: 'blend', letters })}
+            onRoundComplete={(level, firstTry) => record('round_completed', { source: 'blend', level, firstTry })}
+          />
+        );
       case 'forge':
         return (
           <WordForge
@@ -394,7 +405,9 @@ export default function App() {
               <span className="top-bar-parents-label">{t.dashboardLabel}</span>
             </button>
 
-            {/* Right: Avatar */}
+            {/* Right: avatar, then Settings. One grid column (the bar is a
+                3-column grid: logo | Dashboard | right side). */}
+            <div className="top-bar-right">
             {user?.name ? (
               <button
                 className="top-bar-avatar"
@@ -406,6 +419,16 @@ export default function App() {
             ) : (
               <span className="top-bar-avatar-placeholder" aria-hidden="true" />
             )}
+
+              {/* Far right: Settings. A clear gear, not hidden in a card. */}
+            <button
+              className={`top-bar-settings ${screen === 'settings' ? 'active' : ''}`}
+              onClick={() => handleNavigate('settings')}
+              aria-label={t.settingsTitle}
+            >
+              <SettingsIcon size={22} />
+            </button>
+            </div>
           </div>
         </header>
       )}
@@ -461,6 +484,15 @@ export default function App() {
           >
             <div className="nav-icon-bg"><Type size={22} /></div>
             <span>{t.navPhonics}</span>
+          </button>
+
+          <button
+            className={`bottom-nav-item ${screen === 'blend' ? 'active' : ''}`}
+            onClick={() => handleNavigate('blend')}
+            id="nav-blend"
+          >
+            <div className="nav-icon-bg"><AudioLines size={22} /></div>
+            <span>{t.navBlend}</span>
           </button>
 
           <button

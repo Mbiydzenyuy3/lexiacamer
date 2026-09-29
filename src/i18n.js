@@ -16,6 +16,7 @@ const i18n = {
     navHome: "Home",
     navPhonics: "Sounds",
     navSpelling: "Spelling",
+    navBlend: "Sound out",
 
     // Home
     heroGreeting: "Welcome, young reader!",
@@ -81,8 +82,8 @@ const i18n = {
     homeForgeDesc: "Spell words",
     homeStickerTitle: "Sticker Book",
     homeStickerDesc: "Spend stars",
-    homeSettingsTitle: "Settings",
-    homeSettingsDesc: "Dyslexia mode",
+    homeBlendTitle: "Sound It Out",
+    homeBlendDesc: "Tap the letters, hear the sounds, find the picture.",
 
     // Onboarding
     onboardNameTitle: "What is your name?",
@@ -168,6 +169,7 @@ const i18n = {
     navHome: "Accueil",
     navPhonics: "Sons",
     navSpelling: "Épeler",
+    navBlend: "Lis",
 
     // Home
     heroGreeting: "Bienvenue, jeune lecteur !",
@@ -233,8 +235,8 @@ const i18n = {
     homeForgeDesc: "Épelle les mots",
     homeStickerTitle: "Album d'Autocollants",
     homeStickerDesc: "Dépense tes étoiles",
-    homeSettingsTitle: "Réglages",
-    homeSettingsDesc: "Mode dyslexie",
+    homeBlendTitle: "Lis les sons",
+    homeBlendDesc: "Touche les lettres, écoute les sons, trouve l'image.",
 
     // Onboarding
     onboardNameTitle: "Comment tu t'appelles ?",

@@ -1,5 +1,5 @@
 import React, { useMemo } from 'react';
-import { BookOpen, Flame, Star, Type, ChevronRight, Hammer, Lightbulb, Settings, ShieldCheck, Cat, Bird, Snail, Dog } from 'lucide-react';
+import { BookOpen, Flame, Star, Type, ChevronRight, Hammer, Lightbulb, AudioLines, ShieldCheck, Cat, Bird, Snail, Dog } from 'lucide-react';
 
 export default function HomeScreen({ t, user, onNavigate, stats }) {
   const todayTip = useMemo(() => {
@@ -96,21 +96,21 @@ export default function HomeScreen({ t, user, onNavigate, stats }) {
             <div className="text-xs" style={{ color: 'var(--indigo-600)' }}>{t.homeStickerDesc}</div>
           </button>
 
-          <button type="button" className="card card-interactive" onClick={() => onNavigate('settings')} style={{
+          <button type="button" className="card card-interactive" onClick={() => onNavigate('blend')} style={{
             width: '100%',
-            background: 'linear-gradient(145deg, #f5f5f5, #ffffff)',
+            background: 'linear-gradient(145deg, var(--green-50), #ffffff)',
             display: 'flex', flexDirection: 'column', alignItems: 'center', textAlign: 'center',
             padding: '1.5rem 1rem',
           }}>
             <div style={{
               width: '56px', height: '56px', borderRadius: '16px',
-              background: 'var(--border-light)', display: 'flex', alignItems: 'center', justifyContent: 'center',
+              background: 'var(--green-100)', display: 'flex', alignItems: 'center', justifyContent: 'center',
               marginBottom: '0.75rem'
             }}>
-              <Settings size={28} style={{ color: 'var(--text-secondary)' }} />
+              <AudioLines size={28} style={{ color: 'var(--green-700)' }} />
             </div>
-            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>{t.homeSettingsTitle}</div>
-            <div className="text-xs text-muted">{t.homeSettingsDesc}</div>
+            <div className="font-bold" style={{ marginBottom: '0.15rem' }}>{t.homeBlendTitle}</div>
+            <div className="text-xs" style={{ color: 'var(--green-700)' }}>{t.homeBlendDesc}</div>
           </button>
         </div>
 
