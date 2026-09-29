@@ -34,3 +34,11 @@ $PY scripts/voice/cut.py recordings/refs/my-voice-clean.wav scripts/voice/alphab
 
 Listen to every clip in `recordings/review/` before copying it into
 `public/audio/phonics/`.
+
+## Exceptions chosen by ear
+
+- `standard/ph.mp3` is a copy of `native/f.mp3` (PH makes the F sound, and the
+  owner preferred that recording). After recutting, copy it again:
+  `cp recordings/review-native/f.mp3 recordings/review/ph.mp3`
+- `standard/th.mp3` is a copy of `native/t.mp3`, also chosen by ear:
+  `cp recordings/review-native/t.mp3 recordings/review/th.mp3`

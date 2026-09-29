@@ -2,8 +2,10 @@
 # first ("C... H...") and then said ("ch"); only the said sound is kept.
 ch 1.90 2.70
 sh 5.63 6.12
-th 7.93 8.35
-ph 11.12 11.52
+# th: not cut from here. The owner chose her native T clip for TH, so
+# standard/th.mp3 is a copy of native/t.mp3. See README.md.
+# ph: not cut from here. The owner chose her native F clip for PH (same
+# sound), so standard/ph.mp3 is a copy of native/f.mp3. See README.md.
 ng 15.22 15.60
 nd 18.25 18.55
 mb 21.42 21.87
