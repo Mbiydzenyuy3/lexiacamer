@@ -6,6 +6,9 @@
 
 import { clipPathFor, DEFAULT_VOICE } from './letterSounds';
 
+// Clip names for the English praise phrases, in the same order as the phrases.
+const PRAISE_KEYS = ['great-job', 'amazing', 'well-done', 'superstar'];
+
 class SpeechEngine {
   constructor() {
     this.synth = window.speechSynthesis || null;
@@ -16,6 +19,7 @@ class SpeechEngine {
     this._currentAudio = null;
     this._missingAudio = new Set(); // clip paths we've confirmed have no file
     this.letterVoice = DEFAULT_VOICE;   // which voice plays letter sounds (Settings)
+    this._seq = 0;                      // bumps to cancel a running sound sequence
 
     if (this.synth) {
       this._loadVoices();
@@ -59,6 +63,7 @@ class SpeechEngine {
     utterance.volume = 1;
 
     this.synth.speak(utterance);
+    return utterance;
   }
 
   /**
@@ -190,59 +195,123 @@ class SpeechEngine {
   }
 
   /**
+   * Play a recorded clip. `onFail` runs if it cannot load or play (the caller
+   * falls back to the robot voice, so a tap never goes silent); `onEnded` runs
+   * when it finishes. Does not cancel a running sequence: speakSounds uses it.
+   */
+  _playClip(path, onFail, onEnded) {
+    if (this._missingAudio.has(path)) { onFail(); return; }
+    this._stopAudio();
+    const audio = new Audio(`${import.meta.env.BASE_URL}${path}`);
+    this._currentAudio = audio;
+    let done = false;
+    const fail = () => { if (!done) { done = true; onFail(); } };
+    // A missing file fires 'error'; remember it so we don't refetch a 404.
+    audio.addEventListener('error', () => { this._missingAudio.add(path); fail(); });
+    if (onEnded) audio.addEventListener('ended', onEnded);
+    audio.play().then(() => { done = true; }).catch(fail);
+  }
+
+  /** The voice for a letter: Robot in Settings always wins over a word's own voice. */
+  _voiceFor(override) {
+    return this.letterVoice === 'robot' ? 'robot' : (override || this.letterVoice);
+  }
+
+  /** Robot voice for one letter sound, calling `done` when it finishes. */
+  _speakLetterTTS(letter, lang, done) {
+    const key = String(letter).trim().toUpperCase();
+    const map = this._phonemeMap[lang] || this._phonemeMap.en;
+    const utterance = this.speak(map[key] ?? letter, lang, 0.65, 1.2);
+    if (!done) return;
+    if (utterance) utterance.onend = done; else done();
+  }
+
+  /**
    * Speak a single letter's phonics SOUND.
    *
    * Plays the chosen voice's recording (src/letterSounds.js decides which
-   * file, with fallbacks). The robot voice, or any recording that fails to
-   * load, uses the phone's own speech instead, so a tap never goes silent.
+   * file, with fallbacks). `voiceOverride` lets a word ask for its own voice:
+   * Sound It Out's Cameroonian words use the native sounds. The robot voice,
+   * or a recording that fails to load, uses the phone's own speech.
    *
    * Callers pass the canonical letter: WordForge passes the raw char ("B"),
    * PhonicsLab passes tile.letter ("A", "CH", "NG").
    */
-  speakLetter(letter, lang = 'en') {
+  speakLetter(letter, lang = 'en', voiceOverride) {
     const key = String(letter).trim().toUpperCase();
-    const map = this._phonemeMap[lang] || this._phonemeMap.en;
-    const speakTTS = () => this.speak(map[key] ?? letter, lang, 0.65, 1.2);
-
-    const clip = clipPathFor(key, this.letterVoice);
-    // Robot voice, not a phonics sound, or a clip we know is missing -> TTS.
-    if (!clip || this._missingAudio.has(clip)) { speakTTS(); return; }
-
+    const speakTTS = () => this._speakLetterTTS(key, lang);
+    const clip = clipPathFor(key, this._voiceFor(voiceOverride));
+    if (!clip) { speakTTS(); return; }
     this.stop();
-    const audio = new Audio(`${import.meta.env.BASE_URL}${clip}`);
-    this._currentAudio = audio;
-    let done = false;
-    const useTTS = () => { if (!done) { done = true; speakTTS(); } };
-    // A missing file fires 'error'; remember it so we don't refetch a 404.
-    audio.addEventListener('error', () => { this._missingAudio.add(clip); useTTS(); });
-    audio.play().then(() => { done = true; }).catch(useTTS);
+    this._playClip(clip, speakTTS);
   }
 
   /**
-   * Speak a word at normal pace.
+   * Play letter sounds one after another ("Say it fast" in Sound It Out).
+   * Each starts when the previous one ends, `gapMs` apart. Starting a new
+   * sequence, or stop(), cancels this one. Returns a cancel function.
+   */
+  speakSounds(sounds, voiceId, { gapMs = 80, onEach, lang = 'en' } = {}) {
+    this.stop();
+    const token = ++this._seq;
+    let i = 0;
+    const next = () => {
+      if (token !== this._seq || i >= sounds.length) return;
+      const idx = i++;
+      onEach?.(idx);
+      const advance = () => {
+        if (token !== this._seq) return;
+        if (gapMs > 0) setTimeout(next, gapMs); else next();
+      };
+      const tts = () => this._speakLetterTTS(sounds[idx], lang, advance);
+      const clip = clipPathFor(sounds[idx], this._voiceFor(voiceId));
+      if (!clip) { tts(); return; }
+      this._playClip(clip, tts, advance);
+    };
+    next();
+    return () => { if (token === this._seq) this.stop(); };
+  }
+
+  /**
+   * Speak a word: the owner's cloned-voice clip (public/audio/words/<word>.mp3)
+   * when there is one, the robot voice otherwise (a new word works at once).
    */
   speakWord(word, lang = 'en') {
-    this.speak(word, lang, 0.85, 1.0);
+    const say = () => this.speak(word, lang, 0.85, 1.0);
+    const key = String(word).trim().toLowerCase();
+    if (this.letterVoice === 'robot' || !/^[a-z]+$/.test(key)) { say(); return; }
+    this.stop();
+    this._playClip(`audio/words/${key}.mp3`, say);
   }
 
   /**
-   * Speak a celebration phrase.
+   * Speak a celebration phrase. English praise is the owner's cloned voice;
+   * French stays robot until French clips exist.
    */
   speakCelebration(lang = 'en') {
     const phrases = lang === 'fr'
       ? ['Bravo !', 'Excellent !', 'Superbe !', 'Formidable !']
       : ['Great job!', 'Amazing!', 'Well done!', 'Superstar!'];
-    const phrase = phrases[Math.floor(Math.random() * phrases.length)];
-    this.speak(phrase, lang, 1.0, 1.3);
+    const i = Math.floor(Math.random() * phrases.length);
+    const say = () => this.speak(phrases[i], lang, 1.0, 1.3);
+    if (lang !== 'en' || this.letterVoice === 'robot') { say(); return; }
+    this.stop();
+    this._playClip(`audio/words/praise-${PRAISE_KEYS[i]}.mp3`, say);
   }
 
-  /** Stop all speech and any playing recorded clip. */
-  stop() {
+  /** Stop the recorded clip and the robot voice, without touching a sequence. */
+  _stopAudio() {
     this.synth?.cancel();
     if (this._currentAudio) {
       this._currentAudio.pause();
       this._currentAudio = null;
     }
+  }
+
+  /** Stop all speech, any playing clip, and any running sound sequence. */
+  stop() {
+    this._seq += 1;
+    this._stopAudio();
   }
 
   /** Check if speech is supported. */

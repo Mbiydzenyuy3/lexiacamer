@@ -44,3 +44,58 @@ describe('speakLetter', () => {
     expect(speak).toHaveBeenCalledTimes(1);
   });
 });
+
+describe('words, praise and sequences', () => {
+  it('plays a word from its clip', () => {
+    speechEngine.setLetterVoice('standard');
+    speechEngine.speakWord('SUN', 'en');
+    expect(audios.at(-1).src).toMatch(/audio\/words\/sun\.mp3$/);
+  });
+  it('says a word with the robot when its clip is missing', () => {
+    speechEngine.speakWord('ZEBRA', 'en');
+    audios.at(-1).listeners.error();
+    expect(speak).toHaveBeenCalledTimes(1);
+  });
+  it('uses the robot for words in Robot mode', () => {
+    speechEngine.setLetterVoice('robot');
+    speechEngine.speakWord('SUN', 'en');
+    expect(audios).toHaveLength(0);
+    expect(speak).toHaveBeenCalledTimes(1);
+  });
+  it('plays English praise from a clip', () => {
+    speechEngine.setLetterVoice('standard');
+    speechEngine.speakCelebration('en');
+    expect(audios.at(-1).src).toMatch(/audio\/words\/praise-[a-z-]+\.mp3$/);
+  });
+  it('keeps French praise on the robot until French clips exist', () => {
+    speechEngine.speakCelebration('fr');
+    expect(audios).toHaveLength(0);
+    expect(speak).toHaveBeenCalledTimes(1);
+  });
+  it('plays native letter sounds for a native word, even with Standard chosen', () => {
+    speechEngine.setLetterVoice('standard');
+    speechEngine.speakLetter('u', 'en', 'native');
+    expect(audios.at(-1).src).toMatch(/audio\/phonics\/native\/u\.mp3$/);
+  });
+  it('ignores the native override in Robot mode', () => {
+    speechEngine.setLetterVoice('robot');
+    speechEngine.speakLetter('u', 'en', 'native');
+    expect(audios).toHaveLength(0);
+  });
+  it('plays a sequence in order, one after the other', () => {
+    speechEngine.setLetterVoice('standard');
+    const seen = [];
+    speechEngine.speakSounds(['s', 'u', 'n'], 'standard', { gapMs: 0, onEach: (i) => seen.push(i) });
+    expect(audios.at(-1).src).toMatch(/\/s\.mp3$/);
+    audios.at(-1).listeners.ended();
+    expect(audios.at(-1).src).toMatch(/\/u\.mp3$/);
+    expect(seen).toEqual([0, 1]);
+  });
+  it('stops an old sequence when a new one starts', () => {
+    const cancel = speechEngine.speakSounds(['s', 'u'], 'standard', { gapMs: 0 });
+    speechEngine.speakSounds(['c', 'a'], 'standard', { gapMs: 0 });
+    const count = audios.length;
+    cancel();
+    expect(audios).toHaveLength(count);
+  });
+});
