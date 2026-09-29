@@ -21,3 +21,6 @@ content/
 
 /.ai
 /.superdesign
+
+# Raw voice recordings: private source material, never published.
+/recordings
