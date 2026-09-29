@@ -30,6 +30,7 @@ os.makedirs(OUT, exist_ok=True)
 SPOKEN = {
     "NDOLE": "Ndolé", "LIMBE": "Limbé", "YAOUNDE": "Yaoundé", "EDEA": "Edéa",
     "BUEA": "Bwea", "NJOYA": "Njoya", "NGWA": "Ngwa",
+    "PUFFPUFF": "Puff-puff",
 }
 PRAISE = {
     "praise-great-job": "Great job!", "praise-amazing": "Amazing!",
