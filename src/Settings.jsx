@@ -1,7 +1,9 @@
 import React from 'react';
-import { Settings as SettingsIcon, Type, ArrowLeft, Info } from 'lucide-react';
+import { Settings as SettingsIcon, Type, ArrowLeft, Info, Volume2 } from 'lucide-react';
+import { LETTER_VOICES, DEFAULT_VOICE, voiceLabel } from './letterSounds';
 
-export default function Settings({ t, settings, setSettings, onBack }) {
+export default function Settings({ t, lang, settings, setSettings, onBack }) {
+  const letterVoice = settings.letterVoice || DEFAULT_VOICE;
   const toggleDyslexiaMode = () => {
     setSettings(prev => ({ ...prev, dyslexiaMode: !prev.dyslexiaMode }));
   };
@@ -62,6 +64,31 @@ export default function Settings({ t, settings, setSettings, onBack }) {
                 }} />
               </div>
             </button>
+          </div>
+        </div>
+
+        {/* Letter sounds: which voice says each letter */}
+        <div className="card" style={{ padding: '1.25rem' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', fontWeight: 700, fontSize: '1.05rem', marginBottom: '0.35rem' }}>
+            <Volume2 size={20} style={{ color: 'var(--color-primary)' }} />
+            <span id="letter-voice-title">{t.settingsVoiceTitle}</span>
+          </div>
+          <p className="text-sm text-muted" style={{ lineHeight: 1.5, marginBottom: '0.75rem' }}>
+            {t.settingsVoiceDesc}
+          </p>
+          <div role="radiogroup" aria-labelledby="letter-voice-title" className="voice-options">
+            {LETTER_VOICES.map((v) => (
+              <button
+                key={v.id}
+                type="button"
+                role="radio"
+                aria-checked={letterVoice === v.id}
+                className={`voice-option${letterVoice === v.id ? ' is-selected' : ''}`}
+                onClick={() => setSettings(prev => ({ ...prev, letterVoice: v.id }))}
+              >
+                {voiceLabel(v, lang)}
+              </button>
+            ))}
           </div>
         </div>
 

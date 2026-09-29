@@ -3808,3 +3808,14 @@ p {
 .your-data-danger { color: var(--rose-600); }
 .your-data-danger-solid { background: var(--rose-600); color: #fff; }
 .your-data-confirm { margin-top: 1rem; }
+
+/* --- Letter sounds voice choice --- */
+.voice-options { display: flex; flex-wrap: wrap; gap: 0.5rem; }
+.voice-option {
+  flex: 1 1 8rem; min-height: 44px; padding: 0.6rem 0.9rem;
+  border: 2px solid var(--border-medium); border-radius: var(--radius-lg);
+  background: var(--bg-card); font: inherit; font-weight: 600; cursor: pointer;
+}
+.voice-option.is-selected {
+  border-color: var(--color-primary); background: var(--green-50); color: var(--green-700);
+}

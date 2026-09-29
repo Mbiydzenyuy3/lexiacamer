@@ -1,7 +1,7 @@
 import { describe, it, expect } from 'vitest';
 import {
   defaultState, migrateLegacy, queueEvent, pruneOutbox, reconcile,
-  linkChild, forgetServerLink, eraseChild,
+  linkChild, forgetServerLink, eraseChild, loadState,
 } from './store';
 
 describe('queueEvent', () => {
@@ -198,5 +198,18 @@ describe('a server copy that is already gone', () => {
     const s = { ...defaultState(), studentId: 's1' };
     await expect(eraseChild(s, { online: true, deleteServer: async () => { throw new Error('boom'); } }))
       .rejects.toThrow('boom');
+  });
+});
+
+describe('letter voice setting', () => {
+  it('starts on the standard recordings', () => {
+    expect(defaultState().settings.letterVoice).toBe('standard');
+  });
+
+  it('gives an older save the default voice without losing its other settings', () => {
+    localStorage.setItem('lexia_state_v2', JSON.stringify({ settings: { dyslexiaMode: true } }));
+    const s = loadState();
+    expect(s.settings).toEqual({ dyslexiaMode: true, letterVoice: 'standard' });
+    localStorage.clear();
   });
 });

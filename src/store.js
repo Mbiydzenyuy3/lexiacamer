@@ -15,6 +15,7 @@ import {
   emptyProgress, applyEvent, makeEvent, deriveProgress,
 } from './scoring';
 import { supabase, isBackendConfigured } from './lib/supabase';
+import { DEFAULT_VOICE } from './letterSounds';
 
 const STORAGE_KEY = 'lexia_state_v2';
 const LEGACY_KEY = 'lexia_state';
@@ -39,7 +40,7 @@ export function defaultState() {
   return {
     version: 2,
     lang: 'en',
-    settings: { dyslexiaMode: false },
+    settings: { dyslexiaMode: false, letterVoice: DEFAULT_VOICE },
     user: { name: '', avatar: '' },
     progress: { ...emptyProgress(), _rounds: 0, _lastMissAt: null },
     outbox: [],

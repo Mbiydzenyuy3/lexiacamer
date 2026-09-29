@@ -3,6 +3,7 @@ import React, { useState, useEffect, useCallback, useMemo, useRef } from 'react'
 import { Home, Type, Hammer, BookOpen, WifiOff, ShieldCheck, VolumeX, X } from 'lucide-react';
 import { getAvatarIcon } from './avatars';
 import speechEngine from './speech';
+import { warmVoice } from './letterSounds';
 import {
   loadState, saveState, queueEvent, syncOutbox,
   fetchServerProgress, reconcile, forgetServerLink, eraseChild, startLink,
@@ -103,6 +104,13 @@ export default function App() {
   if (!user.name && screen !== 'onboarding') {
     setScreen('onboarding');
   }
+
+  // The voice for letter sounds. A voice not saved offline by default is
+  // downloaded in the background once chosen, so it works offline after.
+  useEffect(() => {
+    speechEngine.setLetterVoice(settings.letterVoice);
+    warmVoice(settings.letterVoice, globalThis.fetch?.bind(globalThis), import.meta.env.BASE_URL);
+  }, [settings.letterVoice]);
 
   // Persist state
   useEffect(() => { saveState(state); }, [state]);
@@ -273,7 +281,7 @@ export default function App() {
           setScreen('home');
         }} />;
       case 'settings':
-        return <Settings t={t} settings={settings} setSettings={setSettings} onBack={() => setScreen('home')} />;
+        return <Settings t={t} lang={lang} settings={settings} setSettings={setSettings} onBack={() => setScreen('home')} />;
       case 'parent_dashboard':
         // Kid mode never needs an account. The ADULT side does, once there is
         // a backend to hold the record.

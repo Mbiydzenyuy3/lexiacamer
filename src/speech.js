@@ -4,6 +4,8 @@
  * Optimised for low-end devices with graceful fallbacks.
  */
 
+import { clipPathFor, DEFAULT_VOICE } from './letterSounds';
+
 class SpeechEngine {
   constructor() {
     this.synth = window.speechSynthesis || null;
@@ -12,7 +14,8 @@ class SpeechEngine {
 
     // Recorded-clip playback state (see speakLetter).
     this._currentAudio = null;
-    this._missingAudio = new Set(); // clip keys we've confirmed have no file
+    this._missingAudio = new Set(); // clip paths we've confirmed have no file
+    this.letterVoice = DEFAULT_VOICE;   // which voice plays letter sounds (Settings)
 
     if (this.synth) {
       this._loadVoices();
@@ -181,34 +184,37 @@ class SpeechEngine {
     };
   }
 
+  /** Choose the voice for letter sounds (an id from src/letterSounds.js). */
+  setLetterVoice(voiceId) {
+    this.letterVoice = voiceId || DEFAULT_VOICE;
+  }
+
   /**
    * Speak a single letter's phonics SOUND.
    *
-   * Prefers a recorded human clip at /audio/phonics/<letter>.mp3 (a.mp3, ch.mp3,
-   * ng.mp3, …) because clean isolated phonics sounds are exactly what synthetic
-   * voices get wrong. Falls back to TTS for any letter that has no recording
-   * yet, so the app keeps working while clips are added one at a time.
+   * Plays the chosen voice's recording (src/letterSounds.js decides which
+   * file, with fallbacks). The robot voice, or any recording that fails to
+   * load, uses the phone's own speech instead, so a tap never goes silent.
    *
    * Callers pass the canonical letter: WordForge passes the raw char ("B"),
-   * PhonicsLab passes tile.letter ("A", "CH", "NG"). The filename is just the
-   * lower-cased letters, so "A"→a.mp3, "CH"→ch.mp3, "NG"→ng.mp3.
+   * PhonicsLab passes tile.letter ("A", "CH", "NG").
    */
   speakLetter(letter, lang = 'en') {
     const key = String(letter).trim().toUpperCase();
-    const file = key.toLowerCase().replace(/[^a-z]/g, '');
     const map = this._phonemeMap[lang] || this._phonemeMap.en;
     const speakTTS = () => this.speak(map[key] ?? letter, lang, 0.65, 1.2);
 
-    // No usable filename, or we already learned this clip has no file → TTS.
-    if (!file || this._missingAudio.has(file)) { speakTTS(); return; }
+    const clip = clipPathFor(key, this.letterVoice);
+    // Robot voice, not a phonics sound, or a clip we know is missing -> TTS.
+    if (!clip || this._missingAudio.has(clip)) { speakTTS(); return; }
 
     this.stop();
-    const audio = new Audio(`${import.meta.env.BASE_URL}audio/phonics/${file}.mp3`);
+    const audio = new Audio(`${import.meta.env.BASE_URL}${clip}`);
     this._currentAudio = audio;
     let done = false;
     const useTTS = () => { if (!done) { done = true; speakTTS(); } };
     // A missing file fires 'error'; remember it so we don't refetch a 404.
-    audio.addEventListener('error', () => { this._missingAudio.add(file); useTTS(); });
+    audio.addEventListener('error', () => { this._missingAudio.add(clip); useTTS(); });
     audio.play().then(() => { done = true; }).catch(useTTS);
   }
 

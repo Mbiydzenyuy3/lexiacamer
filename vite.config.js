@@ -12,9 +12,19 @@ export default defineConfig({
         // The default glob omits woff2, so the fonts were never precached and
         // an offline visitor silently dropped to the system font. Without this
         // line, self-hosting them fixes nothing for the offline case.
-        // mp3 precaches the recorded phonics clips so Phonics Lab has audio
-        // offline.
-        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2,mp3}'],
+        // Letter sounds: only the DEFAULT voice is saved for offline on
+        // install (140 KB). Other voices (src/letterSounds.js) download when a
+        // child picks one, and are kept by the runtime cache below, so most
+        // phones never pay for a voice they do not use.
+        globPatterns: ['**/*.{js,css,html,ico,png,svg,woff2}', 'audio/phonics/standard/*.mp3'],
+        runtimeCaching: [{
+          urlPattern: ({ url }) => url.pathname.startsWith('/audio/phonics/'),
+          handler: 'CacheFirst',
+          options: {
+            cacheName: 'letter-voices',
+            expiration: { maxEntries: 400 },
+          },
+        }],
       },
       // favicon.ico does not exist in public/; listing it achieved nothing.
       includeAssets: ['apple-touch-icon.png', 'masked-icon.svg'],

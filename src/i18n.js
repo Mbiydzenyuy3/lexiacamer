@@ -105,6 +105,8 @@ const i18n = {
     settingsTitle: "Settings",
     settingsDyslexiaTitle: "Dyslexia-Friendly Mode",
     settingsDyslexiaDesc: "Uses the Comic Neue font and increased letter spacing for easier reading.",
+    settingsVoiceTitle: "Letter sounds",
+    settingsVoiceDesc: "Choose the voice that says each letter's sound.",
     settingsAboutTitle: "About LexiaCamer",
     settingsAboutDesc: "Helping Cameroon's children master reading, one sound at a time. This app is 100% free and works offline!",
 
@@ -243,6 +245,8 @@ const i18n = {
     settingsTitle: "Réglages",
     settingsDyslexiaTitle: "Mode Dyslexie",
     settingsDyslexiaDesc: "Utilise la police Comic Neue et un espacement plus large pour faciliter la lecture.",
+    settingsVoiceTitle: "Sons des lettres",
+    settingsVoiceDesc: "Choisis la voix qui dit le son de chaque lettre.",
     settingsAboutTitle: "À propos de LexiaCamer",
     settingsAboutDesc: "Aider les enfants du Cameroun à maîtriser la lecture, un son à la fois. Cette application est 100% gratuite et fonctionne hors ligne !",
 
