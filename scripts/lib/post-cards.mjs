@@ -71,6 +71,13 @@ function fontFace() {
     src:url(data:font/woff2;base64,${b64}) format('woff2');}`;
 }
 
+/** A file from public/ as a data URI, so the network-less renderer can use it. */
+function publicDataUri(rel, type) {
+  const p = resolve(ROOT, 'public', rel);
+  if (!existsSync(p)) throw new Error(`Missing image for a card: public/${rel}`);
+  return `data:${type};base64,${readFileSync(p).toString('base64')}`;
+}
+
 function logoDataUri() {
   const p = resolve(ROOT, 'public/pwa-192x192.png');
   if (!existsSync(p)) return '';
@@ -104,10 +111,10 @@ const SHELL = (inner, opts = {}) => { const S = SIZES[opts.size] || SIZES.link;
           border-radius:999px;position:relative}
   ${inner.css || ''}
 </style></head><body>
-  <div class="glow"></div>
+  ${opts.photo || '<div class="glow"></div>'}
   <div class="brand"><img src="${logoDataUri()}" alt=""><span>exiaCamer</span></div>
   ${inner.html}
-  <div class="flag"><i style="background:${opts.flagGreen || C.green600}"></i><i style="background:#f43f5e"></i><i style="background:#f59e0b"></i></div>
+  ${opts.photo || opts.noFlag ? '' : `<div class="flag"><i style="background:${opts.flagGreen || C.green600}"></i><i style="background:#f43f5e"></i><i style="background:#f59e0b"></i></div>`}
 </body></html>`; };
 
 /* ——— Card templates ——— */
@@ -129,9 +136,9 @@ export const CARDS = {
   }, { size }),
 
   /** A phonics tip. Useful whether or not anyone installs anything. */
-  tip: ({ title, sub }, size) => SHELL({
+  tip: ({ title, sub, kicker = 'Reading tip' }, size) => SHELL({
     css: `.k{color:${C.amber600};background:${C.amber50};border:2px solid ${C.amber200}}`,
-    html: `<span class="kicker k">Reading tip</span><h1>${esc(title)}</h1>
+    html: `<span class="kicker k">${esc(kicker)}</span><h1>${esc(title)}</h1>
            ${sub ? `<div class="sub">${esc(sub)}</div>` : ''}`,
   }, { glow: C.amber100, size }),
 
@@ -149,7 +156,7 @@ export const CARDS = {
    * size in a crowded feed, so it gets most of the canvas and everything else
    * gets out of the way.
    */
-  sound: ({ letter, say, example, kicker }) => SHELL({
+  sound: ({ letter, say, example, kicker, sayWord = 'Say', asIn = 'as in', quotes = ['\u201c', '\u201d'] }) => SHELL({
     css: `.kicker{margin-top:46px}
           .big{font-size:${letter.length > 1 ? 280 : 340}px;font-weight:900;line-height:.82;
               letter-spacing:-.04em;color:${C.green700};position:relative;
@@ -158,20 +165,83 @@ export const CARDS = {
           .ex{margin-top:14px;font-size:34px;color:${C.text2};position:relative}`,
     html: `<span class="kicker" style="color:${C.green700};background:${C.card};border:2px solid ${C.green200}">${esc(kicker)}</span>
            <div class="big">${esc(letter)}</div>
-           <div class="say">Say &ldquo;${esc(say)}&rdquo;</div>
-           <div class="ex">as in ${esc(example)}</div>`,
+           <div class="say">${esc(sayWord)} ${esc(quotes[0])}${esc(say)}${esc(quotes[1])}</div>
+           <div class="ex">${esc(asIn)} ${esc(example)}</div>`,
   }),
 
   /** The ask. Inverted, so it is visibly different from the rest. */
-  cta: ({ title, sub }, size) => SHELL({
+  cta: ({ title, sub, kicker = 'Free · no account' }, size) => SHELL({
     css: `.k{color:${C.green700};background:${C.card};border:0}`,
-    html: `<span class="kicker k">Free · no account</span><h1>${esc(title)}</h1>
+    html: `<span class="kicker k">${esc(kicker)}</span><h1>${esc(title)}</h1>
            ${sub ? `<div class="sub">${esc(sub)}</div>` : ''}`,
     // flagGreen: the brand green vanishes against a green card, leaving what
     // looks like a two-colour flag.
   }, { bg: C.green600, fg: C.inverse, sub: 'rgba(255,255,255,.88)',
        glow: 'rgba(255,255,255,.14)', flagGreen: C.green200, size }),
+
+  /**
+   * The landing page's hero photo behind the headline.
+   *
+   * A stock photo (Pexels 28593055, Pexels License) with no model release:
+   * the copy beside it must never present these children as users, and it is
+   * never used on the story post.
+   */
+  photo: ({ kicker, title, sub }, size) => {
+    const portrait = size === 'portrait';
+    const fade = portrait
+      ? 'linear-gradient(to top,#0f1f05 0%,#0f1f05 42%,rgba(15,31,5,.55) 60%,rgba(15,31,5,0) 78%)'
+      : 'linear-gradient(to right,#0f1f05 0%,#0f1f05 30%,rgba(15,31,5,.55) 50%,rgba(15,31,5,0) 72%)';
+    const img = `<div style="position:absolute;${portrait ? 'left:0;right:0;top:0;height:62%' : 'top:0;bottom:0;left:30%;right:0'};
+        background:url(${publicDataUri('landing/hero-1920.webp', 'image/webp')}) ${portrait ? '62% 40%' : 'center 35%'}/cover"></div>
+      <div style="position:absolute;inset:0;background:${fade}"></div>`;
+    return SHELL({
+      css: `body{justify-content:${portrait ? 'flex-end' : 'center'}}
+            .brand span{color:#fff}
+            .k{color:#6ee7b7;background:rgba(15,31,5,.6);border:2px solid rgba(110,231,183,.5)}
+            h1{color:#fff;max-width:${portrait ? '11ch' : '13ch'}}
+            .sub{color:rgba(255,255,255,.86)}`,
+      html: `${kicker ? `<span class="kicker k">${esc(kicker)}</span>` : ''}
+             <h1>${esc(title)}</h1>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}`,
+    }, { size, bg: '#0f1f05', fg: '#fff', photo: img });
+  },
+
+  /** A real app screen in a phone frame, beside (or under) the headline. */
+  screen: ({ kicker, title, sub, shot }, size) => {
+    const portrait = size === 'portrait';
+    const src = publicDataUri(`landing/${shot}.webp`, 'image/webp');
+    return SHELL({
+      css: `.phone{position:absolute;background:#fff;border:2px solid ${C.green200};
+                   border-radius:44px;padding:12px;box-shadow:0 24px 60px rgba(16,48,0,.18);overflow:hidden;
+                   ${portrait
+                     ? 'left:50%;transform:translateX(-50%);top:720px;width:560px;height:900px'
+                     : 'right:120px;top:60px;width:330px;height:640px'}}
+            .phone img{width:100%;display:block;border-radius:32px}
+            body{justify-content:${portrait ? 'flex-start' : 'center'};${portrait ? 'padding-top:170px' : ''}}
+            h1{max-width:${portrait ? '13ch' : '11ch'};font-size:${portrait ? 96 : 62}px}
+            .sub{max-width:${portrait ? '20ch' : '19ch'}}`,
+      html: `<span class="kicker" style="color:${C.green700};background:${C.card};border:2px solid ${C.green200}">${esc(kicker)}</span>
+             <h1>${esc(title)}</h1>${sub ? `<div class="sub">${esc(sub)}</div>` : ''}
+             <div class="phone"><img src="${src}" alt=""></div>`,
+    }, { size, noFlag: true });
+  },
+
+  /** Numbered steps: how to find the app. */
+  steps: ({ kicker, title, steps }, size) => {
+    const portrait = size === 'portrait';
+    return SHELL({
+      css: `ol{list-style:none;margin-top:${portrait ? 60 : 30}px;display:flex;flex-direction:column;gap:${portrait ? 30 : 16}px;position:relative}
+            li{display:flex;align-items:center;gap:22px;font-size:${portrait ? 46 : 32}px;font-weight:700}
+            li b{flex:none;display:inline-flex;align-items:center;justify-content:center;
+                 width:${portrait ? 76 : 54}px;height:${portrait ? 76 : 54}px;border-radius:50%;
+                 background:${C.green600};color:#fff;font-size:${portrait ? 40 : 28}px}
+            h1{max-width:${portrait ? '10ch' : '20ch'};font-size:${portrait ? 110 : 60}px}`,
+      html: `<span class="kicker" style="color:${C.green700};background:${C.card};border:2px solid ${C.green200}">${esc(kicker)}</span>
+             <h1>${esc(title)}</h1>
+             <ol>${steps.map((st, i) => `<li><b>${i + 1}</b>${esc(st)}</li>`).join('')}</ol>`,
+    }, { size });
+  },
 };
+
 
 /* ——— Rasterising ——— */
 

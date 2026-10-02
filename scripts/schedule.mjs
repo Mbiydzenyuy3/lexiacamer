@@ -8,7 +8,9 @@
  *   npm run schedule -- --update        push caption edits to scheduled posts
  *   npm run schedule -- --prune         delete scheduled posts no ledger knows
  *   npm run schedule -- --cancel-all    delete every scheduled post
- *   npm run schedule -- --lang fr       French captions (default)
+ *   npm run schedule -- --lang fr       force one language for the whole batch
+ *                                       (default: each post's own, from
+ *                                       schedule.json -- mostly English)
  *   npm run schedule -- --date 2026-09-16   a specific batch
  *
  * EDITING HAPPENS HERE, NOT IN PLANNER. Business Suite will not let you edit a
@@ -42,7 +44,8 @@ const has = (n) => argv.includes(`--${n}`);
 
 const TOKEN = env.META_PAGE_TOKEN;
 const PAGE_ID = env.META_PAGE_ID;
-const LANG = arg('lang', 'fr') === 'en' ? 'en' : 'fr';
+// Each post carries its own language in schedule.json. --lang forces one.
+const FORCED = ['en', 'fr'].includes(arg('lang')) ? arg('lang') : null;
 const CONFIRM = has('confirm');
 
 if (!TOKEN || !PAGE_ID) {
@@ -243,17 +246,22 @@ if (!existsSync(planPath)) {
 }
 const plan = JSON.parse(readFileSync(planPath, 'utf8'));
 
-const posts = plan.map((entry) => ({
-  key: entry.key,
-  at: new Date(entry.at),
-  message: (() => {
-    const f = resolve(dir, `${entry.key}.${LANG}.txt`);
-    return existsSync(f) ? readFileSync(f, 'utf8').trim() : null;
-  })(),
-  image: resolve(dir, `${entry.key}.png`),
-})).filter((p) => {
-  if (!p.message) { console.log(`  ! ${p.key}: no ${LANG} caption, skipped`); return false; }
-  if (!existsSync(p.image)) { console.log(`  ! ${p.key}: no image, skipped`); return false; }
+const posts = plan.map((entry) => {
+  // Batches from before languages were planned have no `lang`; they were
+  // always scheduled in French.
+  const lang = FORCED || entry.lang || 'fr';
+  const f = resolve(dir, `${entry.key}.${lang}.txt`);
+  return {
+    key: entry.key,
+    lang,
+    at: new Date(entry.at),
+    message: existsSync(f) ? readFileSync(f, 'utf8').trim() : null,
+    // A text post has no image; Facebook previews the link inside it.
+    image: entry.image === false ? null : resolve(dir, `${entry.key}.png`),
+  };
+}).filter((p) => {
+  if (!p.message) { console.log(`  ! ${p.key}: no ${p.lang} caption, skipped`); return false; }
+  if (p.image && !existsSync(p.image)) { console.log(`  ! ${p.key}: no image, skipped`); return false; }
   // Meta rejects a publish time under ten minutes away, and a slot from an
   // older batch may simply have passed.
   if (p.at.getTime() < Date.now() + 15 * 60000) {
@@ -267,7 +275,7 @@ const pending = posts.filter((p) => !ledger[p.key]);
 const when = pending.map((p) => p.at);
 
 console.log(`\n  Batch:    content/${batch}`);
-console.log(`  Language: ${LANG.toUpperCase()}`);
+console.log(`  Language: ${FORCED ? FORCED.toUpperCase() : 'each post\'s own (see schedule.json)'}`);
 console.log(`  Page:     ${PAGE_ID}\n`);
 
 if (!pending.length) {
@@ -281,7 +289,7 @@ const fmt = (d) => d.toLocaleString('en-GB',
   { weekday: 'short', day: 'numeric', month: 'short', hour: '2-digit', minute: '2-digit' });
 
 pending.forEach((p, i) => {
-  console.log(`  ${String(i + 1).padStart(2, '0')}  ${fmt(when[i])}  ${p.key}`);
+  console.log(`  ${String(i + 1).padStart(2, '0')}  ${fmt(when[i])}  ${p.lang.toUpperCase()}  ${p.image ? 'image' : 'text '}  ${p.key}`);
   console.log(`      ${p.message.split('\n')[0].slice(0, 62)}`);
 });
 
@@ -346,7 +354,7 @@ async function upload(imagePath) {
 async function schedulePost(message, photoId, at) {
   const form = new FormData();
   form.append('message', message);
-  form.append('attached_media[0]', JSON.stringify({ media_fbid: photoId }));
+  if (photoId) form.append('attached_media[0]', JSON.stringify({ media_fbid: photoId }));
   form.append('published', 'false');
   form.append('scheduled_publish_time', String(Math.floor(at.getTime() / 1000)));
   form.append('access_token', TOKEN);
@@ -360,9 +368,9 @@ let done = 0;
 for (let i = 0; i < pending.length; i += 1) {
   const p = pending[i];
   try {
-    const photoId = await upload(p.image);
+    const photoId = p.image ? await upload(p.image) : null;
     const postId = await schedulePost(p.message, photoId, when[i]);
-    ledger[p.key] = { postId, at: when[i].toISOString(), lang: LANG };
+    ledger[p.key] = { postId, at: when[i].toISOString(), lang: p.lang };
     writeFileSync(ledgerPath, JSON.stringify(ledger, null, 2));
     console.log(`  \x1b[32m✓\x1b[0m ${p.key} → ${fmt(when[i])}`);
     done += 1;

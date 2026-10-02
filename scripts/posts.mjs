@@ -6,6 +6,7 @@
  *   npm run posts -- --weeks 2    a shorter batch
  *   npm run posts -- --no-data    skip the database entirely
  *   npm run posts -- --lang fr    French only (default writes both)
+ *   npm run posts -- --fr-every 4 which posts go out in French (default 1 in 4)
  *
  * This does NOT post anything. Meta Business Suite already schedules posts for
  * free, weeks ahead, and reimplementing that through the Graph API would mean a
@@ -17,7 +18,14 @@
  *   calendar.md          what to post when, with the text inline to copy
  *   NN-key.en.txt        the post, English
  *   NN-key.fr.txt        the post, French
- *   NN-key.png           the image, 1200x630
+ *   NN-key.png           the image, 1200x630 (none for a text post)
+ *   schedule.json        when each post goes out, and in which language
+ *
+ * LANGUAGE. Each post goes out in ONE language: most in English, one in every
+ * --fr-every in French. Both texts are still written, so any post can be
+ * switched by hand. The Graph API has no per-post translation switch; the
+ * Page's "Translate posts automatically" setting (Business Suite → Page
+ * settings) is what gives readers a "See translation" link either way.
  *
  * Nothing here invents a number. Posts that cite data declare what they need
  * and are dropped from the batch when the database cannot back them up.
@@ -87,6 +95,10 @@ if (!LANGS.length) { console.error('  --lang must be en or fr.\n'); process.exit
  * sound series was added.
  */
 const PER_WEEK = Math.max(1, Math.min(7, Number(arg('per-week', 5)) || 5));
+
+/** One post in every FR_EVERY goes out in French; the rest in English. */
+const FR_EVERY = Math.max(2, Number(arg('fr-every', 4)) || 4);
+const langFor = (i) => (i % FR_EVERY === FR_EVERY - 1 ? 'fr' : 'en');
 
 /** The only answers the app offers, and so the only ones we will ever print. */
 const GOALS = new Set(['Letter sounds', 'Reading words', 'Spelling',
@@ -171,8 +183,10 @@ function schedule(data, slots) {
   const usable = POSTS.filter((p) => !p.needs || p.needs(data));
   const dropped = POSTS.length - usable.length;
 
-  const asks = usable.filter((p) => p.ask);
-  const rest = usable.filter((p) => !p.ask);
+  // The announcement and how to find the app open the batch, in order.
+  const leads = usable.filter((p) => p.lead).sort((a, b) => a.lead - b.lead);
+  const asks = usable.filter((p) => p.ask && !p.lead);
+  const rest = usable.filter((p) => !p.ask && !p.lead);
   // The sound posts are the filler that makes a real cadence possible. They
   // are interleaved rather than batched, so the page does not read as
   // thirty-two alphabet cards followed by everything else.
@@ -180,16 +194,17 @@ function schedule(data, slots) {
 
   // Rotate rather than repeat: a page that posts the same thing twice in a
   // month looks automated, which is the one thing this must not look like.
-  const out = [];
+  const out = leads.slice(0, slots);
   let ri = 0, ai = 0, si = 0;
-  for (let i = 0; i < slots; i += 1) {
-    // One ask in five, a substantial post every other day, a sound between
-    // them. Enough rhythm to be worth following, not so much asking that
-    // people stop reading.
-    if (i % 5 === 4 && asks.length) { out.push(asks[ai % asks.length]); ai += 1; }
-    else if (i % 2 === 0 && sounds.length) { out.push(sounds[si % sounds.length]); si += 1; }
-    else if (rest.length) { out.push(rest[ri % rest.length]); ri += 1; }
+  for (let i = out.length; i < slots; i += 1) {
+    // One ask in five, and never the same ask twice in a batch. A sound every
+    // third post, the product and the tips in between: since the launch the
+    // product is what the Page has to say, and the sounds keep the rhythm.
+    if (i % 5 === 4 && ai < asks.length) { out.push(asks[ai]); ai += 1; }
+    else if (i % 3 === 0 && sounds.length) { out.push(sounds[si % sounds.length]); si += 1; }
+    else if (ri < rest.length) { out.push(rest[ri]); ri += 1; }
     else if (sounds.length) { out.push(sounds[si % sounds.length]); si += 1; }
+    else if (rest.length) { out.push(rest[ri % rest.length]); ri += 1; }
   }
   return { out, dropped, pool: usable.length + sounds.length };
 }
@@ -243,11 +258,16 @@ if (!rasterise) {
 const lines = [
   `# LexiaCamer — ${WEEKS} week${WEEKS > 1 ? 's' : ''} of posts`,
   '',
-  `Generated ${stamp}. Two posts a week, Tuesday and Friday.`,
+  `Generated ${stamp}. ${PER_WEEK} posts a week.`,
   '',
-  'Paste into Meta Business Suite → Create post → Schedule. Each post has an',
-  'English and a French version; post whichever fits the audience you are',
-  'reaching, or alternate week by week.',
+  `Each post is marked with the language it goes out in: English, with one in`,
+  `every ${FR_EVERY} in French. Both texts are below either way.`,
+  '',
+  '**Turn on translation once:** Business Suite → All tools → Page settings →',
+  '"Translate posts automatically". Facebook then shows "See translation" to',
+  'people who read the other language. The API cannot set this per post.',
+  '',
+  '`npm run schedule` puts the batch on the Page, each post in its language.',
   '',
   '**Instagram has the bigger audience, so start there.** Use the `-ig.png`',
   'card (1080x1350) and the Instagram version of the caption: a URL in an',
@@ -268,40 +288,52 @@ for (let i = 0; i < out.length; i += 1) {
   const n = String(i + 1).padStart(2, '0');
   const base = `${n}-${post.key}`;
 
-  const [cardKind, cardProps] = typeof post.card === 'function' ? post.card(data) : post.card;
-
-  const png = resolve(dir, `${base}.png`);
-  const ok = render(CARDS[cardKind](cardProps), resolve(dir, `${base}.html`), png);
-  if (ok) made += 1;
-
-  // Instagram has 256 followers to Facebook's 12, so the portrait card is not
-  // an afterthought -- it is the one most people will actually see.
-  const igPng = resolve(dir, `${base}-ig.png`);
-  const igOk = render(CARDS[cardKind](cardProps, 'portrait'),
-    resolve(dir, `${base}-ig.html`), igPng, 'portrait');
-  if (igOk) made += 1;
-
-  lines.push(`## ${n}. ${fmt(days[i])}${post.ask ? '  · asks for something' : ''}`);
+  const card = typeof post.card === 'function' ? post.card(data) : post.card;
+  const postLang = langFor(i);
+  lines.push(`## ${n}. ${fmt(days[i])} · ${postLang === 'fr' ? 'French' : 'English'}${post.ask ? ' · asks for something' : ''}`);
   lines.push('');
-  lines.push(`Facebook: \`${base}.png\` (1200x630)${ok ? '' : ' — render the .html yourself'}`);
-  lines.push(`Instagram: \`${base}-ig.png\` (1080x1350)${igOk ? '' : ' — render the .html yourself'}`);
+
+  if (card) {
+    // A French post gets the French card: Facebook translates the caption for
+    // readers, never the words inside an image.
+    const [cardKind, base0] = card;
+    const { fr: frProps, ...enProps } = base0;
+    const cardProps = postLang === 'fr' && frProps ? { ...enProps, ...frProps } : enProps;
+    const png = resolve(dir, `${base}.png`);
+    const ok = render(CARDS[cardKind](cardProps), resolve(dir, `${base}.html`), png);
+    if (ok) made += 1;
+
+    // Instagram has 256 followers to Facebook's 12, so the portrait card is not
+    // an afterthought -- it is the one most people will actually see.
+    const igPng = resolve(dir, `${base}-ig.png`);
+    const igOk = render(CARDS[cardKind](cardProps, 'portrait'),
+      resolve(dir, `${base}-ig.html`), igPng, 'portrait');
+    if (igOk) made += 1;
+
+    lines.push(`Facebook: \`${base}.png\` (1200x630)${ok ? '' : ' — render the .html yourself'}`);
+    lines.push(`Instagram: \`${base}-ig.png\` (1080x1350)${igOk ? '' : ' — render the .html yourself'}`);
+  } else {
+    lines.push('Text post, Facebook only. The link in it shows the site\'s preview image.');
+  }
   lines.push('');
 
   for (const lang of LANGS) {
     const body = typeof post[lang] === 'function' ? post[lang](data) : post[lang];
     writeFileSync(resolve(dir, `${base}.${lang}.txt`), `${body}\n`);
-    writeFileSync(resolve(dir, `${base}-ig.${lang}.txt`), `${forInstagram(body, lang)}\n`);
+    if (card) writeFileSync(resolve(dir, `${base}-ig.${lang}.txt`), `${forInstagram(body, lang)}\n`);
     lines.push(`<details><summary><b>${lang.toUpperCase()}</b></summary>`);
     lines.push('');
     lines.push('```');
     lines.push(body);
     lines.push('```');
-    lines.push('');
-    lines.push('*Instagram version:*');
-    lines.push('');
-    lines.push('```');
-    lines.push(forInstagram(body, lang));
-    lines.push('```');
+    if (card) {
+      lines.push('');
+      lines.push('*Instagram version:*');
+      lines.push('');
+      lines.push('```');
+      lines.push(forInstagram(body, lang));
+      lines.push('```');
+    }
     lines.push('</details>');
     lines.push('');
   }
@@ -321,6 +353,8 @@ writeFileSync(resolve(dir, 'schedule.json'), JSON.stringify(
     key: `${String(i + 1).padStart(2, '0')}-${p.key}`,
     at: days[i].toISOString(),
     ask: Boolean(p.ask),
+    lang: langFor(i),
+    image: Boolean(typeof p.card === 'function' ? p.card(data) : p.card),
   })), null, 2));
 
 console.log(`\n  ${out.length} posts written to content/${stamp}/`);

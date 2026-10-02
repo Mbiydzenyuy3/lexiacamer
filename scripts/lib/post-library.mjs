@@ -1,70 +1,424 @@
 /**
  * The post library.
  *
- * Every post is written in English and French, because most of the audience
- * reads French and a page that posts only in English quietly excludes them.
+ * Every post is written in English and French. The scheduler decides which
+ * language each one goes out in (mostly English, about one in four French) and
+ * the Page's "Translate posts automatically" setting gives readers of the other
+ * language a "See translation" link. The Graph API has no per-post translation
+ * switch, so the French text here is a real translation, not a fallback.
  *
  * That is about the POSTS, not the product. The app teaches reading in English
  * and only its interface is translated, so no post here may imply a child can
- * learn to read French with it. Writing to someone in their language while
- * misdescribing what they would get is worse than not writing to them at all.
+ * learn to read French with it.
  *
- * Three rules hold this file together. They are easy to break and expensive to
- * break, so they are written down rather than assumed:
+ * Rules, written down because they are easy to break:
  *
- * 1. NOTHING IS INVENTED. A post that cites a number declares `needs`, and is
- *    skipped entirely when the data does not support it. There is no "about
- *    50" and no rounding up. The page is selling trustworthiness to parents;
- *    one made-up figure that someone checks costs more than every post here
- *    earns.
+ * 1. NOTHING IS INVENTED. Every feature named is in the app today. A post that
+ *    cites a number declares `needs` and is skipped when the data cannot back
+ *    it up.
  *
  * 2. MOST POSTS DO NOT ASK FOR ANYTHING. Only posts tagged `ask` carry a call
- *    to action, and the scheduler keeps them to roughly one in three. A page
- *    that asks every time reads as an advert and people stop seeing it.
+ *    to action, and the scheduler rations them.
  *
- * 3. THE TIPS MUST BE USEFUL EVEN IF NOBODY INSTALLS ANYTHING. A parent who
- *    gets one good idea for helping their child read owes you attention. A
- *    parent who gets a feature list owes you nothing.
+ * 3. THE TIPS MUST BE USEFUL EVEN IF NOBODY OPENS THE APP.
+ *
+ * 4. EVERY PRODUCT POST SAYS HOW TO FIND IT. A parent who is interested must
+ *    not have to scroll the Page looking for the link.
+ *
+ * 5. THE STOCK PHOTO NEVER SITS NEXT TO THE STORY. Stock photos carry no model
+ *    release, so the children in it must never read as users, or as the niece.
+ *
+ * `card` is [kind, props] for an image, or null for a text post. A text post
+ * that contains the link still shows Facebook's preview of the site, which is
+ * the landing page's share image.
  */
 
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
 
 export const SITE = 'https://lexiacamer.vercel.app/';
-const TAGS_EN = '#Cameroon #LearnToRead #Phonics #Parenting';
-const TAGS_FR = '#Cameroun #ApprendreALire #Phonetique #Parents';
+const TAGS_EN = '#LearnToRead #Phonics #Parenting #Cameroon';
+const TAGS_FR = '#ApprendreALire #Phonetique #Parents #Cameroun';
+
+/** How to find it, closing every product post. */
+const FIND_EN = `Free, no account. Open ${SITE} in Chrome or Safari, on a phone, a tablet or a computer.`;
+const FIND_FR = `Gratuit, sans compte. Ouvrez ${SITE} dans Chrome ou Safari, sur un téléphone, une tablette ou un ordinateur.`;
 
 /**
  * `needs(d)` gates a post on real data. `d` is whatever the generator could
  * actually read; when a table is missing or empty the field is 0 or null, and
  * the post simply does not appear in the batch.
+ *
+ * `lead` posts open a batch, in this order, before the rotation starts: the
+ * announcement first, then how to find it.
  */
 export const POSTS = [
-  /* ——— The differentiator. Lead with this. ——— */
+  /* ——— The launch. ——— */
   {
-    key: 'offline',
-    kind: 'evergreen',
-    card: ['statement', {
-      kicker: 'Works offline',
-      title: 'No data? She can still read.',
-      sub: 'Once LexiaCamer loads the first time, it keeps working with no internet at all.',
+    key: 'launch',
+    kind: 'product',
+    lead: 1,
+    card: ['photo', {
+      kicker: 'Free · works offline',
+      title: 'Your child can learn to read, even with no data.',
+      sub: 'Every letter sound recorded by a real voice.',
+      fr: { kicker: 'Gratuit · hors ligne', title: 'Votre enfant peut apprendre à lire, même sans données.', sub: 'Chaque son de lettre enregistré par une vraie voix.' },
     }],
-    en: `No data? She can still read.
+    en: `LexiaCamer is ready.
 
-A lot of Cameroon has weak network, and most reading apps stop the moment the signal does.
+It is a free app that teaches children to read in English, one sound at a time. Every letter sound is recorded by a real voice, not a robot.
 
-LexiaCamer loads once. After that it works with no internet — the letter sounds, the spelling game, the stars, all of it. On the bus, in the village, at 11pm when the data bundle is finished.
+Your child taps a letter and hears it, sounds out short words like sun and koki, then spells words like ndolé and Yaoundé.
 
-Free while we build it: ${SITE}
+After the first visit it works with no data. Nothing to download from a store.
+
+${FIND_EN}
 
 ${TAGS_EN}`,
-    fr: `Pas de connexion ? Elle peut quand même lire.
+    fr: `LexiaCamer est prête.
 
-Une grande partie du Cameroun a un réseau faible, et la plupart des applications de lecture s'arrêtent dès que le signal tombe.
+C'est une application gratuite qui apprend aux enfants à lire en anglais, un son à la fois. Chaque son de lettre est enregistré par une vraie voix, pas un robot.
 
-LexiaCamer se charge une fois. Ensuite, elle fonctionne sans internet — les sons des lettres, le jeu d'orthographe, les étoiles, tout. Dans le bus, au village, à 23h quand le forfait est fini.
+Votre enfant touche une lettre et l'entend, assemble les sons de petits mots comme sun et koki, puis épelle des mots comme ndolé et Yaoundé.
 
-Gratuit pendant que nous la construisons : ${SITE}
+Après la première visite, elle marche sans données. Rien à télécharger dans un magasin d'applications.
+
+${FIND_FR}
+
+${TAGS_FR}`,
+  },
+
+  {
+    key: 'how-to-find',
+    kind: 'product',
+    lead: 2,
+    card: ['steps', {
+      kicker: 'How to find it',
+      title: 'Three steps, no app store.',
+      steps: [
+        'Open Chrome or Safari',
+        'Go to lexiacamer.vercel.app',
+        'Add it to your home screen',
+      ],
+      fr: { kicker: 'Comment la trouver', title: 'Trois étapes, sans magasin.', steps: ['Ouvrez Chrome ou Safari', 'Allez sur lexiacamer.vercel.app', "Ajoutez-la à l'écran d'accueil"] },
+    }],
+    en: `How to find LexiaCamer, step by step.
+
+1. Open Chrome (Android) or Safari (iPhone, iPad).
+2. Go to ${SITE} and press Start learning.
+3. To keep it like an app: in Chrome, tap the ⋮ menu, then "Add to Home screen" or "Install app". In Safari, tap the Share button, then "Add to Home Screen".
+
+The icon then sits with your other apps. After the first visit it opens with no data.
+
+It works on phones, tablets and computers. No account, no password, no payment.
+
+${TAGS_EN}`,
+    fr: `Comment trouver LexiaCamer, étape par étape.
+
+1. Ouvrez Chrome (Android) ou Safari (iPhone, iPad).
+2. Allez sur ${SITE} et appuyez sur Commencer.
+3. Pour la garder comme une application : dans Chrome, touchez le menu ⋮, puis « Ajouter à l'écran d'accueil » ou « Installer l'application ». Dans Safari, touchez le bouton Partager, puis « Sur l'écran d'accueil ».
+
+L'icône se range alors avec vos autres applications. Après la première visite, elle s'ouvre sans données.
+
+Elle marche sur téléphone, tablette et ordinateur. Aucun compte, aucun mot de passe, aucun paiement.
+
+${TAGS_FR}`,
+  },
+
+  /* ——— What is in it, each shown with the real screen. ——— */
+  {
+    key: 'real-voice',
+    kind: 'product',
+    card: ['screen', {
+      kicker: 'Phonics Lab',
+      title: 'Tap a letter. Hear a real voice.',
+      sub: 'All 34 sounds are recorded, not read out by a robot.',
+      fr: { kicker: 'Labo Phonique', title: 'Touchez une lettre. Une vraie voix.', sub: 'Les 34 sons sont enregistrés, pas lus par un robot.' },
+      shot: 'phonics-lab',
+    }],
+    en: `Tap a letter. Hear a real voice.
+
+All 34 sounds in LexiaCamer are recorded, not read out by a phone's robot voice. A child hears "mmm" for M and "shhh" for SH, the same way every time.
+
+Some letters sound different in names and words from home than in standard English. In Settings you can switch between Standard and Native pronunciation and hear both, in the same voice.
+
+${FIND_EN}
+
+${TAGS_EN}`,
+    fr: `Touchez une lettre. Entendez une vraie voix.
+
+Les 34 sons de LexiaCamer sont enregistrés, pas lus par la voix robot du téléphone. L'enfant entend « mmm » pour le M et « chhh » pour le SH, toujours de la même façon.
+
+Certaines lettres ne se prononcent pas pareil dans les noms et les mots d'ici qu'en anglais standard. Dans les Réglages, vous pouvez passer de la prononciation Standard à la prononciation Native et écouter les deux, avec la même voix.
+
+${FIND_FR}
+
+${TAGS_FR}`,
+  },
+
+  {
+    key: 'sound-it-out',
+    kind: 'product',
+    card: ['screen', {
+      kicker: 'New game',
+      title: 'Sound it out, then find the picture.',
+      sub: 'The moment separate sounds turn into a word is reading.',
+      fr: { kicker: 'Nouveau jeu', title: "Assemble les sons, trouve l'image.", sub: 'Quand des sons séparés deviennent un mot, c\'est la lecture.' },
+      shot: 'sound-it-out',
+    }],
+    en: `New game: Sound It Out.
+
+A short word appears as letter tiles: S, U, N. Your child taps each tile to hear its sound, presses "Say it fast" so the sounds run together, then picks the matching picture.
+
+That moment, when separate sounds turn into a word, is reading.
+
+A wrong picture plays the sounds again. After two tries the right picture glows, so a child playing alone is never stuck.
+
+${FIND_EN}
+
+${TAGS_EN}`,
+    fr: `Nouveau jeu : Lis les sons.
+
+Un petit mot apparaît en tuiles de lettres : S, U, N. Votre enfant touche chaque tuile pour entendre son son, appuie sur « Dis-le vite » pour que les sons s'enchaînent, puis choisit l'image qui correspond.
+
+Ce moment, où des sons séparés deviennent un mot, c'est la lecture.
+
+Une mauvaise image fait rejouer les sons. Après deux essais, la bonne image s'illumine : un enfant qui joue seul n'est jamais bloqué.
+
+${FIND_FR}
+
+${TAGS_FR}`,
+  },
+
+  {
+    key: 'word-forge',
+    kind: 'product',
+    card: ['screen', {
+      kicker: 'Word Forge',
+      title: 'Spelling with words they already know.',
+      sub: 'Ndolé, puff-puff, Yaoundé, Kribi, and everyday English.',
+      fr: { kicker: 'Forge de Mots', title: "Épeler avec des mots qu'ils connaissent.", sub: "Ndolé, puff-puff, Yaoundé, Kribi, et l'anglais de tous les jours." },
+      shot: 'word-forge',
+    }],
+    en: `Spelling with words they already know.
+
+In Word Forge your child hears a word and builds it letter by letter: ndolé, puff-puff, Yaoundé, Kribi, alongside everyday English words like fish, rain and bread.
+
+A word from their own life is easier to care about. Every right answer earns a star to spend in the Sticker Book.
+
+${FIND_EN}
+
+${TAGS_EN}`,
+    fr: `Épeler avec des mots qu'ils connaissent déjà.
+
+Dans la Forge de Mots, votre enfant entend un mot et le construit lettre par lettre : ndolé, puff-puff, Yaoundé, Kribi, à côté de mots anglais de tous les jours comme fish, rain et bread.
+
+Un mot de sa propre vie compte plus pour un enfant. Chaque bonne réponse rapporte une étoile à dépenser dans l'Album d'Autocollants.
+
+${FIND_FR}
+
+${TAGS_FR}`,
+  },
+
+  {
+    key: 'offline',
+    kind: 'product',
+    card: ['statement', {
+      kicker: 'Works offline',
+      title: 'No data? They can still read.',
+      sub: 'After the first visit, LexiaCamer works with no internet at all.',
+      fr: { kicker: 'Hors ligne', title: 'Pas de données ? Ils peuvent quand même lire.', sub: 'Après la première visite, LexiaCamer marche sans internet.' },
+    }],
+    en: `No data? They can still read.
+
+Most reading apps stop the moment the signal does. LexiaCamer loads once, and after that it works with no internet: the letter sounds, the games, the stars, all of it.
+
+On the bus, in the village, at 11pm when the data bundle is finished.
+
+${FIND_EN}
+
+${TAGS_EN}`,
+    fr: `Pas de données ? Ils peuvent quand même lire.
+
+La plupart des applications de lecture s'arrêtent dès que le signal tombe. LexiaCamer se charge une fois, et ensuite elle marche sans internet : les sons des lettres, les jeux, les étoiles, tout.
+
+Dans le bus, au village, à 23h quand le forfait est fini.
+
+${FIND_FR}
+
+${TAGS_FR}`,
+  },
+
+  {
+    key: 'devices',
+    kind: 'product',
+    card: null,
+    en: `Phone, tablet or the family computer: LexiaCamer works on all of them.
+
+Many children find a bigger screen easier, so hand them the tablet if you have one. It runs in the browser, so it works on Android and on iPhone and iPad alike, with nothing to install from a store.
+
+${FIND_EN}
+
+${TAGS_EN}`,
+    fr: `Téléphone, tablette ou ordinateur familial : LexiaCamer marche sur tous.
+
+Beaucoup d'enfants trouvent un grand écran plus facile : si vous avez une tablette, donnez-la-leur. Elle s'ouvre dans le navigateur, donc elle marche aussi bien sur Android que sur iPhone et iPad, sans rien installer depuis un magasin.
+
+${FIND_FR}
+
+${TAGS_FR}`,
+  },
+
+  {
+    key: 'parents',
+    kind: 'product',
+    card: ['statement', {
+      kicker: 'For parents',
+      title: 'See the sounds your child finds hard.',
+      sub: 'And download or delete everything, any time.',
+      fr: { kicker: 'Pour les parents', title: 'Voyez les sons qui lui posent problème.', sub: 'Et téléchargez ou supprimez tout, à tout moment.' },
+    }],
+    en: `For parents: see how your child is doing.
+
+Sign in with a code sent to your email and the dashboard shows how many words your child has built and which sounds they keep missing. That tells you what to practise together tonight.
+
+Nothing leaves the phone unless you sign in and agree, and your child is asked too. You can download everything, or delete it, whenever you want.
+
+${FIND_EN}
+
+${TAGS_EN}`,
+    fr: `Pour les parents : suivez les progrès de votre enfant.
+
+Connectez-vous avec un code envoyé à votre e-mail, et le tableau de bord montre combien de mots votre enfant a construits et quels sons il rate encore. Vous savez ainsi quoi travailler ensemble ce soir.
+
+Rien ne quitte le téléphone sans que vous vous connectiez et donniez votre accord, et votre enfant est consulté aussi. Vous pouvez tout télécharger, ou tout supprimer, quand vous voulez.
+
+${FIND_FR}
+
+${TAGS_FR}`,
+  },
+
+  {
+    key: 'free',
+    kind: 'product',
+    card: ['statement', {
+      kicker: 'The price',
+      title: 'The reading games are free, and will stay free.',
+      sub: 'No account needed.',
+      fr: { kicker: 'Le prix', title: 'Les jeux de lecture sont gratuits, et le resteront.', sub: 'Aucun compte.' },
+    }],
+    en: `A straight answer about the price.
+
+The reading games are free, with no account needed. Some features we add later may cost something. The reading games will stay free.
+
+No adverts in it, and nothing about your child sold to anyone.
+
+${FIND_EN}
+
+${TAGS_EN}`,
+    fr: `Une réponse claire sur le prix.
+
+Les jeux de lecture sont gratuits, sans compte. Certaines fonctions ajoutées plus tard pourront être payantes. Les jeux de lecture resteront gratuits.
+
+Aucune publicité, et rien sur votre enfant n'est vendu à personne.
+
+${FIND_FR}
+
+${TAGS_FR}`,
+  },
+
+  // A text post on purpose: no picture may sit beside this story (rule 5).
+  {
+    key: 'story',
+    kind: 'story',
+    card: null,
+    en: `Why this app exists.
+
+My niece couldn't read or spell. She failed her exams and had to stay behind while her friends moved up a class.
+
+People started saying she wasn't smart. You could feel it in the way they looked at her. She went quiet at family gatherings, and sometimes at school.
+
+She wasn't the problem. Nobody had taught her the sounds that letters make.
+
+So I built LexiaCamer and recorded every letter sound in my own voice. She plays with it almost every day. Long words still trip her up. But she has caught up a lot, she's livelier and more confident, and now she teaches her little sister in nursery school the alphabet.
+
+If a child you love is where she was, it is free: ${SITE}
+
+${TAGS_EN}`,
+    fr: `Pourquoi cette application existe.
+
+Ma nièce ne savait ni lire ni écrire. Elle a échoué à ses examens et a dû redoubler pendant que ses amis passaient en classe supérieure.
+
+Les gens ont commencé à dire qu'elle n'était pas intelligente. On le sentait dans leur regard. Elle se taisait aux réunions de famille, et parfois à l'école.
+
+Le problème, ce n'était pas elle. Personne ne lui avait appris les sons des lettres.
+
+Alors j'ai créé LexiaCamer et enregistré chaque son de lettre avec ma propre voix. Elle joue avec presque tous les jours. Les mots longs la font encore trébucher. Mais elle a beaucoup rattrapé son retard, elle est plus vive et plus sûre d'elle, et maintenant elle apprend l'alphabet à sa petite sœur, qui est à la maternelle.
+
+Si un enfant que vous aimez en est là où elle en était, c'est gratuit : ${SITE}
+
+${TAGS_FR}`,
+  },
+
+  {
+    key: 'english-reading',
+    kind: 'product',
+    card: ['statement', {
+      kicker: 'English reading',
+      title: 'They read English. You can follow in French.',
+      sub: 'The menus, hints and parent screens are in French too.',
+      fr: { kicker: 'Lecture en anglais', title: 'Ils lisent en anglais. Vous suivez en français.', sub: 'Menus, indices et écrans parents aussi en français.' },
+    }],
+    en: `Worth being clear about, because plenty of apps are not.
+
+LexiaCamer teaches a child to read in ENGLISH. The letter sounds, the words they build, the games: all English.
+
+What is in French is the app around it: the menus, the hints, the parent screens. So a parent who does not read English can still sit beside their child and help.
+
+French reading lessons come later. Until then, we would rather say so than waste your time.
+
+${FIND_EN}
+
+${TAGS_EN}`,
+    fr: `À dire clairement, parce que beaucoup d'applications ne le font pas.
+
+LexiaCamer apprend à votre enfant à lire en ANGLAIS. Les sons des lettres, les mots qu'il construit, les jeux : tout est en anglais.
+
+Ce qui est en français, c'est l'application autour : les menus, les indices, les écrans parents. Ainsi un parent qui ne lit pas l'anglais peut quand même s'asseoir à côté de son enfant et l'aider.
+
+Les leçons de lecture en français viendront plus tard. D'ici là, nous préférons le dire plutôt que de vous faire perdre du temps.
+
+${FIND_FR}
+
+${TAGS_FR}`,
+  },
+
+  {
+    key: 'dyslexia',
+    kind: 'product',
+    card: ['statement', {
+      kicker: 'One tap',
+      title: 'If the letters keep moving, change them.',
+      sub: 'Dyslexia mode: a rounder font and wider spacing.',
+      fr: { kicker: 'Un geste', title: 'Si les lettres bougent, changez-les.', sub: 'Mode dyslexie : une police plus ronde et plus espacée.' },
+    }],
+    en: `Some children are not being careless. The letters genuinely will not sit still.
+
+LexiaCamer has a dyslexia mode: one tap changes the whole app to a rounder font with wider spacing between letters.
+
+It will not fix everything. For some children it makes the difference between trying and giving up, and it costs nothing to turn on and see.
+
+${FIND_EN}
+
+${TAGS_EN}`,
+    fr: `Certains enfants ne sont pas distraits. Les lettres refusent vraiment de tenir en place.
+
+LexiaCamer a un mode dyslexie : une seule pression change toute l'application pour une police plus ronde, avec des lettres plus espacées.
+
+Cela ne règle pas tout. Pour certains enfants, c'est la différence entre essayer et abandonner, et l'activer pour voir ne coûte rien.
+
+${FIND_FR}
 
 ${TAGS_FR}`,
   },
@@ -76,10 +430,11 @@ ${TAGS_FR}`,
     card: ['tip', {
       title: 'Say "mmm", not "em".',
       sub: 'A child who learns letter names first has to unlearn them to read.',
+      fr: { kicker: 'Astuce lecture', title: 'Dites «\u00a0mmm\u00a0», pas «\u00a0èm\u00a0».', sub: "Un enfant qui apprend d'abord les noms des lettres doit les désapprendre pour lire." },
     }],
     en: `A small thing that makes a big difference.
 
-When you point at M, say the sound — "mmm" — not the name, "em".
+When you point at M, say the sound, "mmm", not the name, "em".
 
 A child who knows the names says "em-ay-tee" and cannot get to "mat". A child who knows the sounds says "mmm-aaa-t" and hears the word appear.
 
@@ -90,7 +445,7 @@ Try it tonight with three letters: M, A, T. That is a whole word.
 ${TAGS_EN}`,
     fr: `Un petit détail qui change tout.
 
-Quand vous montrez le M, dites le son — « mmm » — pas le nom, « èm ».
+Quand vous montrez le M, dites le son, « mmm », pas le nom, « èm ».
 
 Un enfant qui connaît les noms dit « èm-a-té » et n'arrive jamais à « mat ». Un enfant qui connaît les sons dit « mmm-aaa-t » et entend le mot apparaître.
 
@@ -103,15 +458,12 @@ ${TAGS_FR}`,
   {
     key: 'tip-ten-minutes',
     kind: 'tip',
-    card: ['tip', {
-      title: 'Ten minutes beats an hour on Sunday.',
-      sub: 'Reading is a habit before it is a skill.',
-    }],
+    card: null,
     en: `Ten minutes a day beats an hour on Sunday.
 
 Reading is a habit before it is a skill. A child who reads a little every day builds something; a child who does an hour once a week mostly builds a memory of being tired.
 
-Pick a time that already exists — after supper, before bed — and keep it short enough that they want to come back.
+Pick a time that already exists, after supper or before bed, and keep it short enough that they want to come back.
 
 Stop while they are still enjoying it. That is the trick nobody tells you.
 
@@ -120,9 +472,9 @@ ${TAGS_EN}`,
 
 La lecture est une habitude avant d'être une compétence. Un enfant qui lit un peu chaque jour construit quelque chose ; un enfant qui fait une heure par semaine construit surtout le souvenir d'être fatigué.
 
-Choisissez un moment qui existe déjà — après le repas, avant le coucher — et gardez-le assez court pour qu'ils aient envie de revenir.
+Choisissez un moment qui existe déjà, après le repas ou avant le coucher, et gardez-le assez court pour qu'il ait envie de revenir.
 
-Arrêtez pendant qu'ils s'amusent encore. C'est l'astuce que personne ne dit.
+Arrêtez pendant qu'il s'amuse encore. C'est l'astuce que personne ne dit.
 
 ${TAGS_FR}`,
   },
@@ -132,325 +484,98 @@ ${TAGS_FR}`,
     card: ['tip', {
       title: 'Stretch the word, do not chop it.',
       sub: '"Sssuuun" is easier to hear than "s - u - n".',
+      fr: { kicker: 'Astuce lecture', title: 'Étirez le mot, ne le découpez pas.', sub: '«\u00a0Sssuuun\u00a0» s\'entend mieux que «\u00a0s - u - n\u00a0».' },
     }],
     en: `If your child can say each sound but cannot hear the word, try this.
 
 Stretch it instead of chopping it.
 
-Not "s — u — n", with gaps. Say "sssuuunnn", one long breath, and let the word fall out at the end.
+Not "s, u, n", with gaps. Say "sssuuunnn", one long breath, and let the word fall out at the end.
 
-The gaps are what make it hard. A child holding three separate sounds in their head has to do the joining themselves. Stretching does the joining for them, and then one day they do it without you.
+The gaps are what make it hard. Stretching does the joining for them, and then one day they do it without you. It is exactly what the "Say it fast" button in Sound It Out does.
 
 ${TAGS_EN}`,
     fr: `Si votre enfant dit chaque son mais n'entend pas le mot, essayez ceci.
 
 Étirez-le au lieu de le découper.
 
-Pas « s — o — l », avec des silences. Dites « sssooolll », d'un seul souffle, et laissez le mot tomber à la fin.
+Pas « s, u, n », avec des silences. Dites « sssuuunnn », d'un seul souffle, et laissez le mot tomber à la fin.
 
-Ce sont les silences qui rendent la tâche difficile. Un enfant qui garde trois sons séparés en tête doit faire le lien tout seul. En étirant, vous faites le lien pour lui — et un jour, il le fait sans vous.
-
-${TAGS_FR}`,
-  },
-
-  /* ——— Honesty. Counter-intuitive, and the most effective thing here. ——— */
-  {
-    key: 'honest-audio',
-    kind: 'honest',
-    card: ['honest', {
-      title: 'The letter sounds are not recorded yet.',
-      sub: 'We would rather tell you now than have you find out.',
-    }],
-    en: `Something that is not finished, told to you before you find it.
-
-The 32 letter sounds in LexiaCamer are not recorded yet. Right now the app uses your phone's built-in voice, and on some Android phones that sounds wrong — or does not play at all.
-
-We are recording real voices next. Cameroonian voices, saying the sounds the way a teacher here says them.
-
-There is a second gap, and it matters more to some of you: the lessons are English only. The app is translated into French, but the sounds and the words a child practises are English ones. A child learning to read French will not find what they need here yet.
-
-French is next, after the English version is right. Its own sounds, its own words — not these ones translated, because that is not how reading works. We would rather do one language properly than two badly.
-
-Everything else is worth your opinion today: the spelling game, the stickers, whether a five-year-old can find their way around without help.
-
-If you would rather wait for the sound, wait. If you would rather help us get it right, the door is open: ${SITE}
-
-${TAGS_EN}`,
-    fr: `Quelque chose qui n'est pas terminé, dit avant que vous ne le découvriez.
-
-Les 32 sons des lettres de LexiaCamer ne sont pas encore enregistrés. Pour l'instant, l'application utilise la voix intégrée de votre téléphone, et sur certains Android cela sonne faux — ou ne se lance pas du tout.
-
-Nous enregistrons de vraies voix ensuite. Des voix camerounaises, qui prononcent les sons comme un enseignant d'ici.
-
-Il y a un second manque, et il compte davantage pour certains d'entre vous : les leçons sont uniquement en anglais. L'application est traduite en français, mais les sons et les mots que l'enfant travaille sont anglais. Un enfant qui apprend à lire le français n'y trouvera pas encore ce qu'il lui faut.
-
-Le français vient ensuite, une fois la version anglaise au point. Avec ses propres sons et ses propres mots — pas ceux-ci traduits, parce que ce n'est pas ainsi qu'on apprend à lire. Nous préférons faire une langue correctement que deux mal.
-
-Tout le reste mérite votre avis dès aujourd'hui : le jeu d'orthographe, les autocollants, et si un enfant de cinq ans arrive à se repérer seul.
-
-Si vous préférez attendre le son, attendez. Si vous préférez nous aider à bien le faire, la porte est ouverte : ${SITE}
-
-${TAGS_FR}`,
-    ask: true,
-  },
-
-  /* ——— Product, told as a benefit rather than a feature. ——— */
-  {
-    key: 'english-reading',
-    kind: 'evergreen',
-    card: ['statement', {
-      kicker: 'English reading',
-      title: 'Learning to read English, with the app speaking your language.',
-      sub: 'The child reads English. The menus and hints are French too, so you can sit with them.',
-    }],
-    en: `A thing worth being clear about, because plenty of apps are not.
-
-LexiaCamer teaches a child to read in ENGLISH. The letter sounds, the words they build, the spelling game: all English.
-
-What is in French is the app around it. The menus, the hints, the parent view. So a parent who does not read English can still sit beside their child and help, instead of handing over a phone and hoping.
-
-If you are looking for something to teach your child to read in French, this is not it yet, and we will say so rather than take your time.
-
-${SITE}
-
-${TAGS_EN}`,
-    fr: `Une chose à dire clairement, parce que beaucoup d'applications ne le font pas.
-
-LexiaCamer apprend à votre enfant à lire en ANGLAIS. Les sons des lettres, les mots qu'il construit, le jeu d'orthographe : tout est en anglais.
-
-Ce qui est en français, c'est l'application autour. Les menus, les indices, la vue parent. Ainsi un parent qui ne lit pas l'anglais peut quand même s'asseoir à côté de son enfant et l'aider, au lieu de tendre un téléphone en espérant.
-
-Si vous cherchez de quoi apprendre à lire en français à votre enfant, ce n'est pas encore ça, et nous préférons le dire plutôt que de vous faire perdre du temps.
-
-${SITE}
-
-${TAGS_FR}`,
-  },
-
-  {
-    key: 'dyslexia',
-    kind: 'evergreen',
-    card: ['statement', {
-      kicker: 'One tap',
-      title: 'If the letters keep moving, change them.',
-      sub: 'Dyslexia mode: a rounder font, wider spacing, more room between lines.',
-    }],
-    en: `Some children are not being careless. The letters genuinely will not sit still.
-
-LexiaCamer has a dyslexia mode: one tap changes the whole app to a rounder font with wider spacing between letters and more room between lines.
-
-It will not fix everything. For some children it makes the difference between trying and giving up, and it costs nothing to turn on and see.
-
-${SITE}
-
-${TAGS_EN}`,
-    fr: `Certains enfants ne sont pas distraits. Les lettres refusent vraiment de tenir en place.
-
-LexiaCamer a un mode dyslexie : une seule pression change toute l'application pour une police plus ronde, des lettres plus espacées et plus de place entre les lignes.
-
-Cela ne règle pas tout. Pour certains enfants, c'est la différence entre essayer et abandonner, et l'activer pour voir ne coûte rien.
-
-${SITE}
-
-${TAGS_FR}`,
-  },
-  {
-    key: 'price',
-    kind: 'evergreen',
-    card: ['statement', {
-      kicker: 'No account',
-      title: 'No sign-up. No password. No payment.',
-      sub: 'Open the link, and your child can start. That is the whole process.',
-    }],
-    en: `No sign-up. No password. No payment. No app store.
-
-Open the link and your child can start. That is the whole process.
-
-We ask for a WhatsApp number or an email only if you want telling when the next version is ready — and for nothing else. No adverts in it, and nothing sold to anyone.
-
-${SITE}
-
-${TAGS_EN}`,
-    fr: `Aucune inscription. Aucun mot de passe. Aucun paiement. Aucun magasin d'applications.
-
-Ouvrez le lien et votre enfant peut commencer. C'est tout le processus.
-
-Nous demandons un numéro WhatsApp ou un e-mail uniquement si vous voulez être prévenu quand la prochaine version est prête — et pour rien d'autre. Aucune publicité, rien de revendu à personne.
-
-${SITE}
-
-${TAGS_FR}`,
-  },
-  {
-    key: 'read-only',
-    kind: 'evergreen',
-    card: ['statement', {
-      kicker: 'A child’s record',
-      title: 'Nobody can change what your child did.',
-      sub: 'Not their teacher. Not their school. Not us.',
-    }],
-    en: `A question worth asking of anything that records your child.
-
-In LexiaCamer, a child's record is read-only to everyone. Their teacher can see it. Their school can see their own pupils. We can see it. None of us can change it.
-
-You see where they are doing well and where they are struggling. That is it. Nobody is marking your child, and nobody can quietly rewrite what happened.
-
-We also never ask for your home address.
-
-${SITE}
-
-${TAGS_EN}`,
-    fr: `Une question à poser à tout ce qui enregistre votre enfant.
-
-Dans LexiaCamer, le dossier d'un enfant est en lecture seule pour tout le monde. Son enseignant peut le voir. Son école voit ses propres élèves. Nous pouvons le voir. Aucun de nous ne peut le modifier.
-
-Vous voyez où il réussit et où il peine. C'est tout. Personne ne note votre enfant, et personne ne peut réécrire discrètement ce qui s'est passé.
-
-Nous ne demandons jamais votre adresse non plus.
-
-${SITE}
+Ce sont les silences qui rendent la tâche difficile. En étirant, vous faites le lien pour lui, et un jour il le fait sans vous. C'est exactement ce que fait le bouton « Dis-le vite » dans Lis les sons.
 
 ${TAGS_FR}`,
   },
 
   /* ——— The ask. Rationed by the scheduler. ——— */
   {
-    key: 'ask-testers',
+    key: 'ask-share',
     kind: 'ask',
     ask: true,
     card: ['cta', {
-      title: 'Be one of the first to test it.',
-      sub: 'Ten minutes with your child, and tell us what went wrong.',
+      title: 'Know a child who is struggling to read?',
+      sub: 'Send this to their parent. It is free.',
+      fr: { kicker: 'Gratuit · sans compte', title: 'Un enfant a du mal à lire ?', sub: 'Envoyez ceci à ses parents. C\'est gratuit.' },
     }],
-    en: `We are looking for parents and teachers to test LexiaCamer before it is finished.
+    en: `Do you know a child who is struggling to read?
 
-What that means: open it with your child, spend ten minutes, and tell us what confused them. There is a feedback button on every screen, so you do not have to remember anything until later.
-
-It is free, there is no account, and it takes a minute to join.
+Send this to their parent. LexiaCamer is free, needs no account, and works with no data after the first visit. Ten minutes a day is enough to start.
 
 ${SITE}
 
 ${TAGS_EN}`,
-    fr: `Nous cherchons des parents et des enseignants pour tester LexiaCamer avant qu'elle soit terminée.
+    fr: `Vous connaissez un enfant qui a du mal à lire ?
 
-Concrètement : ouvrez-la avec votre enfant, passez dix minutes, et dites-nous ce qui l'a perdu. Il y a un bouton d'avis sur chaque écran, donc vous n'avez rien à retenir pour plus tard.
-
-C'est gratuit, sans compte, et l'inscription prend une minute.
+Envoyez ceci à ses parents. LexiaCamer est gratuite, sans compte, et marche sans données après la première visite. Dix minutes par jour suffisent pour commencer.
 
 ${SITE}
 
 ${TAGS_FR}`,
   },
   {
-    key: 'ask-teachers',
+    key: 'ask-feedback',
     kind: 'ask',
     ask: true,
-    card: ['cta', {
-      title: 'Teachers: what would you want to see?',
-      sub: 'We are building the class view now. Tell us before we get it wrong.',
-    }],
-    en: `A question for teachers.
+    card: null,
+    en: `Tried LexiaCamer with your child? Tell us what happened.
 
-We are building the part of LexiaCamer that shows you how your class is doing. You will see only the classes you teach, and nothing from any other school.
+There is a feedback button on every screen of the app. What confused them, what made them laugh, which word they could not get: every message is read by a person, and it decides what we build next.
 
-Before we build the wrong thing: what would you actually want on that screen? The children falling behind? The letters the whole class keeps missing? Something we have not thought of?
-
-Tell us in the comments. We would rather hear it now than after it is built.
+${SITE}
 
 ${TAGS_EN}`,
-    fr: `Une question pour les enseignants.
+    fr: `Vous avez essayé LexiaCamer avec votre enfant ? Racontez-nous.
 
-Nous construisons la partie de LexiaCamer qui montre comment va votre classe. Vous ne verrez que les classes que vous enseignez, et rien d'une autre école.
+Il y a un bouton d'avis sur chaque écran de l'application. Ce qui l'a perdu, ce qui l'a fait rire, le mot qu'il n'arrivait pas à trouver : chaque message est lu par une personne, et c'est lui qui décide de la suite.
 
-Avant de construire la mauvaise chose : que voudriez-vous vraiment sur cet écran ? Les élèves en retard ? Les lettres que toute la classe rate ? Quelque chose auquel nous n'avons pas pensé ?
-
-Dites-le en commentaire. Nous préférons l'entendre maintenant qu'une fois construit.
+${SITE}
 
 ${TAGS_FR}`,
   },
 
   /* ——— Data-backed. Skipped entirely until the numbers are real. ——— */
   {
-    key: 'stat-testers',
-    kind: 'data',
-    needs: (d) => d.testers >= 10,
-    card: (d) => ['stat', {
-      value: String(d.testers),
-      label: 'people are testing LexiaCamer',
-      sub: 'Parents, teachers and a few curious children.',
-    }],
-    en: (d) => `${d.testers} people are now testing LexiaCamer before it is finished.
-
-Parents, teachers, and a few children who were handed a phone and told to break it.
-
-Every one of them can report a problem from inside the app, and that is what decides what we build next. Not a plan we wrote months ago.
-
-Want to be one of them? ${SITE}
-
-${TAGS_EN}`,
-    fr: (d) => `${d.testers} personnes testent maintenant LexiaCamer avant qu'elle soit terminée.
-
-Des parents, des enseignants, et quelques enfants à qui on a donné un téléphone en leur disant de le casser.
-
-Chacun peut signaler un problème depuis l'application, et c'est cela qui décide de la suite. Pas un plan écrit il y a des mois.
-
-Envie d'en faire partie ? ${SITE}
-
-${TAGS_FR}`,
-    ask: true,
-  },
-  {
-    key: 'stat-wants',
-    kind: 'data',
-    needs: (d) => d.topWant && d.testers >= 8,
-    card: (d) => ['statement', {
-      kicker: 'What parents asked for',
-      title: `Most of you came for one thing: ${d.topWant.toLowerCase()}.`,
-      sub: 'So that is what we are working on first.',
-    }],
-    en: (d) => `We asked everyone testing LexiaCamer what they most wanted it to help with.
-
-The most common answer was ${d.topWant.toLowerCase()}.
-
-So that is what we are working on first. Not the thing we assumed, and not the thing that would look best in a screenshot.
-
-If you want to add your answer, it takes a minute: ${SITE}
-
-${TAGS_EN}`,
-    fr: (d) => `Nous avons demandé à tous ceux qui testent LexiaCamer ce qu'ils voulaient qu'elle les aide à faire.
-
-La réponse la plus fréquente : ${d.topWant.toLowerCase()}.
-
-C'est donc ce sur quoi nous travaillons en premier. Pas ce que nous avions supposé, ni ce qui ferait la plus belle capture d'écran.
-
-Pour ajouter votre réponse, cela prend une minute : ${SITE}
-
-${TAGS_FR}`,
-    ask: true,
-  },
-  {
     key: 'fixed-from-feedback',
     kind: 'data',
     needs: (d) => d.feedback >= 5,
     card: (d) => ['stat', {
       value: String(d.feedback),
-      label: 'things testers told us',
+      label: 'messages from parents and children',
       sub: 'Every one of them read by a person.',
     }],
-    en: (d) => `${d.feedback} pieces of feedback so far, and every one read by a person.
+    en: (d) => `${d.feedback} messages so far, and every one read by a person.
 
-That is the whole reason the app is out before it is ready. We would rather find out now that a five-year-old cannot work out a screen than discover it after a thousand families have given up on it.
+They come from the feedback button on every screen, and they decide what changes next. Not a plan we wrote months ago.
 
-If something annoyed you, the button is on every screen. Nothing is too small.
+If something annoyed you, or your child, tell us. Nothing is too small.
 
 ${SITE}
 
 ${TAGS_EN}`,
-    fr: (d) => `${d.feedback} retours pour l'instant, et chacun lu par une personne.
+    fr: (d) => `${d.feedback} messages pour l'instant, et chacun lu par une personne.
 
-C'est toute la raison pour laquelle l'application est disponible avant d'être prête. Nous préférons découvrir maintenant qu'un enfant de cinq ans ne comprend pas un écran, plutôt que de l'apprendre après que mille familles aient abandonné.
+Ils viennent du bouton d'avis présent sur chaque écran, et ce sont eux qui décident de la suite. Pas un plan écrit il y a des mois.
 
-Si quelque chose vous a agacé, le bouton est sur chaque écran. Rien n'est trop petit.
+Si quelque chose vous a agacé, vous ou votre enfant, dites-le-nous. Rien n'est trop petit.
 
 ${SITE}
 
@@ -559,6 +684,7 @@ export const SOUND_POSTS = readPhonics().map((s) => ({
     letter: s.letter,
     say: s.sound,
     example: s.example,
+    fr: { kicker: 'Le son du jour', sayWord: 'Dites', asIn: 'comme dans', quotes: ['«\u00a0', '\u00a0»'] },
   }],
   en: `Today's sound: ${s.letter}
 
