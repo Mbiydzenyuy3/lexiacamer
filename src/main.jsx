@@ -19,13 +19,12 @@ import './index.css'
  * stylesheet, and nothing else. The app is fetched in the background while
  * they read, so the button is instant when they press it.
  *
- * Landing is a STATIC import, unlike the other two: it is what almost everyone
+ * Landing is a STATIC import, unlike the app: it is what almost everyone
  * sees first, and making it lazy would only buy a second round trip before the
  * first paint. On a high-latency connection a round trip costs more than the
  * 6KB it saves.
  */
 
-const EarlyTester = lazy(() => import('./EarlyTester'))
 // AppRoot, not App: it wraps the app in parent sign-in (see AppRoot.jsx).
 const App = lazy(() => import('./AppRoot'))
 
@@ -40,58 +39,45 @@ function Splash() {
   )
 }
 
+// Set the first time someone presses Start, so every later visit on this
+// device opens the app directly. The key is still 'lexia_tester' because the
+// early testers already have it: renaming it would show them the landing page
+// again.
+const STARTED_KEY = 'lexia_tester'
+
 function Root() {
-  // Remembered per device, so a tester is never asked twice: once they have
-  // joined, every later visit opens the app directly.
-  const [isTester, setIsTester] = useState(() => {
-    try { return Boolean(localStorage.getItem('lexia_tester')) } catch { return false }
+  const [started, setStarted] = useState(() => {
+    try { return Boolean(localStorage.getItem(STARTED_KEY)) } catch { return false }
   })
 
-  // /early-tester skips the landing page and opens the gate directly, so the
-  // link already shared on Facebook keeps working and lands where it promised.
-  const atGate = () => window.location.pathname.replace(/\/$/, '') === '/early-tester'
-  const [showGate, setShowGate] = useState(atGate)
-
-  // The gate is a real URL, not just a piece of state.
-  //
-  // Without this, tapping the Android back gesture from the gate leaves the
-  // site entirely and returns to Facebook -- and the back gesture is exactly
-  // what this audience uses. Pushing a history entry makes back mean "return
-  // to the landing page", and makes the gate linkable and refreshable.
+  // /early-tester was the signup page, and the link is still on Facebook.
+  // There is no signup any more, so it shows the landing page under its real
+  // address.
   useEffect(() => {
-    const onPop = () => setShowGate(atGate())
-    window.addEventListener('popstate', onPop)
-    return () => window.removeEventListener('popstate', onPop)
+    if (window.location.pathname.replace(/\/$/, '') === '/early-tester') {
+      window.history.replaceState({}, '', '/')
+    }
   }, [])
 
-  const openGate = () => {
-    if (!atGate()) window.history.pushState({ gate: true }, '', '/early-tester')
-    setShowGate(true)
+  const start = () => {
+    try { localStorage.setItem(STARTED_KEY, JSON.stringify({ at: Date.now() })) } catch { /* private browsing: they see the landing page next time */ }
+    setStarted(true)
     window.scrollTo(0, 0)
   }
 
-  // Goes back rather than pushing again, so the history stack does not grow
-  // every time someone toggles between the two.
-  const closeGate = () => {
-    if (window.history.state?.gate) window.history.back()
-    else { window.history.pushState({}, '', '/'); setShowGate(false) }
-    window.scrollTo(0, 0)
-  }
-
-  // A signup stranded by a bad connection goes out on the next load. This
-  // downloads nothing unless something is actually waiting to be sent.
+  // A signup or a feedback message stranded by a bad connection goes out on
+  // the next load. This downloads nothing unless something is actually
+  // waiting to be sent.
   useEffect(() => { retryPendingTester(); retryPendingFeedback() }, [])
 
   // Fetch the app in the background while someone reads the landing page, so
   // pressing the button costs nothing. requestIdleCallback keeps it off the
   // critical path on a slow phone; the timeout is the fallback for Safari.
   useEffect(() => {
-    if (isTester) return undefined
+    if (started) return undefined
     let cancelled = false
     const warm = () => {
-      if (cancelled) return
-      import('./EarlyTester').catch(() => { })
-      import('./AppRoot').catch(() => { })
+      if (!cancelled) import('./AppRoot').catch(() => { })
     }
     const ric = window.requestIdleCallback && window.cancelIdleCallback
       ? window.requestIdleCallback : null
@@ -101,18 +87,13 @@ function Root() {
       if (ric) window.cancelIdleCallback(handle)
       else clearTimeout(handle)
     }
-  }, [isTester])
+  }, [started])
 
-  let view
-  if (!isTester) {
-    view = showGate
-      ? <EarlyTester onStart={() => setIsTester(true)} onBack={closeGate} />
-      : <Landing onStart={openGate} />
-  } else {
-    view = <App />
-  }
-
-  return <Suspense fallback={<Splash />}>{view}</Suspense>
+  return (
+    <Suspense fallback={<Splash />}>
+      {started ? <App /> : <Landing onStart={start} />}
+    </Suspense>
+  )
 }
 
 ReactDOM.createRoot(document.getElementById('root')).render(
