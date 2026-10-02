@@ -2368,10 +2368,16 @@ p {
   background: var(--lp-ink);
 }
 
+.lp-hero {
+  /* Height of the photo band in the stacked layout. Grows with the width so a
+     portrait tablet shows the faces rather than a thin strip of them. */
+  --lp-band: clamp(22rem, 64vw, 40rem);
+}
+
 .lp-hero-media {
   position: absolute;
   inset: 0 0 auto 0;
-  height: 22rem;
+  height: var(--lp-band);
 }
 
 .lp-hero-media::after {
@@ -2390,7 +2396,7 @@ p {
 
 .lp-hero-inner {
   position: relative;
-  padding-top: 19rem;
+  padding-top: calc(var(--lp-band) - 3rem);
   padding-bottom: 2.5rem;
 }
 
@@ -2884,12 +2890,7 @@ p {
     padding-inline: 1.5rem;
   }
 
-  .lp-hero-media {
-    height: 26rem;
-  }
-
   .lp-hero-inner {
-    padding-top: 23rem;
     padding-bottom: 3.5rem;
   }
 
@@ -2972,10 +2973,34 @@ p {
     padding-inline: 2rem;
   }
 
+  .lp-lead {
+    font-size: 1.15rem;
+  }
+
+  .lp-diff {
+    grid-template-columns: 1fr 1fr;
+    gap: 3rem;
+    padding: 4rem;
+  }
+}
+
+/* The photo behind the text needs a screen held sideways. A portrait iPad Pro
+   is 1024px wide, but on it the headline would cover the faces; a 7-inch
+   Android held sideways is only 960px, but stacked its headline would start
+   below the fold. So orientation decides, from 900px up. */
+@media (min-width: 900px) and (min-aspect-ratio: 1/1) {
+  .lp-hero-copy {
+    max-width: min(36rem, 52vw);
+  }
+
+  .lp-h1 {
+    font-size: clamp(2.4rem, 4.6vw, 3.75rem);
+  }
+
   .lp-hero {
     display: flex;
     align-items: center;
-    min-height: 42rem;
+    min-height: min(42rem, calc(100vh - 4rem));
   }
 
   .lp-hero-media {
@@ -2992,17 +3017,7 @@ p {
   }
 
   .lp-hero-inner {
-    padding-block: 6rem;
-  }
-
-  .lp-lead {
-    font-size: 1.15rem;
-  }
-
-  .lp-diff {
-    grid-template-columns: 1fr 1fr;
-    gap: 3rem;
-    padding: 4rem;
+    padding-block: clamp(3rem, 8vh, 6rem);
   }
 }
 
