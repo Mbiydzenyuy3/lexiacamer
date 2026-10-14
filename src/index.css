@@ -3980,6 +3980,12 @@ p {
 @media (prefers-reduced-motion: reduce) {
   .blend-picture.is-wrong, .blend-picture.is-hint { animation: none; }
 }
+/* A short screen held sideways (a 7-inch tablet in landscape): the square
+   pictures grow with the width and slide under the bottom nav, so the child
+   has to scroll to see the choices. Size them by the height instead. */
+@media (orientation: landscape) and (max-height: 700px) {
+  .blend-pictures { max-width: min(100%, 62vh); margin-inline: auto; }
+}
 
 /* --- Settings gear in the top bar --- */
 .top-bar-settings {
