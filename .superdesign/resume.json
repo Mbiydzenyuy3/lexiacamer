@@ -2,12 +2,16 @@
   "schemaVersion": 1,
   "targets": {
     "/": {
-      "targetKind": "new-target",
+      "targetKind": "existing-ui",
       "projectId": "993445b9-e282-42d9-ac2b-d5ff444ce0eb",
-      "activeDraftId": "5ddc9507-7b61-4c1e-830e-2e3df7671630",
+      "activeDraftId": "a80edda9-757f-4d3e-883a-52e2e4d6e4cb",
       "designSystemPath": ".superdesign/design-system.md",
       "referenceIds": [
-        "public-pwa-192x192.png"
+        "public-pwa-192x192.png",
+        "25a56f8f-440f-4bcb-8f04-81d5cec3a47c",
+        "0e7755b0-7e2f-452d-bb79-5fd59e6cb186",
+        "0557e880-0e97-4ed8-bd37-9d9e633213af",
+        "cf0c0d6b-7dce-4fc6-b28f-b03ec0c73a74"
       ],
       "brandAssets": {
         "logo": {
@@ -19,25 +23,26 @@
       "contextFiles": [
         ".superdesign/design-system.md",
         ".superdesign/init/theme.md:1:104",
-        "src/EarlyTester.jsx",
-        "src/HomeScreen.jsx",
-        "src/index.css:1636:2006"
+        "src/HomeScreen.jsx"
       ],
       "fingerprints": {
-        ".superdesign/design-system.md": "01b9cbf072bf739cbca5896492b38ac5a8a90c6235652d57e684394938eccb51",
+        ".superdesign/design-system.md": "178c5d77ec3b3cd62523b8a47d6fb8cbe934e5bd36500b659641449894188ca8",
         ".superdesign/init/theme.md": "3a8cda3fbe8c31a898d2cce480c1cadc37ae53fac259f9e3807f6908e40fa6b0",
-        "src/EarlyTester.jsx": "f781b1a1fe4f0714c31f75327fb8a1139ad6502694b1b0e92ec653721e8914c2",
-        "src/HomeScreen.jsx": "aed1bb844b2d34485f5625c654aa517906e6d7276a599f9ddce78af90d991696",
-        "src/index.css": "dffbbf7a5b64650ffba5bd74bc245d381c66f60fdf75498b9ebb92bb355f0323"
+        "src/HomeScreen.jsx": "1138e7b228158184ebc16fa13ebf6d2d2dc4e5c058b2d46b3755ba0c964e606e"
       },
       "drafts": {
         "5ddc9507-7b61-4c1e-830e-2e3df7671630": {
           "title": "LexiaCamer Landing Page",
           "visualDirection": "warm green, honest-prototype, single CTA",
           "currentVersion": 1
+        },
+        "a80edda9-757f-4d3e-883a-52e2e4d6e4cb": {
+          "title": "LexiaCamer Responsive Landing Page",
+          "visualDirection": "launched product, responsive (owner v2), editorial rhythm, real screenshots, niece story, inclusive wording (v3)",
+          "currentVersion": 4
         }
       },
-      "updatedAt": "2026-09-15T16:23:22.188389+00:00"
+      "updatedAt": "2026-10-02T09:43:47.435842+00:00"
     },
     "/early-tester/intro": {
       "targetKind": "new-target",
