@@ -9,6 +9,13 @@ import { clipPathFor, DEFAULT_VOICE } from './letterSounds';
 // Clip names for the English praise phrases, in the same order as the phrases.
 const PRAISE_KEYS = ['great-job', 'amazing', 'well-done', 'superstar'];
 
+/**
+ * Words in the games with no recorded clip yet. They go straight to the robot
+ * voice instead of requesting a file that is not there (a 404 every time the
+ * word comes up). wordClips.test.js keeps this list honest both ways.
+ */
+export const WORDS_WITHOUT_CLIP = new Set(['eto']);
+
 class SpeechEngine {
   constructor() {
     this.synth = window.speechSynthesis || null;
@@ -279,7 +286,7 @@ class SpeechEngine {
   speakWord(word, lang = 'en') {
     const say = () => this.speak(word, lang, 0.85, 1.0);
     const key = String(word).trim().toLowerCase();
-    if (this.letterVoice === 'robot' || !/^[a-z]+$/.test(key)) { say(); return; }
+    if (this.letterVoice === 'robot' || !/^[a-z]+$/.test(key) || WORDS_WITHOUT_CLIP.has(key)) { say(); return; }
     this.stop();
     this._playClip(`audio/words/${key}.mp3`, say);
   }

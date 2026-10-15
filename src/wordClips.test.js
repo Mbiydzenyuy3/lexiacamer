@@ -2,6 +2,7 @@ import { describe, it, expect } from 'vitest';
 import fs from 'node:fs';
 import { wordData } from './i18n';
 import { BLEND_WORDS } from './blendWords';
+import { WORDS_WITHOUT_CLIP } from './speech';
 
 const PRAISE = ['praise-great-job', 'praise-amazing', 'praise-well-done', 'praise-superstar'];
 const words = new Set([...wordData.map((w) => w.word.toLowerCase()), ...BLEND_WORDS.map((w) => w.word)]);
@@ -23,5 +24,15 @@ describe('word clips', () => {
 
   it('are named in lower case with no spaces, as speakWord looks them up', () => {
     for (const clip of clips) expect(clip).toMatch(/^[a-z]+(-[a-z]+)*$/);
+  });
+
+  it('exist for every game word, or the word is listed as having none', () => {
+    // A word missing from both requests a file that is not there: a 404 each
+    // time the word comes up.
+    for (const w of words) expect(clips.includes(w) || WORDS_WITHOUT_CLIP.has(w), w).toBe(true);
+  });
+
+  it('list no word as clipless once its clip is recorded', () => {
+    for (const w of WORDS_WITHOUT_CLIP) expect(clips, w).not.toContain(w);
   });
 });

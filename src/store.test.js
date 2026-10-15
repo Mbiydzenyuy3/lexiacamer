@@ -213,3 +213,19 @@ describe('letter voice setting', () => {
     localStorage.clear();
   });
 });
+
+describe('first run language', () => {
+  it('opens in the language picked on the landing page', () => {
+    localStorage.clear();
+    localStorage.setItem('lexia_first_lang', 'fr');
+    expect(loadState().lang).toBe('fr');
+    localStorage.clear();
+  });
+
+  it('never overrides a saved language', () => {
+    localStorage.setItem('lexia_state_v2', JSON.stringify({ lang: 'en' }));
+    localStorage.setItem('lexia_first_lang', 'fr');
+    expect(loadState().lang).toBe('en');
+    localStorage.clear();
+  });
+});

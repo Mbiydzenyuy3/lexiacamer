@@ -19,6 +19,8 @@ import { DEFAULT_VOICE } from './letterSounds';
 
 const STORAGE_KEY = 'lexia_state_v2';
 const LEGACY_KEY = 'lexia_state';
+/** Written by main.jsx when the parent presses Start on the landing page. */
+export const FIRST_LANG_KEY = 'lexia_first_lang';
 
 /** Events older than this are dropped from the outbox: the server would
  *  refuse them anyway (they predate the current device grant). */
@@ -104,6 +106,10 @@ export function loadState() {
     }
     const legacyRaw = localStorage.getItem(LEGACY_KEY);
     if (legacyRaw) return migrateLegacy(JSON.parse(legacyRaw));
+    // First run: open in the language the parent picked on the landing page,
+    // so choosing French there does not land them in an English app.
+    const first = localStorage.getItem(FIRST_LANG_KEY);
+    if (first === 'en' || first === 'fr') return { ...base, lang: first };
   } catch {
     /* corrupt or unavailable storage: start clean rather than crash */
   }

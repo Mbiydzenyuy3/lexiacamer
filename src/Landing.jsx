@@ -78,7 +78,7 @@ export default function Landing({ onStart }) {
               <button type="button" className={lang === 'fr' ? 'is-on' : ''}
                       onClick={() => setLang('fr')} aria-pressed={lang === 'fr'}>FR</button>
             </div>
-            <button type="button" className="lp-btn lp-btn-primary lp-btn-sm" onClick={onStart}>
+            <button type="button" className="lp-btn lp-btn-primary lp-btn-sm" onClick={() => onStart(lang)}>
               {t.navCta}
             </button>
           </div>
@@ -105,7 +105,7 @@ export default function Landing({ onStart }) {
               <p className="lp-lead">{t.heroLead}</p>
 
               <div className="lp-hero-actions">
-                <button type="button" className="lp-btn lp-btn-primary lp-btn-lg" onClick={onStart}>
+                <button type="button" className="lp-btn lp-btn-primary lp-btn-lg" onClick={() => onStart(lang)}>
                   {t.heroCta} <ArrowRight size={18} />
                 </button>
                 <button type="button" className="lp-btn lp-btn-ghost lp-btn-lg" onClick={() => scrollTo('how')}>
@@ -245,7 +245,7 @@ export default function Landing({ onStart }) {
         {/* ——— Final call to action ——— */}
         <section className="lp-wrap lp-section lp-center lp-final">
           <h2 className="lp-h2">{t.finalTitle}</h2>
-          <button type="button" className="lp-btn lp-btn-primary lp-btn-xl" onClick={onStart}>
+          <button type="button" className="lp-btn lp-btn-primary lp-btn-xl" onClick={() => onStart(lang)}>
             {t.finalCta}
           </button>
           <p className="lp-questions">

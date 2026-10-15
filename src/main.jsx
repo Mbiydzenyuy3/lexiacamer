@@ -59,8 +59,17 @@ function Root() {
     }
   }, [])
 
-  const start = () => {
-    try { localStorage.setItem(STARTED_KEY, JSON.stringify({ at: Date.now() })) } catch { /* private browsing: they see the landing page next time */ }
+  // A director's invite link (/invite/<token>, read by App) must reach the
+  // app, not stop at the landing page of someone who never pressed Start.
+  const atInvite = /^\/invite\/[A-Za-z0-9_-]+\/?$/.test(window.location.pathname)
+
+  const start = (lang) => {
+    try {
+      localStorage.setItem(STARTED_KEY, JSON.stringify({ at: Date.now() }))
+      // Read by store.js on first run only (FIRST_LANG_KEY there). A string
+      // rather than an import, so the landing page does not pull in the store.
+      if (lang === 'en' || lang === 'fr') localStorage.setItem('lexia_first_lang', lang)
+    } catch { /* private browsing: they see the landing page next time */ }
     setStarted(true)
     window.scrollTo(0, 0)
   }
@@ -91,7 +100,7 @@ function Root() {
 
   return (
     <Suspense fallback={<Splash />}>
-      {started ? <App /> : <Landing onStart={start} />}
+      {started || atInvite ? <App /> : <Landing onStart={start} />}
     </Suspense>
   )
 }

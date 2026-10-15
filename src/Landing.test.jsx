@@ -41,6 +41,13 @@ describe('Landing', () => {
     expect(onStart).toHaveBeenCalledTimes(3);
   });
 
+  it('hands the chosen language to the app', () => {
+    const onStart = render();
+    act(() => buttons(/^FR$/)[0].click());
+    act(() => buttons(/^Commencer$/)[0].click());
+    expect(onStart).toHaveBeenCalledWith('fr');
+  });
+
   it('switches to French', () => {
     render();
     act(() => buttons(/^FR$/)[0].click());
